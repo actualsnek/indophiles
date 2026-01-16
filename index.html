@@ -3,78 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indosphere: The Grand Network</title>
+    <title>Indosphere: Intellectual History</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 
     <style>
-        /* DARK MODE GUI */
+        /* --- THE "DARK ACADEMIA" THEME --- */
         :root {
-            --bg: #0a0a0a;
-            --panel: #161616;
-            --india: #ff9800;
-            --west: #00bcd4;
-            --text: #d0d0d0;
-            --accent: #2196f3;
+            --bg: #0f1012; /* Deep Charcoal */
+            --panel: #18191c;
+            --gold: #c5a059; /* Vedic Gold */
+            --silver: #a0aab5; /* Industrial Silver */
+            --text-muted: #6c757d;
+            --border: #2c2e33;
         }
 
-        body { background: var(--bg); color: var(--text); margin: 0; font-family: 'Space Grotesk', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* HEADER */
+        body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Lato', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* HEADER - Minimalist & Elegant */
         header { 
-            height: 60px; background: var(--panel); border-bottom: 1px solid #333; 
-            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+            height: 70px; background: var(--panel); border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
-        .brand { font-size: 1.2rem; letter-spacing: 1px; font-weight: 600; color: #fff; text-transform: uppercase; }
-        .brand span { color: var(--india); }
-        
+        .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); }
+        .brand span { color: var(--silver); font-weight: 400; font-size: 0.9em; }
+
         #search { 
-            background: #222; border: 1px solid #444; color: #fff; padding: 8px 15px; 
-            border-radius: 4px; width: 250px; outline: none; font-family: inherit;
+            background: #0f1012; border: 1px solid var(--border); color: #fff; padding: 10px 20px; 
+            border-radius: 2px; width: 300px; font-family: 'Lato', sans-serif; letter-spacing: 1px;
+            transition: all 0.3s ease;
         }
-        #search:focus { border-color: var(--india); }
+        #search:focus { border-color: var(--gold); box-shadow: 0 0 15px rgba(197, 160, 89, 0.1); outline: none; }
 
-        /* VISUALIZATION CONTAINERS */
-        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #1a1a1a 0%, #000 120%); width: 100%; border-bottom: 1px solid #333; }
-        #mytimeline { height: 250px; background: var(--panel); }
-
-        /* INFO PANEL (Popup) */
-        div.vis-tooltip {
-            background: rgba(15, 15, 15, 0.98); border: 1px solid var(--india); color: #fff;
-            padding: 15px; border-radius: 6px; font-family: 'Space Grotesk', sans-serif;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); min-width: 250px; pointer-events: none;
+        /* MAIN LAYOUT */
+        .container { display: flex; flex: 1; height: calc(100vh - 70px); }
+        
+        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #1b1c20 0%, #0f1012 100%); }
+        
+        /* SIDE PANEL (The "Encyclopedia" Look) */
+        #info-panel {
+            width: 0; overflow: hidden; background: var(--panel); border-left: 1px solid var(--border);
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; flex-direction: column;
         }
-        .tt-name { color: var(--india); font-size: 1.1rem; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px; display: block;}
-        .tt-date { color: #888; font-size: 0.85rem; text-transform: uppercase; display: block; margin-bottom: 10px; }
-        .tt-work { color: var(--west); font-size: 0.95rem; font-style: italic; display: block; margin-bottom: 5px; }
-        .tt-note { font-size: 0.9rem; line-height: 1.4; color: #ccc; }
-
-        /* LOADING OVERLAY */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999;
-            display: flex; justify-content: center; align-items: center; font-size: 1.5rem; color: var(--india);
+        #info-content { padding: 40px; min-width: 300px; opacity: 0; transition: opacity 0.3s 0.2s; }
+        
+        /* TIMELINE - Bottom Bar */
+        #mytimeline { 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 180px; 
+            background: rgba(15,16,18,0.95); border-top: 1px solid var(--border); 
+            z-index: 10;
         }
+
+        /* TYPOGRAPHY IN PANEL */
+        .panel-header { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); margin-bottom: 5px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .panel-meta { font-size: 0.85rem; color: var(--silver); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; display: block; }
+        .panel-label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 20px; display: block; }
+        .panel-value { font-size: 1.1rem; color: #fff; font-weight: 300; line-height: 1.6; }
+        .panel-quote { 
+            margin-top: 30px; padding: 20px; background: #111; border-left: 3px solid var(--gold); 
+            font-style: italic; color: #ccc; font-family: 'Cinzel', serif; 
+        }
+
     </style>
 </head>
 <body>
 
-<div id="loader">BUILDING NETWORK...</div>
-
 <header>
-    <div class="brand">Indosphere <span>Network</span></div>
-    <input type="text" id="search" placeholder="Search (e.g., Panini, Tesla)..." onkeyup="searchNode()">
+    <div class="brand">Indosphere <span style="margin: 0 10px; color:#333">|</span> <span>The Intellectual Network</span></div>
+    <input type="text" id="search" placeholder="Search Archives..." onkeyup="searchNode()">
 </header>
 
-<div id="mynetwork"></div>
+<div class="container">
+    <div id="mynetwork"></div>
+    <div id="info-panel">
+        <div id="info-content">
+            <div id="p-name" class="panel-header">Select a Thinker</div>
+            <span id="p-dates" class="panel-meta"></span>
+            
+            <span class="panel-label">Field of Study</span>
+            <div id="p-field" class="panel-value"></div>
+
+            <span class="panel-label">Magnum Opus</span>
+            <div id="p-work" class="panel-value"></div>
+
+            <span class="panel-label">Significance</span>
+            <div id="p-note" class="panel-value"></div>
+            
+            <div id="p-quote" class="panel-quote" style="display:none"></div>
+        </div>
+    </div>
+</div>
+
 <div id="mytimeline"></div>
 
 <script type="text/javascript">
-    // --- 1. DATA REPOSITORY (FULL 251 + DATES + WORKS) ---
-    // Note: I have cleaned and parsed the CSV data into this JSON format.
-    
-    const rawData = [
+
+    // --- 1. DATA (Same as before, but utilizing more fields) ---
+    const thinkers = [
         {id:1, name:"Dhanvantari", field:"Medicine", year:-3000, date:"Mythical / Vedic", work:"Ayurveda (Source)", note:"Legendary God of Medicine", group:"india"},
         {id:2, name:"Vyasa", field:"Literature", year:-1500, date:"c. 1500–1000 BCE", work:"Mahabharata", note:"Compiler of the Vedas", group:"india"},
         {id:3, name:"Lagadha", field:"Astronomy", year:-1000, date:"c. 1000 BCE", work:"Vedanga Jyotisha", note:"Earliest text on Indian timekeeping", group:"india"},
@@ -139,8 +168,6 @@
         {id:228, name:"Irfan Habib", field:"History", year:1931, date:"1931–Present", work:"Agrarian System", note:"Mughal economy", group:"india"},
         {id:232, name:"Wendy Doniger", field:"Indology", year:1940, date:"1940–Present", work:"The Hindus", note:"Mythology scholar", group:"west"},
         {id:235, name:"Sheldon Pollock", field:"Indology", year:1948, date:"1948–Present", work:"Language of Gods", note:"Sanskrit power", group:"west"},
-        
-        // --- ADDED INFLUENCES & MODERN THINKERS ---
         {id:300, name:"Voltaire", field:"Philosophy", year:1694, date:"1694–1778", work:"Essai sur les mœurs", note:"Praised Vedas as oldest wisdom", group:"west"},
         {id:301, name:"Schopenhauer", field:"Philosophy", year:1788, date:"1788–1860", work:"The World as Will", note:"'Upanishads are the solace of my life'", group:"west"},
         {id:302, name:"Thoreau", field:"Philosophy", year:1817, date:"1817–1862", work:"Walden", note:"Read Gita daily at Walden Pond", group:"west"},
@@ -153,125 +180,105 @@
         {id:309, name:"T.S. Eliot", field:"Literature", year:1888, date:"1888–1965", work:"The Waste Land", note:"Ends with 'Shantih Shantih Shantih'", group:"west"}
     ];
 
-    // --- 2. INFLUENCE MAPPING (WHO INFLUENCED WHO) ---
     const influences = [
-        {source: "Dara Shikoh", target: "Schopenhauer", label: "Translation"}, // Via Anquetil
-        {source: "Schopenhauer", target: "Schrodinger", label: "Inspiration"},
-        {source: "Upanishads", target: "Schopenhauer", label: "Study"},
-        {source: "Upanishads", target: "T.S. Eliot", label: "Study"},
-        {source: "Upanishads", target: "Emerson", label: "Study"},
-        {source: "Gita", target: "Thoreau", label: "Daily Reading"},
-        {source: "Gita", target: "Oppenheimer", label: "Quote"},
-        {source: "Gita", target: "Gandhi", label: "Guide"},
+        {source: "Dara Shikoh", target: "Schopenhauer", label: "Translated"},
+        {source: "Schopenhauer", target: "Schrodinger", label: "Influenced"},
         {source: "Adi Shankara", target: "Vivekananda", label: "Lineage"},
-        {source: "Vivekananda", target: "Nikola Tesla", label: "Meeting (1896)"},
-        {source: "Vivekananda", target: "J.D. Salinger", label: "Study"},
-        {source: "Buddha", target: "Steve Jobs", label: "Zen"},
-        {source: "Yogananda", target: "Steve Jobs", label: "Book"},
+        {source: "Vivekananda", target: "Nikola Tesla", label: "Met in 1896"},
+        {source: "Vivekananda", target: "J.D. Salinger", label: "Studied"},
+        {source: "Yogananda", target: "Steve Jobs", label: "Inspired"},
         {source: "Yogananda", target: "George Harrison", label: "Guru"},
         {source: "Panini", target: "Ferdinand de Saussure", label: "Linguistics"},
-        {source: "Kalidasa", target: "Goethe", label: "Admiration"},
-        {source: "Ramanujan", target: "Hardy", label: "Collaboration"}
+        {source: "Kalidasa", target: "Goethe", label: "Admired"},
+        {source: "Ramanujan", target: "Hardy", label: "Partner"}
     ];
 
-    // --- 3. BUILD GRAPH ---
-    const nodes = [];
-    const edges = [];
-    const fields = {};
+    // --- 2. CONFIG ---
+    const nodes = []; const edges = []; const fields = {};
 
-    // Create Nodes
-    rawData.forEach(p => {
-        // Field Hubs
+    // Generate Nodes
+    thinkers.forEach(p => {
         if (!fields[p.field]) {
             fields[p.field] = true;
-            nodes.push({ id: `f_${p.field}`, label: p.field, group: 'field', shape: 'diamond', size: 8 });
+            nodes.push({ id: `f_${p.field}`, label: p.field, group: 'field', shape: 'diamond', size: 5 });
         }
-        
-        // Person Nodes
         nodes.push({
-            id: p.name, // Using Name as ID for easier linking in this version
-            label: p.name,
-            group: p.group,
-            // HTML Tooltip Content
-            title: `<div class='tt-name'>${p.name}</div>
-                    <span class='tt-date'>${p.date}</span>
-                    <span class='tt-work'>${p.work}</span>
-                    <div class='tt-note'>${p.note}</div>`,
-            value: 20
+            id: p.name, label: p.name, group: p.group, value: 20,
+            // Hidden data attributes for the side panel
+            data: { date: p.date, work: p.work, note: p.note, field: p.field }
         });
-
-        // Link to Field
-        edges.push({ from: p.name, to: `f_${p.field}`, color: { color: '#333', opacity: 0.2 } });
+        edges.push({ from: p.name, to: `f_${p.field}`, color: { color: '#333', opacity: 0.1 } });
     });
 
-    // Create Influence Edges
+    // Generate Influence Edges
     influences.forEach(inf => {
-        // Only add if both exist
-        const s = rawData.find(x => x.name.includes(inf.source) || inf.source.includes(x.name));
-        const t = rawData.find(x => x.name.includes(inf.target) || inf.target.includes(x.name));
-        
+        const s = thinkers.find(x => x.name.includes(inf.source));
+        const t = thinkers.find(x => x.name.includes(inf.target));
         if (s && t) {
             edges.push({
-                from: s.name,
-                to: t.name,
-                arrows: 'to',
-                color: { color: '#fff', opacity: 0.6 },
-                dashes: true,
-                label: inf.label,
-                font: { size: 10, align: 'middle', color: '#888' }
+                from: s.name, to: t.name, arrows: 'to',
+                color: { color: '#fff', opacity: 0.4 }, dashes: true, label: inf.label,
+                font: { size: 9, align: 'middle', color: '#888', background: '#0f1012' }
             });
         }
     });
 
-    // --- 4. RENDER NETWORK ---
+    // --- 3. RENDER ---
     const container = document.getElementById('mynetwork');
     const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
     const options = {
-        nodes: { shape: 'dot', font: { face: 'Space Grotesk', color: '#fff' }, borderWidth: 2 },
+        nodes: { shape: 'dot', font: { face: 'Lato', color: '#ccc' }, borderWidth: 1 },
         groups: {
-            india: { color: { background: '#ff9800', border: '#ffb74d' } },
-            west: { color: { background: '#00bcd4', border: '#4dd0e1' } },
-            field: { color: { background: '#222', border: '#444' }, font:{color:'#666'} }
+            india: { color: { background: '#c5a059', border: '#e6b85c' }, font: { color: '#e6b85c' } },
+            west: { color: { background: '#a0aab5', border: '#b0bac5' }, font: { color: '#b0bac5' } },
+            field: { color: { background: '#222', border: '#333' }, font:{ size: 10, color:'#444'} }
         },
-        physics: { stabilization: false, barnesHut: { gravitationalConstant: -4000, springLength: 200 } },
-        interaction: { hover: true, tooltipDelay: 50 }
+        physics: { stabilization: false, barnesHut: { gravitationalConstant: -5000, springLength: 200 } },
+        interaction: { hover: true }
     };
     const network = new vis.Network(container, data, options);
 
-    // --- 5. RENDER TIMELINE ---
-    const timelineData = new vis.DataSet(rawData.map((t, index) => ({
-        id: index, // Unique ID for timeline items
-        content: t.name, 
-        start: new Date(0).setFullYear(t.year), 
-        group: t.group === 'india' ? 1 : 2,
-        className: t.group,
-        nodeId: t.name // Reference to network node
+    // Timeline
+    const timelineData = new vis.DataSet(thinkers.map((t, i) => ({
+        id: i, content: t.name, start: new Date(0).setFullYear(t.year), 
+        group: t.group === 'india' ? 1 : 2, className: t.group, nodeId: t.name
     })));
-
+    
     const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, [
-        {id: 1, content: "INDIA", style: "color:#ff9800"}, 
-        {id: 2, content: "GLOBAL", style: "color:#00bcd4"}
+        {id: 1, content: "The East", style: "color:#c5a059"}, {id: 2, content: "The West", style: "color:#a0aab5"}
     ], {
-        height: '100%', stack: true, style: 'background:#111; border:none; color:#bbb',
-        start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000),
-        zoomMin: 1000 * 60 * 60 * 24 * 365 * 10, // Min zoom 10 years
-        zoomMax: 1000 * 60 * 60 * 24 * 365 * 5000 // Max zoom 5000 years
+        height: '100%', stack: true, style: 'background:rgba(15,16,18,0.95); border:none; color:#888',
+        start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000)
     });
 
-    // --- 6. INTERACTIONS ---
+    // --- 4. INTERACTIONS (The "App" Feel) ---
     
-    // Hide Loader
-    network.once("afterDrawing", () => document.getElementById('loader').style.display = 'none');
-
-    // Click Network -> Move Timeline
+    // Open Side Panel on Click
     network.on("click", params => {
         if (params.nodes.length) {
             const nodeId = params.nodes[0];
-            const tItem = timelineData.get({ filter: function (item) { return item.nodeId === nodeId; } });
-            if (tItem.length > 0) {
-                timeline.moveTo(tItem[0].start);
-                timeline.setSelection(tItem[0].id);
+            const nodeData = nodes.find(n => n.id === nodeId);
+            
+            if (nodeData && nodeData.group !== 'field') {
+                // Populate Panel
+                document.getElementById('p-name').innerText = nodeData.label;
+                document.getElementById('p-dates').innerText = nodeData.data.date;
+                document.getElementById('p-field').innerText = nodeData.data.field;
+                document.getElementById('p-work').innerText = nodeData.data.work;
+                document.getElementById('p-note').innerText = nodeData.data.note;
+                
+                // Slide Open
+                document.getElementById('info-panel').style.width = "350px";
+                document.getElementById('info-content').style.opacity = "1";
+                
+                // Sync Timeline
+                const tItem = timelineData.get({ filter: i => i.nodeId === nodeId });
+                if(tItem.length) { timeline.moveTo(tItem[0].start); timeline.setSelection(tItem[0].id); }
             }
+        } else {
+            // Close Panel if clicking empty space
+            document.getElementById('info-panel').style.width = "0";
+            document.getElementById('info-content').style.opacity = "0";
         }
     });
 
@@ -279,19 +286,17 @@
     window.searchNode = function() {
         let q = document.getElementById('search').value.toLowerCase();
         if (!q) return;
-        let found = rawData.find(p => p.name.toLowerCase().includes(q));
+        let found = thinkers.find(p => p.name.toLowerCase().includes(q));
         if (found) {
             network.selectNodes([found.name]);
             network.focus(found.name, { scale: 1.5, animation: true });
-            
-            // Focus Timeline
-            const tItem = timelineData.get({ filter: function (item) { return item.nodeId === found.name; } });
-            if(tItem.length) {
-                timeline.moveTo(tItem[0].start);
-                timeline.setSelection(tItem[0].id);
-            }
+            network.emit("click", { nodes: [found.name] }); // Trigger panel open
         }
     }
+    
+    // Cleanup
+    network.once("afterDrawing", () => document.getElementById('loader').style.display = 'none');
+
 </script>
 </body>
 </html>
