@@ -9,6 +9,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 
+    <script src="data.js"></script>
+
     <style>
         :root { --bg: #050505; --panel: #0f0f0f; --gold: #d4af37; --silver: #a5a5a5; --border: #333; }
         body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Noto Serif', serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -30,19 +32,13 @@
         .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
         .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 600; }
         .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; }
-        .region-tag { color: var(--gold); font-style: italic; margin-left: 5px; }
         .iast { font-style: italic; color: #e6c673; }
 
-        /* WORKS LIST */
         .works-list { margin-top: 5px; padding-left: 0; list-style: none; }
         .works-list li { margin-bottom: 4px; color: #aaa; font-size: 0.9rem; }
         .works-list li::before { content: "•"; color: var(--gold); display: inline-block; width: 1em; margin-left: -1em; }
 
-        /* LEGEND */
         .legend { position: absolute; bottom: 140px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
-        
-        /* LOADING SPINNER */
-        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--gold); font-family: 'Cinzel', serif; font-size: 1.2rem; display: none; z-index: 5000; }
     </style>
 </head>
 <body>
@@ -74,7 +70,6 @@
 </header>
 
 <div class="main-container">
-    <div id="loader">Fetching Archives...</div>
     <div id="network"></div>
     <div class="legend">★ Deity | ● Guru/Scholar | ── Lineage</div>
     
@@ -93,15 +88,11 @@
 <div id="mytimeline"></div>
 
 <script type="text/javascript">
-    // --- GLOBAL VARIABLES ---
-    let network = null;
-    let timeline = null;
+    // --- SETUP VARIABLES ---
     let nodes = new vis.DataSet([]);
     let edges = new vis.DataSet([]);
     let allNodes = [];
     let allEdges = [];
-    let rawData = [];
-    let lineages = [];
 
     // --- COLOR MAPPING ---
     function getColor(school) {
@@ -115,116 +106,71 @@
         return "#ddd";
     }
 
-    // --- MAIN INITIALIZATION ---
-    const databaseURL = "https://indosphere-db-default-rtdb.asia-southeast1.firebasedatabase.app/indosphere_data.json";
-    
-    document.getElementById('loader').style.display = 'block';
+    // --- INITIALIZE GRAPH ---
+    const container = document.getElementById('network');
+    const data = { nodes: nodes, edges: edges };
+    const options = {
+        nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
+        edges: { smooth: { type: "continuous" } },
+        physics: { 
+            // STABILIZATION: This fixes the "Zooming/Moving" Glitch
+            stabilization: { enabled: true, iterations: 1000 }, 
+            barnesHut: { gravitationalConstant: -3000, springConstant: 0.04, springLength: 95 } 
+        },
+        interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true }
+    };
+    const network = new vis.Network(container, data, options);
 
-    fetch(databaseURL)
-        .then(response => response.json())
-        .then(cloudData => {
-            document.getElementById('loader').style.display = 'none';
-            if (!cloudData) return;
-
-            // 1. Process Data
-            rawData = cloudData.nodes || [];
-            lineages = cloudData.edges || [];
-
-            if (rawData.length) {
-                rawData.forEach(p => {
-                    allNodes.push({
-                        id: p.id,
-                        label: p.isDeity ? "★ " + p.label : p.label,
-                        group: p.school,
-                        value: p.isDeity ? 30 : 15,
-                        color: p.isDeity ? "#ffd700" : getColor(p.school),
-                        shape: p.isDeity ? "star" : "dot",
-                        data: p
-                    });
-                });
-            }
-
-            if (lineages.length) {
-                lineages.forEach(l => {
-                    let s = rawData.find(x => x.id === l.s);
-                    let t = rawData.find(x => x.id === l.t);
-                    if (s && t) {
-                        let color = l.type.includes("Guru") ? "#d4af37" : "#555";
-                        let dashes = !l.type.includes("Guru");
-                        allEdges.push({ 
-                            from: l.s, to: l.t, 
-                            arrows: "to", color: {color: color}, 
-                            dashes: dashes, 
-                            label: l.type, font: {size: 9, color: '#777', strokeWidth: 0} 
-                        });
-                    }
-                });
-            }
-
-            // 2. Initialize Network (Graph)
-            const container = document.getElementById('network');
-            nodes.add(allNodes);
-            edges.add(allEdges);
-            
-            const data = { nodes: nodes, edges: edges };
-            const options = {
-                nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
-                edges: { smooth: { type: "continuous" } },
-                physics: { 
-                    stabilization: { enabled: true, iterations: 1000 }, // Fixes lag and initial positioning
-                    barnesHut: { gravitationalConstant: -3000, springConstant: 0.04, springLength: 95 } 
-                },
-                interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true }
-            };
-            
-            network = new vis.Network(container, data, options);
-            
-            // Interaction: Click
-            network.on("click", function(params) {
-                if (params.nodes.length > 0) {
-                    const nodeId = params.nodes[0];
-                    const node = nodes.get(nodeId);
-                    if (node) {
-                        openPanel(node.data);
-                        if(!node.data.isDeity) {
-                            const tItem = timelineData.get({ filter: i => i.personId === node.id });
-                            if(tItem.length) timeline.moveTo(tItem[0].start);
-                        }
-                    }
-                } else {
-                    document.getElementById('side-panel').style.width = "0";
-                    document.getElementById('panel-content').style.opacity = "0";
-                }
+    // --- LOAD DATA FROM DATA.JS ---
+    if (typeof rawData !== 'undefined') {
+        rawData.forEach(p => {
+            allNodes.push({
+                id: p.id,
+                label: p.isDeity ? "★ " + p.label : p.label,
+                group: p.school,
+                value: p.isDeity ? 30 : 15,
+                color: p.isDeity ? "#ffd700" : getColor(p.school),
+                shape: p.isDeity ? "star" : "dot",
+                data: p
             });
-
-            // 3. Initialize Timeline
-            const timelineContainer = document.getElementById('mytimeline');
-            const tItems = rawData.filter(x => !x.isDeity).map((t, i) => ({
-                id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
-            }));
-            
-            const timelineData = new vis.DataSet(tItems);
-            
-            timeline = new vis.Timeline(timelineContainer, timelineData, {
-                height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
-                start: new Date(0).setFullYear(-500), end: new Date(0).setFullYear(2000)
-            });
-
-            timeline.on('select', (props) => {
-                if(props.items.length) {
-                    const item = timelineData.get(props.items[0]);
-                    const person = rawData.find(p => p.id === item.personId);
-                    if(person) openPanel(person);
-                }
-            });
-
-        })
-        .catch(error => {
-            console.error("Connection failed:", error);
-            document.getElementById('loader').innerText = "Failed to load data.";
         });
 
-    // --- FILTER LOGIC ---
+        lineages.forEach(l => {
+            let s = rawData.find(x => x.id === l.s);
+            let t = rawData.find(x => x.id === l.t);
+            if (s && t) {
+                let color = l.type.includes("Guru") ? "#d4af37" : "#555";
+                let dashes = !l.type.includes("Guru");
+                allEdges.push({ 
+                    from: l.s, to: l.t, 
+                    arrows: "to", color: {color: color}, 
+                    dashes: dashes, 
+                    label: l.type, font: {size: 9, color: '#777', strokeWidth: 0} 
+                });
+            }
+        });
+
+        // Add to graph
+        nodes.add(allNodes);
+        edges.add(allEdges);
+        
+        // This ensures the graph is centered immediately
+        network.fit(); 
+    }
+
+    // --- INITIALIZE TIMELINE ---
+    // Using simple data loading directly from rawData
+    const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
+        id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
+    })));
+    
+    const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
+        height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
+        start: new Date(0).setFullYear(-500), end: new Date(0).setFullYear(2000)
+    });
+
+    // --- INTERACTION LOGIC ---
+
     function updateGraph() {
         const sFilter = document.getElementById('schoolFilter').value;
         const rFilter = document.getElementById('regionFilter').value;
@@ -246,11 +192,56 @@
         const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
         edges.add(filteredEdges);
         
-        // Stabilize after filter
         network.fit();
     }
 
-    // --- PANEL LOGIC ---
+    // Click on Timeline
+    timeline.on('select', (props) => {
+        if(props.items.length) {
+            const item = timelineData.get(props.items[0]);
+            const person = rawData.find(p => p.id === item.personId);
+            if(person) openPanel(person);
+        }
+    });
+
+    // Click on Network
+    network.on("click", function(params) {
+        if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            const node = nodes.get(nodeId);
+            if (node) {
+                openPanel(node.data);
+                if(!node.data.isDeity) {
+                    const tItem = timelineData.get({ filter: i => i.personId === node.id });
+                    if(tItem.length) timeline.moveTo(tItem[0].start);
+                }
+            }
+        } else {
+            document.getElementById('side-panel').style.width = "0";
+            document.getElementById('panel-content').style.opacity = "0";
+        }
+    });
+
+    // Search
+    function searchNode(e) {
+        if (e.key === 'Enter') {
+            const q = document.getElementById('search').value.toLowerCase();
+            const found = allNodes.find(n => n.label.toLowerCase().includes(q));
+            if (found) {
+                document.getElementById('schoolFilter').value = 'all';
+                document.getElementById('regionFilter').value = 'all';
+                updateGraph();
+                
+                setTimeout(() => {
+                    network.selectNodes([found.id]);
+                    network.focus(found.id, { scale: 1.5, animation: true });
+                    openPanel(found.data);
+                }, 100);
+            }
+        }
+    }
+
+    // Side Panel Display
     function openPanel(d) {
         document.getElementById('p-name').innerText = d.iast || d.label;
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
@@ -269,26 +260,6 @@
 
         document.getElementById('side-panel').style.width = "400px";
         document.getElementById('panel-content').style.opacity = "1";
-    }
-
-    // --- SEARCH LOGIC ---
-    function searchNode(e) {
-        if (e.key === 'Enter') {
-            const q = document.getElementById('search').value.toLowerCase();
-            const found = allNodes.find(n => n.label.toLowerCase().includes(q));
-            if (found) {
-                document.getElementById('schoolFilter').value = 'all';
-                document.getElementById('regionFilter').value = 'all';
-                updateGraph();
-                
-                // Slight delay to allow graph to redraw
-                setTimeout(() => {
-                    network.selectNodes([found.id]);
-                    network.focus(found.id, { scale: 1.5, animation: true });
-                    openPanel(found.data);
-                }, 100);
-            }
-        }
     }
 </script>
 </body>
