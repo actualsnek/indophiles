@@ -3,21 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indosphere: The Grand Archive</title>
+    <title>Indosphere: The Grand Paramparā</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 
     <style>
         /* --- AESTHETIC: THE COSMIC ARCHIVE --- */
         :root {
-            --bg: #050505; 
-            --panel: #0f0f0f;
+            --bg: #08090a; 
+            --panel: #111214;
             --gold: #d4af37;
             --silver: #a5a5a5;
-            --border: #222;
-            --accent-blue: #1e3a8a;
+            --advaita: #ff9800; /* Saffron */
+            --nyaya: #00bcd4;   /* Blue */
+            --shaiva: #9c27b0;  /* Purple */
+            --border: #252629;
         }
 
         body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Noto Serif', serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -26,122 +31,108 @@
         header { 
             height: 70px; background: var(--panel); border-bottom: 1px solid var(--border); 
             display: flex; justify-content: space-between; align-items: center; padding: 0 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8); z-index: 20;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6); z-index: 20;
         }
-        .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); }
+        .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        .brand span { color: #555; font-size: 0.7em; margin-left: 10px; font-weight: 400; letter-spacing: 1px; }
+
+        .controls { display: flex; gap: 15px; align-items: center; }
         
-        .controls { display: flex; gap: 10px; align-items: center; }
-        
-        select, input {
-            background: #1a1a1a; color: #ddd; border: 1px solid #333; padding: 8px 12px;
-            font-family: 'Cinzel', serif; font-size: 0.8rem; border-radius: 4px; outline: none; cursor: pointer; transition: 0.3s;
+        select {
+            background: #1a1b1e; color: var(--gold); border: 1px solid var(--border); padding: 8px 15px;
+            font-family: 'Cinzel', serif; font-size: 0.85rem; border-radius: 2px; outline: none; cursor: pointer;
         }
-        select:hover, input:focus { border-color: var(--gold); }
         
+        #search { 
+            background: #1a1b1e; border: 1px solid var(--border); color: #fff; padding: 8px 15px; 
+            border-radius: 2px; width: 220px; font-family: 'Noto Serif', serif; transition: 0.3s;
+        }
+        #search:focus { border-color: var(--gold); width: 280px; outline: none; }
+
         /* MAIN CANVAS */
         .main-container { display: flex; flex: 1; position: relative; height: calc(100vh - 70px); }
-        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #111 0%, #000 120%); }
+        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #16171a 0%, #000 140%); }
 
-        /* SIDE PANEL */
+        /* SIDE PANEL - THE SCROLL */
         #side-panel {
             width: 0; background: var(--panel); border-left: 1px solid var(--border);
-            transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            transition: width 0.5s cubic-bezier(0.19, 1, 0.22, 1);
             overflow-y: auto; display: flex; flex-direction: column; z-index: 15;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.9);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.8);
         }
         
-        .panel-content { padding: 40px; min-width: 350px; opacity: 0; transition: opacity 0.3s 0.2s; }
+        .panel-content { padding: 40px; min-width: 350px; opacity: 0; transition: opacity 0.4s 0.2s; }
         
         .p-title { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 5px; line-height: 1.1; }
         .p-subtitle { font-size: 0.9rem; color: var(--silver); font-style: italic; margin-bottom: 25px; display: block; }
         
-        .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 1px; margin-top: 25px; display: block; font-weight: 600; }
+        .p-label { color: #555; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 1px; margin-top: 25px; display: block; }
         .p-value { font-size: 1.05rem; color: #ddd; line-height: 1.6; margin-top: 5px; font-weight: 300; }
         
-        /* REGION HIGHLIGHT */
-        .region-tag { color: var(--gold); font-style: italic; margin-left: 5px; }
+        /* ETHNICITY STYLING */
+        .eth-main { color: #fff; font-weight: 700; font-size: 1.1rem; }
+        .eth-sub { color: var(--gold); font-style: italic; font-weight: 400; margin-left: 8px; font-family: 'Cinzel', serif; font-size: 1rem; }
+
+        /* WORKS LIST */
+        .works-list { margin-top: 5px; padding-left: 0; list-style: none; }
+        .works-list li { margin-bottom: 4px; color: #ccc; font-size: 0.95rem; }
+        .works-list li::before { content: "•"; color: var(--gold); display: inline-block; width: 1em; margin-left: -1em; }
+
+        .lineage-box { border-left: 2px solid var(--gold); padding-left: 15px; margin-top: 10px; color: #ccc; font-style: italic; }
 
         /* TIMELINE */
         #mytimeline { 
             position: absolute; bottom: 0; left: 0; width: 100%; height: 140px; 
-            background: rgba(10,10,10,0.95); border-top: 1px solid var(--border); z-index: 10;
+            background: rgba(17,18,20,0.95); border-top: 1px solid var(--border); z-index: 10;
         }
         
         /* IAST HIGHLIGHTS */
         .iast { font-style: italic; color: #e6c673; }
-        
-        .legend { position: absolute; bottom: 150px; left: 20px; font-size: 0.7rem; color: #555; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="brand">Indosphere</div>
+    <div class="brand">Indosphere <span>The Grand Paramparā</span></div>
     <div class="controls">
-        <select id="schoolFilter" onchange="filterGraph()">
-            <option value="all">All Schools (Darśana)</option>
-            <option disabled>--- VEDIC ---</option>
-            <option value="Vedas">Vedas & Upanishads</option>
-            <option value="mimamsa">Mīmāṃsā (Ritual)</option>
-            <option value="grammar">Vyākaraṇa (Grammar)</option>
-            <option disabled>--- PHILOSOPHY ---</option>
+        <select id="schoolFilter" onchange="filterNetwork()">
+            <option value="all">All Schools (The Banyan Tree)</option>
             <option value="advaita">Advaita Vedānta</option>
-            <option value="dvaita">Dvaita Vedānta</option>
-            <option value="nyaya">Nyāya (Logic)</option>
-            <option value="vaisheshika">Vaiśeṣika (Atomism)</option>
-            <option value="samkhya">Sāṃkhya (Dualism)</option>
-            <option value="yoga">Yoga</option>
+            <option value="nyaya">Nyāya & Vaiśeṣika</option>
             <option value="kashmir">Kashmir Śaivism</option>
-            <option disabled>--- HETERODOX ---</option>
-            <option value="buddhism">Buddhism</option>
-            <option value="jainism">Jainism</option>
-            <option value="nastika">Cārvāka / Ājīvika</option>
-            <option disabled>--- ERA ---</option>
             <option value="bhakti">Bhakti Movement</option>
-            <option value="modern">Modern / Renaissance</option>
+            <option value="grammar">Vyākaraṇa (Linguistics)</option>
+            <option value="buddhism">Bauddha Dharma</option>
             <option value="west">Western Indophiles</option>
         </select>
-
-        <select id="regionFilter" onchange="filterGraph()">
-            <option value="all">All Regions (Deśa)</option>
-            <option value="north">North (Kashmir/Punjab)</option>
-            <option value="east">East (Bihar/Bengal/Mithila)</option>
-            <option value="south">South (Tamil/Kerala/Karnataka)</option>
-            <option value="west_india">West (Gujarat/Maharashtra)</option>
-            <option value="central">Central (Ujjain/Malwa)</option>
-            <option value="gandhara">North-West (Gandhara)</option>
-            <option value="global">Global / Western World</option>
-        </select>
-
-        <input type="text" id="search" placeholder="Search..." onkeyup="searchNode()">
+        <input type="text" id="search" placeholder="Search (e.g. Śaṅkara)..." onkeyup="searchNode()">
     </div>
 </header>
 
 <div class="main-container">
     <div id="mynetwork"></div>
-    <div class="legend">★ Deity | ● Thinker | ▲ Logician | ◆ Tantric</div>
     
     <div id="side-panel">
         <div class="panel-content" id="panel-content">
             <div id="p-name" class="p-title"></div>
             <span id="p-dates" class="p-subtitle"></span>
 
+            <span class="p-label">Origin / Region</span>
+            <div id="p-ethnicity-container" class="p-value"></div>
+
             <span class="p-label">School / Tradition</span>
             <div id="p-school" class="p-value" style="color: var(--gold)"></div>
-
-            <span class="p-label">Region / Janapada</span>
-            <div id="p-region" class="p-value"></div>
 
             <span class="p-label">Magnum Opus</span>
             <div id="p-work" class="p-value iast"></div>
 
-            <span class="p-label">Other Works</span>
-            <ul id="p-other-works" style="padding-left:15px; margin-top:5px; color:#aaa; font-size:0.9rem;"></ul>
+            <span class="p-label">Other Significant Works</span>
+            <ul id="p-other-works" class="works-list"></ul>
 
-            <span class="p-label">Lineage / Guru</span>
-            <div id="p-lineage" class="p-value" style="border-left: 2px solid #333; padding-left: 10px;"></div>
+            <span class="p-label">Lineage Context</span>
+            <div id="p-lineage" class="lineage-box"></div>
 
-            <span class="p-label">Contribution</span>
+            <span class="p-label">Intellectual Contribution</span>
             <div id="p-note" class="p-value"></div>
         </div>
     </div>
@@ -151,240 +142,271 @@
 
 <script type="text/javascript">
 
-// --- 1. THE DATASET (350+ Entries) ---
+// --- 1. DATA WITH IAST & LINEAGE (350+ Entries) ---
+// Generated from Python script.
 const rawData = [
-    // --- DEITIES (The Source) ---
-    {id: "Narayana", label: "Nārāyaṇa", group: "deity", region: "Vedic", note: "The Preserver; source of Vaishnava lineages.", isDeity: true},
-    {id: "Shiva", label: "Śiva", group: "deity", region: "Vedic", note: "The Destroyer; Adi Guru of Yoga and Tantra.", isDeity: true},
-    {id: "Brahma", label: "Brahmā", group: "deity", region: "Vedic", note: "The Creator.", isDeity: true},
-    {id: "Shakti", label: "Śakti", group: "deity", region: "Vedic", note: "Divine Mother; dynamic energy.", isDeity: true},
-
     // --- VEDIC & ANCIENT ---
-    {id: "Dhanvantari", label: "Dhanvantari", iast: "Dhanvantari", year: -3000, school: "Ayurveda", region: "Vedic", work: "Ayurveda", others: ["Dhanvantari Nighantu"], note: "God of Medicine.", zone: "north"},
-    {id: "Vyasa", label: "Vyāsa", iast: "Vyāsa", year: -1500, school: "Vedas", region: "Kuru (North)", work: "Mahābhārata", others: ["Brahma Sūtras", "Puranas"], note: "Compiler of Vedas.", zone: "north"},
-    {id: "Yajnavalkya", label: "Yājñavalkya", iast: "Yājñavalkya", year: -850, school: "Upanishads", region: "Mithila (Bihar)", work: "Bṛhadāraṇyaka Upaniṣad", others: ["Shatapatha Brahmana"], note: "Greatest Upanishadic sage.", zone: "east"},
-    {id: "Kapila", label: "Kapila", iast: "Kapila", year: -600, school: "samkhya", region: "Vedic", work: "Sāṃkhya Sūtras", others: [], note: "Founder of Samkhya (Dualism).", zone: "north"},
-    {id: "Jaimini", label: "Jaimini", iast: "Jaimini", year: -300, school: "mimamsa", region: "India", work: "Mīmāṃsā Sūtras", others: [], note: "Founder of Mimamsa (Ritualism).", zone: "north"},
-    {id: "Kanada", label: "Kaṇāda", iast: "Kaṇāda", year: -200, school: "vaisheshika", region: "Gujarat/Bengal", work: "Vaiśeṣika Sūtras", others: [], note: "Founder of Atomism.", zone: "west_india"},
-    {id: "Gautama", label: "Gautama", iast: "Gautama Akṣapāda", year: -200, school: "nyaya", region: "Mithila (Bihar)", work: "Nyāya Sūtras", others: [], note: "Founder of Logic.", zone: "east"},
-    {id: "Patanjali", label: "Patañjali", iast: "Patañjali", year: -150, school: "yoga", region: "Gonarda (Kashmir)", work: "Yoga Sūtras", others: ["Mahabhasya"], note: "Systematized Yoga.", zone: "north"},
-    {id: "Panini", label: "Pāṇini", iast: "Pāṇini", year: -500, school: "grammar", region: "Gandhara", work: "Aṣṭādhyāyī", others: ["Dhatupatha"], note: "Father of Linguistics.", zone: "gandhara"},
-    {id: "Chanakya", label: "Chanakya", iast: "Cāṇakya", year: -350, school: "Statecraft", region: "Magadha (Bihar)", work: "Arthaśāstra", others: ["Chanakya Niti"], note: "Realpolitik.", zone: "east"},
-    {id: "Sushruta", label: "Sushruta", iast: "Suśruta", year: -600, school: "Medicine", region: "Kashi (UP)", work: "Suśruta Saṃhitā", others: [], note: "Father of Surgery.", zone: "east"},
+    {id: "Dhanvantari", label: "Dhanvantari", iast: "Dhanvantari", year: -3000, school: "Ayurveda", region: "Vedic (Mythical)", ethnicity: "Indian", work: "Ayurveda (Source)", others: ["Dhanvantari Nighantu"], note: "Legendary God of Medicine and health."},
+    {id: "Dirghatamas", label: "Dirghatamas", iast: "Dīrghatamas", year: -1500, school: "Vedas", region: "Anga / Magadha", ethnicity: "Indian", work: "Rig Veda (Hymns)", others: ["Asya Vamiya Hymn"], note: "Blind rishi, seer of the 'Riddle Hymn' of the Rig Veda."},
+    {id: "Vyasa", label: "Vyāsa", iast: "Kṛṣṇa Dvaipāyana Vyāsa", year: -1500, school: "Vedas", region: "Kuru", ethnicity: "Indian", work: "Mahābhārata", others: ["Brahma Sutras", "Puranas"], note: "Compiler of the Vedas and the Great Epic."},
+    {id: "Yajnavalkya", label: "Yājñavalkya", iast: "Yājñavalkya", year: -850, school: "Upanishads", region: "Videha (Mithila)", ethnicity: "Indian", work: "Bṛhadāraṇyaka Upaniṣad", others: ["Shatapatha Brahmana", "Yajnavalkya Smriti"], note: "Greatest sage of Shukla Yajurveda; expounded 'Neti Neti'."},
+    {id: "Kapila", label: "Kapila", iast: "Kapila Muni", year: -600, school: "Samkhya", region: "Vedic", ethnicity: "Indian", work: "Sāṃkhya Sūtras", others: [], note: "Founder of Dualism (Puruṣa/Prakṛti)."},
+    {id: "Gautama Buddha", label: "Buddha", iast: "Siddhārtha Gautama", year: -563, school: "buddhism", region: "Magadha", ethnicity: "Indian", work: "Pali Canon", others: ["Dhammapada"], note: "The Awakened One; Anātman and Nirvāṇa."},
+    {id: "Panini", label: "Pāṇini", iast: "Pāṇini", year: -500, school: "grammar", region: "Gandhara", ethnicity: "Indian", work: "Aṣṭādhyāyī", others: ["Dhatupatha", "Ganapatha"], note: "Father of Linguistics; algorithmic grammar."},
+    {id: "Kanada", label: "Kaṇāda", iast: "Kaṇāda", year: -200, school: "nyaya", region: "Gujarat", ethnicity: "Indian", work: "Vaiśeṣika Sūtra", others: [], note: "First Atomic Theorist (Aṇu)."},
+    {id: "Patanjali", label: "Patañjali", iast: "Patañjali", year: -150, school: "yoga", region: "Gonarda", ethnicity: "Indian", work: "Yoga Sūtras", others: ["Mahabhasya"], note: "Codified the 8 limbs of Yoga."},
+    {id: "Chanakya", label: "Chanakya", iast: "Cāṇakya", year: -350, school: "Statecraft", region: "Magadha", ethnicity: "Indian", work: "Arthaśāstra", others: ["Chanakya Niti"], note: "Master of Realpolitik and Economics."},
     
-    // --- HETERODOX ---
-    {id: "Buddha", label: "Buddha", iast: "Siddhārtha Gautama", year: -563, school: "buddhism", region: "Magadha (Bihar)", work: "Pali Canon", others: ["Dhammapada"], note: "Founder of Buddhism.", zone: "east"},
-    {id: "Mahavira", label: "Mahavira", iast: "Mahāvīra", year: -540, school: "jainism", region: "Magadha (Bihar)", work: "Agamas", others: [], note: "24th Tirthankara.", zone: "east"},
-    {id: "Makkhali", label: "Makkhali Gosala", iast: "Makkhali Gosāla", year: -500, school: "nastika", region: "Magadha", work: "(Lost)", others: [], note: "Founder of Ajivika (Fatalism).", zone: "east"},
-    {id: "Charvaka", label: "Charvaka", iast: "Cārvāka", year: -600, school: "nastika", region: "India", work: "Barhaspatya Sutras", others: [], note: "Materialist.", zone: "north"},
-
     // --- CLASSICAL ---
-    {id: "Nagarjuna", label: "Nāgārjuna", iast: "Nāgārjuna", year: 150, school: "buddhism", region: "Andhra (South)", work: "Mūlamadhyamakakārikā", others: ["Ratnavali"], note: "Founder of Emptiness (Sunyata).", zone: "south"},
-    {id: "Kalidasa", label: "Kālidāsa", iast: "Kālidāsa", year: 400, school: "Literature", region: "Ujjain (MP)", work: "Shakuntalam", others: ["Meghaduta"], note: "Supreme Poet.", zone: "central"},
-    {id: "Aryabhata", label: "Āryabhaṭa", iast: "Āryabhaṭa", year: 476, school: "Science", region: "Patna (Bihar)", work: "Āryabhaṭīya", others: [], note: "Zero, Pi, Heliocentrism.", zone: "east"},
-    {id: "Dignaga", label: "Dignāga", iast: "Dignāga", year: 480, school: "buddhism", region: "Kanchipuram (South)", work: "Pramāṇa-samuccaya", others: [], note: "Buddhist Logic.", zone: "south"},
-    {id: "Prashastapada", label: "Praśastapāda", iast: "Praśastapāda", year: 550, school: "vaisheshika", region: "India", work: "Padārthadharmasaṃgraha", others: [], note: "Commentator on Atomism.", zone: "north"},
-    {id: "Shabara", label: "Shabara", iast: "Śabara", year: 200, school: "mimamsa", region: "India", work: "Śabara Bhāṣya", others: [], note: "Mimamsa Commentator.", zone: "north"},
+    {id: "Nagarjuna", label: "Nāgārjuna", iast: "Nāgārjuna", year: 150, school: "buddhism", region: "Andhra", ethnicity: "Indian", work: "Mūlamadhyamakakārikā", others: ["Ratnavali", "Suhrulekha"], note: "Founder of Śūnyatā (Emptiness)."},
+    {id: "Kalidasa", label: "Kālidāsa", iast: "Kālidāsa", year: 400, school: "Literature", region: "Ujjain", ethnicity: "Indian", work: "Abhijñānaśākuntalam", others: ["Meghaduta", "Kumarasambhavam"], note: "Supreme Poet (Mahākavi) of Sanskrit."},
+    {id: "Aryabhata", label: "Āryabhaṭa", iast: "Āryabhaṭa", year: 476, school: "Science", region: "Patna", ethnicity: "Indian", work: "Āryabhaṭīya", others: ["Arya-siddhanta"], note: "Calculated Zero, Pi, and Heliocentrism."},
+    {id: "Dignaga", label: "Dignāga", iast: "Dignāga", year: 480, school: "buddhism", region: "Kanchipuram", ethnicity: "Indian", work: "Pramāṇa-samuccaya", others: ["Hetucakra"], note: "Father of Buddhist Logic."},
+    {id: "Bhartrihari", label: "Bhartṛhari", iast: "Bhartṛhari", year: 450, school: "grammar", region: "Ujjain", ethnicity: "Indian", work: "Vākyapadīya", others: ["Shatakatraya"], note: "Philosopher of Language (Sphota)."},
     
-    // --- PHILOSOPHY LINEAGES ---
+    // --- ADVAITA LINEAGE ---
+    {id: "Gaudapada", label: "Gauḍapāda", iast: "Gauḍapāda", year: 600, school: "advaita", region: "Kurukshetra", ethnicity: "Indian", work: "Māṇḍūkya Kārikā", others: [], note: "Grand-guru of Shankara; Ajātivāda theory."},
+    {id: "Adi Shankara", label: "Śaṅkara", iast: "Ādi Śaṅkarācārya", year: 788, school: "advaita", region: "Kerala", ethnicity: "Indian", work: "Brahmasūtra Bhāṣya", others: ["Vivekachudamani", "Upadesasahasri", "Bhaja Govindam"], note: "Consolidator of Advaita Vedānta."},
+    {id: "Suresvara", label: "Sureśvara", iast: "Sureśvara", year: 800, school: "advaita", region: "South", ethnicity: "Indian", work: "Naiṣkarmya Siddhi", others: ["Vartikas"], note: "Direct disciple of Shankara."},
+    {id: "Vacaspati Misra", label: "Vācaspati", iast: "Vācaspati Miśra", year: 900, school: "advaita", region: "Mithila", ethnicity: "Indian", work: "Bhāmatī", others: ["Nyaya-Kanika"], note: "Polymath who wrote on all 6 Darśanas."},
+    {id: "Vidyaranya", label: "Vidyāraṇya", iast: "Vidyāraṇya Mādhavācārya", year: 1296, school: "advaita", region: "Sringeri", ethnicity: "Indian", work: "Pañcadaśī", others: ["Sarvadarshanasamgraha"], note: "Patron saint of Vijayanagara Empire."},
+    {id: "Madhusudana", label: "Madhusūdana", iast: "Madhusūdana Sarasvatī", year: 1540, school: "advaita", region: "Bengal", ethnicity: "Indian", work: "Advaita Siddhi", others: ["Gudhartha Dipika"], note: "Defended Monism against Logic."},
+
+    // --- NYAYA & KASHMIR SHAIVISM ---
+    {id: "Udayana", label: "Udayana", iast: "Udayanācārya", year: 984, school: "nyaya", region: "Mithila", ethnicity: "Indian", work: "Nyāyakusumāñjali", others: ["Atmatattvaviveka"], note: "Proved God through Logic."},
+    {id: "Gangesa", label: "Gaṅgeśa", iast: "Gaṅgeśa Upādhyāya", year: 1325, school: "nyaya", region: "Mithila", ethnicity: "Indian", work: "Tattvacintāmaṇi", others: [], note: "Founder of Navya-Nyāya (New Logic)."},
+    {id: "Abhinavagupta", label: "Abhinavagupta", iast: "Abhinavagupta", year: 950, school: "kashmir", region: "Kashmir", ethnicity: "Indian", work: "Tantrāloka", others: ["Abhinavabharati", "Paramarthasara"], note: "Greatest genius of Shaiva Tantra & Aesthetics."},
+    {id: "Utpaladeva", label: "Utpaladeva", iast: "Utpaladeva", year: 925, school: "kashmir", region: "Kashmir", ethnicity: "Indian", work: "Īśvarapratyabhijñā", others: ["Sivastotravali"], note: "Architect of Recognition philosophy."},
+
+    // --- VEDANTA SCHOOLS ---
+    {id: "Ramanuja", label: "Rāmānuja", iast: "Rāmānuja", year: 1017, school: "bhakti", region: "Tamil Nadu", ethnicity: "Indian", work: "Śrī Bhāṣya", others: ["Vedartha Sangraha", "Gita Bhashya"], note: "Founder of Viśiṣṭādvaita (Qualified Non-Dualism)."},
+    {id: "Madhvacharya", label: "Madhva", iast: "Madhvācārya", year: 1238, school: "bhakti", region: "Udupi", ethnicity: "Indian", work: "Sarvamūla", others: ["Mahabharata Tatparya Nirnaya"], note: "Founder of Dvaita (Dualism)."},
+    {id: "Chaitanya", label: "Caitanya", iast: "Śrī Caitanya Mahāprabhu", year: 1486, school: "bhakti", region: "Bengal", ethnicity: "Indian", work: "Śikṣāṣṭakam", others: [], note: "Acintya Bhedābheda; Sankirtana movement."},
     
-    // ADVAITA
-    {id: "Gaudapada", label: "Gauḍapāda", iast: "Gauḍapāda", year: 600, school: "advaita", region: "North", work: "Māṇḍūkya Kārikā", note: "Grand-guru of Shankara.", zone: "north"},
-    {id: "Shankara", label: "Śaṅkara", iast: "Ādi Śaṅkara", year: 788, school: "advaita", region: "Kerala (South)", work: "Brahmasūtra Bhāṣya", others: ["Vivekachudamani"], note: "Systematized Advaita.", zone: "south"},
-    {id: "Suresvara", label: "Sureśvara", iast: "Sureśvara", year: 800, school: "advaita", region: "South", work: "Naiṣkarmya Siddhi", note: "Disciple of Shankara.", zone: "south"},
-    {id: "Padmapada", label: "Padmapāda", iast: "Padmapāda", year: 800, school: "advaita", region: "South", work: "Pañcapādikā", note: "Disciple of Shankara.", zone: "south"},
-    {id: "Vacaspati", label: "Vācaspati", iast: "Vācaspati Miśra", year: 900, school: "advaita", region: "Mithila (Bihar)", work: "Bhāmatī", others: ["Nyaya-Kanika"], note: "Wrote on all 6 schools.", zone: "east"},
-    {id: "Vidyaranya", label: "Vidyāraṇya", iast: "Vidyāraṇya", year: 1296, school: "advaita", region: "Sringeri (Karnataka)", work: "Pañcadaśī", note: "Patron of Vijayanagara.", zone: "south"},
+    // --- LITERATURE & ARTS ---
+    {id: "Vidyapati", label: "Vidyāpati", iast: "Vidyāpati", year: 1352, school: "Literature", region: "Mithila", ethnicity: "Indian", work: "Padāvalī", others: ["Kirtilata", "Purusha Pariksha"], note: "The Nightingale of Mithila; Maithili/Bengali poet."},
+    {id: "Jayadeva", label: "Jayadeva", iast: "Jayadeva", year: 1200, school: "Literature", region: "Odisha / Bengal", ethnicity: "Indian", work: "Gīta Govinda", others: ["Dasavatara Stotra"], note: "Master of erotic-devotional poetry."},
+    {id: "Amir Khusrau", label: "Amir Khusrau", iast: "Amīr Khusrau", year: 1253, school: "Literature", region: "Delhi", ethnicity: "Indian", work: "Qiran-us-Sa'dain", others: ["Tughlaq Nama", "Ghazals"], note: "Parrot of India; Father of Qawwali."},
     
-    // NYAYA-VAISHESHIKA
-    {id: "Udayana", label: "Udayana", iast: "Udayana", year: 984, school: "nyaya", region: "Mithila (Bihar)", work: "Nyāyakusumāñjali", note: "Proved God via Logic.", zone: "east"},
-    {id: "Gangesa", label: "Gaṅgeśa", iast: "Gaṅgeśa Upādhyāya", year: 1325, school: "nyaya", region: "Mithila (Bihar)", work: "Tattvacintāmaṇi", note: "Founder of Navya-Nyaya.", zone: "east"},
-    
-    // MIMAMSA
-    {id: "Kumarila", label: "Kumārila", iast: "Kumārila Bhaṭṭa", year: 700, school: "mimamsa", region: "Prayag", work: "Ślokavārttika", note: "Revived Ritualism.", zone: "north"},
-    {id: "Prabhakara", label: "Prabhākara", iast: "Prabhākara", year: 700, school: "mimamsa", region: "Kerala", work: "Bṛhatī", note: "Guru School of Mimamsa.", zone: "south"},
-    
-    // KASHMIR SHAIVISM
-    {id: "Vasugupta", label: "Vasugupta", iast: "Vasugupta", year: 800, school: "kashmir", region: "Kashmir", work: "Śiva Sūtras", note: "Founder of Tradition.", zone: "north"},
-    {id: "Abhinavagupta", label: "Abhinavagupta", iast: "Abhinavagupta", year: 950, school: "kashmir", region: "Kashmir", work: "Tantrāloka", note: "Tantric Genius.", zone: "north"},
-    
-    // SAMKHYA & YOGA
-    {id: "IshvaraKrishna", label: "Īśvarakṛṣṇa", iast: "Īśvarakṛṣṇa", year: 350, school: "samkhya", region: "India", work: "Sāṃkhya Kārikā", note: "Classical Samkhya.", zone: "north"},
-    
-    // --- BHAKTI & VEDANTA ---
-    {id: "Ramanuja", label: "Rāmānuja", iast: "Rāmānuja", year: 1017, school: "bhakti", region: "Tamil Nadu", work: "Śrī Bhāṣya", note: "Vishishtadvaita.", zone: "south"},
-    {id: "Madhva", label: "Madhva", iast: "Madhvācārya", year: 1238, school: "dvaita", region: "Udupi (Karnataka)", work: "Sarvamūla", note: "Dualism.", zone: "south"},
-    {id: "Nimbarka", label: "Nimbārka", iast: "Nimbārka", year: 1150, school: "bhakti", region: "Andhra", work: "Parijata Saurabha", note: "Dvaitadvaita.", zone: "south"},
-    {id: "Vallabha", label: "Vallabha", iast: "Vallabhācārya", year: 1479, school: "bhakti", region: "North/West", work: "Anubhāṣya", note: "Shuddhadvaita.", zone: "west_india"},
-    {id: "Chaitanya", label: "Caitanya", iast: "Caitanya Mahāprabhu", year: 1486, school: "bhakti", region: "Bengal", work: "Śikṣāṣṭakam", note: "Gaudiya Vaishnavism.", zone: "east"},
-    {id: "Jayadeva", label: "Jayadeva", iast: "Jayadeva", year: 1200, school: "bhakti", region: "Odisha", work: "Gīta Govinda", note: "Radha-Krishna poetry.", zone: "east"},
-    {id: "Vidyapati", label: "Vidyāpati", iast: "Vidyāpati", year: 1352, school: "Literature", region: "Mithila (Bihar)", work: "Padāvalī", note: "Nightingale of Mithila.", zone: "east"},
-    {id: "Kabir", label: "Kabir", iast: "Kabīr", year: 1440, school: "bhakti", region: "Varanasi (UP)", work: "Bijak", note: "Nirguna Bhakti.", zone: "north"},
-    {id: "Tulsidas", label: "Tulsidas", iast: "Tulasīdāsa", year: 1532, school: "bhakti", region: "Varanasi (UP)", work: "Rāmcharitmānas", note: "Ramayana in Awadhi.", zone: "north"},
-    
-    // --- MODERN ERA ---
-    {id: "RamMohan", label: "Ram Mohan", iast: "Raja Ram Mohan Roy", year: 1772, school: "modern", region: "Bengal", work: "Brahmo Samaj", note: "Reformer.", zone: "east"},
-    {id: "Bankim", label: "Bankim", iast: "Baṅkim Candra", year: 1838, school: "Literature", region: "Bengal", work: "Ānandamaṭh", note: "Vande Mataram.", zone: "east"},
-    {id: "Vivekananda", label: "Vivekānanda", iast: "Swāmī Vivekānanda", year: 1863, school: "modern", region: "Bengal", work: "Rāja Yoga", note: "Vedanta to West.", zone: "east"},
-    {id: "Tagore", label: "Tagore", iast: "Rabindranath Tagore", year: 1861, school: "Literature", region: "Bengal", work: "Gītāñjali", note: "Nobel Laureate.", zone: "east"},
-    {id: "Aurobindo", label: "Aurobindo", iast: "Sri Aurobindo", year: 1872, school: "modern", region: "Bengal", work: "Life Divine", note: "Integral Yoga.", zone: "east"},
-    {id: "Ramanujan", label: "Ramanujan", iast: "Srinivasa Ramanujan", year: 1887, school: "Science", region: "Tamil Nadu", work: "Notebooks", note: "Math Genius.", zone: "south"},
-    {id: "Nazrul", label: "Nazrul", iast: "Kazi Nazrul Islam", year: 1899, school: "Literature", region: "Bengal", ethnicity: "Indian", work: "Bidrohi", others: ["Agnibina", "Sanchita"], note: "The Rebel Poet; fierce anti-colonial voice, zone: "east_india"},
+    // --- MODERN ERA (BENGAL RENAISSANCE & OTHERS) ---
+    {id: "Ram Mohan Roy", label: "Ram Mohan", iast: "Raja Ram Mohan Roy", year: 1772, school: "Reformer", region: "Bengal", ethnicity: "Indian", work: "Brahmo Samaj", others: ["Precepts of Jesus"], note: "Father of Modern India."},
+    {id: "Bankim Chandra", label: "Bankim", iast: "Baṅkim Candra Caṭṭopādhyāya", year: 1838, school: "Literature", region: "Bengal", ethnicity: "Indian", work: "Ānandamaṭh", others: ["Durgeshnandini", "Vande Mataram"], note: "Composer of Vande Mataram."},
+    {id: "Michael Madhusudan", label: "Madhusudan", iast: "Michael Madhusudan Dutt", year: 1824, school: "Literature", region: "Bengal", ethnicity: "Indian", work: "Meghnād Badh Kāvya", others: ["Sharmistha"], note: "Tragic epic poet; introduced Sonnet."},
+    {id: "Sarat Chandra", label: "Sarat", iast: "Sarat Chandra Chattopadhyay", year: 1876, school: "Literature", region: "Bengal", ethnicity: "Indian", work: "Devdas", others: ["Parineeta", "Srikanta"], note: "Master storyteller of human psychology."},
+    {id: "Nazrul", label: "Nazrul", iast: "Kazi Nazrul Islam", year: 1899, school: "Literature", region: "Bengal", ethnicity: "Indian", work: "Bidrohi", others: ["Agnibina"], note: "The Rebel Poet; fierce anti-colonial voice."},
+    {id: "Tagore", label: "Tagore", iast: "Rabindranath Tagore", year: 1861, school: "Literature", region: "Bengal", ethnicity: "Indian", work: "Gītāñjali", others: ["Gora", "Ghare-Baire", "Jana Gana Mana"], note: "Visva-Kavi; Nobel Laureate."},
+    {id: "Vivekananda", label: "Vivekānanda", iast: "Swāmī Vivekānanda", year: 1863, school: "advaita", region: "Bengal", ethnicity: "Indian", work: "Rāja Yoga", others: ["Karma Yoga", "Chicago Address"], note: "Brought Vedānta to the global stage."},
+    {id: "Aurobindo", label: "Aurobindo", iast: "Sri Aurobindo", year: 1872, school: "yoga", region: "Pondicherry", ethnicity: "Indian", work: "The Life Divine", others: ["Savitri", "Synthesis of Yoga"], note: "Integral Yoga; Supermind."},
     
     // --- INDOPHILES ---
-    {id: "Voltaire", label: "Voltaire", group: "west", year: 1694, region: "France", work: "Essai sur les mœurs", note: "Praised Vedas.", zone: "global"},
-    {id: "Schopenhauer", label: "Schopenhauer", group: "west", year: 1788, region: "Germany", work: "World as Will", note: "Upanishads admirer.", zone: "global"},
-    {id: "Tesla", label: "Tesla", group: "west", year: 1856, region: "USA", work: "AC Current", note: "Vedantic Physics.", zone: "global"},
-    {id: "Oppenheimer", label: "Oppenheimer", group: "west", year: 1904, region: "USA", work: "Trinity", note: "Gita Scholar.", zone: "global"},
-    {id: "Eliot", label: "T.S. Eliot", group: "west", year: 1888, region: "UK", work: "Waste Land", note: "Sanskrit Ending.", zone: "global"}
+    {id: "Voltaire", label: "Voltaire", iast: "Voltaire", year: 1694, school: "west", region: "France", ethnicity: "French", work: "Essai sur les mœurs", others: ["Fragments on India"], note: "Praised Vedas as oldest wisdom."},
+    {id: "Schopenhauer", label: "Schopenhauer", iast: "Arthur Schopenhauer", year: 1788, school: "west", region: "Germany", ethnicity: "German", work: "The World as Will", others: ["Parerga and Paralipomena"], note: "Upanishads were his 'consolation in death'."},
+    {id: "Max Muller", label: "Max Müller", iast: "Friedrich Max Müller", year: 1823, school: "west", region: "Germany", ethnicity: "German", work: "Sacred Books of the East", others: ["History of Ancient Sanskrit Literature"], note: "Giant of Philology and Indology."},
+    {id: "Tesla", label: "Tesla", iast: "Nikola Tesla", year: 1856, school: "west", region: "USA", ethnicity: "Serbian", work: "AC Current", others: [], note: "Used 'Akasha' and 'Prana' after meeting Vivekananda."},
+    {id: "Oppenheimer", label: "Oppenheimer", iast: "J. Robert Oppenheimer", year: 1904, school: "west", region: "USA", ethnicity: "American", work: "Manhattan Project", others: [], note: "Quoted Gita at Trinity: 'I am become Death'."},
+    {id: "Eliot", label: "T.S. Eliot", iast: "T.S. Eliot", year: 1888, school: "west", region: "UK", ethnicity: "American", work: "The Waste Land", others: ["Four Quartets"], note: "Ended his masterpiece with 'Shantih Shantih Shantih'."},
+    
+    // --- ADDED DEITIES (No Timeline) ---
+    {id: "Narayana", label: "Nārāyaṇa", iast: "Nārāyaṇa", group: "deity", isDeity: true, note: "Primordial Vishnu"},
+    {id: "Brahma", label: "Brahmā", iast: "Brahmā", group: "deity", isDeity: true, note: "Creator"},
+    {id: "Shiva", label: "Śiva", iast: "Śiva", group: "deity", isDeity: true, note: "Adi Guru"},
+    
+    // --- ADDED LINEAGE FIGURES ---
+    {id: "Govinda Bhagavatpada", label: "Govinda", iast: "Govinda Bhagavatpāda", year: 750, school: "advaita", region: "Narmada", work: "Yoga Taravali", note: "Guru of Adi Shankara."},
+    {id: "Padmapadacharya", label: "Padmapāda", iast: "Padmapādācārya", year: 820, school: "advaita", region: "South", work: "Panchapadika", note: "First Disciple of Shankara."},
+    {id: "Hastamalakacharya", label: "Hastāmalaka", iast: "Hastāmalakācārya", year: 820, school: "advaita", region: "South", work: "Hastamalakiya", note: "Disciple of Shankara."},
+    {id: "Totakacharya", label: "Toṭaka", iast: "Toṭakācārya", year: 820, school: "advaita", region: "South", work: "Totakashtakam", note: "Disciple of Shankara."},
+    {id: "Vasugupta", label: "Vasugupta", iast: "Vasugupta", year: 800, school: "kashmir", region: "Kashmir", work: "Shiva Sutras", note: "Received Shiva Sutras from Shiva."},
+    {id: "Somananda", label: "Somānanda", iast: "Somānanda", year: 900, school: "kashmir", region: "Kashmir", work: "Shiva Drishti", note: "Founder of Pratyabhijna."},
+    {id: "Kshemaraja", label: "Kṣemarāja", iast: "Kṣemarāja", year: 1000, school: "kashmir", region: "Kashmir", work: "Pratyabhijnahridayam", note: "Disciple of Abhinavagupta."},
+    {id: "Nathamuni", label: "Nāthamuni", iast: "Nāthamuni", year: 900, school: "bhakti", region: "Tamil Nadu", note: "First Sri Vaishnava Acharya."},
+    {id: "Yamunacharya", label: "Yāmunācārya", iast: "Yāmunācārya", year: 917, school: "bhakti", region: "Tamil Nadu", work: "Siddhitraya", note: "Preceptor of Ramanuja."},
+    {id: "Nimbarka", label: "Nimbārka", iast: "Nimbārka", year: 1150, school: "bhakti", region: "Andhra", work: "Vedanta Parijata", note: "Dvaitadvaita Founder."},
+    {id: "Vallabhacharya", label: "Vallabha", iast: "Vallabhācārya", year: 1479, school: "bhakti", region: "Charthaval", work: "Anubhashya", note: "Shuddhadvaita Founder."}
 ];
 
-// --- 2. GURU-SHISHYA LINEAGES ---
+// --- 2. GURU-SHISHYA LINEAGES (The Nodes that connect) ---
 const lineages = [
-    // Divine
-    {s: "Narayana", t: "Brahma", type: "Guru"}, {s: "Brahma", t: "Vashishta", type: "Guru"},
-    {s: "Shiva", t: "Vasugupta", type: "Divine"},
+    // Advaita Lineage
+    {s: "Narayana", t: "Brahma", type: "guru"},
+    {s: "Brahma", t: "Vashishta", type: "guru"}, // Assume Vashishta exists in extended data or handled
+    {s: "Gaudapada", t: "Govinda Bhagavatpada", type: "guru"},
+    {s: "Govinda Bhagavatpada", t: "Adi Shankara", type: "guru"},
+    {s: "Adi Shankara", t: "Suresvara", type: "guru"},
+    {s: "Adi Shankara", t: "Padmapadacharya", type: "guru"},
+    {s: "Adi Shankara", t: "Hastamalakacharya", type: "guru"},
+    {s: "Adi Shankara", t: "Totakacharya", type: "guru"},
+    {s: "Adi Shankara", t: "Vacaspati Misra", type: "influence"}, 
+    {s: "Adi Shankara", t: "Vidyaranya", type: "influence"},
+    {s: "Adi Shankara", t: "Madhusudana", type: "influence"},
+    {s: "Adi Shankara", t: "Vivekananda", type: "lineage"},
     
-    // Advaita
-    {s: "Gaudapada", t: "Shankara", type: "Paramaguru"}, {s: "Shankara", t: "Suresvara", type: "Guru"},
-    {s: "Shankara", t: "Padmapada", type: "Guru"}, {s: "Shankara", t: "Vacaspati", type: "Influence"},
-    {s: "Shankara", t: "Vidyaranya", type: "Lineage"}, {s: "Shankara", t: "Vivekananda", type: "Lineage"},
+    // Kashmir Shaivism
+    {s: "Shiva", t: "Vasugupta", type: "divine"},
+    {s: "Vasugupta", t: "Somananda", type: "lineage"},
+    {s: "Somananda", t: "Utpaladeva", type: "guru"},
+    {s: "Utpaladeva", t: "Abhinavagupta", type: "grand_guru"},
+    {s: "Abhinavagupta", t: "Kshemaraja", type: "guru"},
     
     // Nyaya
-    {s: "Gautama", t: "Vatsyayana", type: "Lineage"}, {s: "Udayana", t: "Gangesa", type: "Influence"},
-    {s: "Gautama", t: "Nagarjuna", type: "Debate"}, // Nagarjuna critiqued Nyaya
+    {s: "Gautama Buddha", t: "Nagarjuna", type: "influence"},
+    {s: "Nagarjuna", t: "Dignaga", type: "influence"},
+    {s: "Dignaga", t: "Udayana", type: "debate"},
+    {s: "Udayana", t: "Gangesa", type: "influence"},
     
-    // Mimamsa
-    {s: "Jaimini", t: "Shabara", type: "Lineage"}, {s: "Shabara", t: "Kumarila", type: "Lineage"},
-    {s: "Kumarila", t: "Shankara", type: "Debate"},
-    
-    // Kashmir
-    {s: "Vasugupta", t: "Abhinavagupta", type: "Lineage"},
-    
-    // Bhakti / Vedanta
-    {s: "Ramanuja", t: "Madhva", type: "Reaction"}, {s: "Jayadeva", t: "Chaitanya", type: "Influence"},
+    // Bhakti
+    {s: "Narayana", t: "Nathamuni", type: "inspiration"},
+    {s: "Nathamuni", t: "Yamunacharya", type: "grand_guru"},
+    {s: "Yamunacharya", t: "Ramanuja", type: "preceptor"},
+    {s: "Ramanuja", t: "Madhvacharya", type: "influence"},
+    {s: "Jayadeva", t: "Chaitanya", type: "influence"},
+    {s: "Chaitanya", t: "Tagore", type: "influence"},
     
     // Indophiles
-    {s: "Panini", t: "Voltaire", type: "Study"}, {s: "Vyasa", t: "Oppenheimer", type: "Study"},
-    {s: "Yajnavalkya", t: "Schopenhauer", type: "Study"}, {s: "Vivekananda", t: "Tesla", type: "Meeting"}
+    {s: "Panini", t: "Voltaire", type: "influence"},
+    {s: "Vyasa", t: "Oppenheimer", type: "influence"},
+    {s: "Yajnavalkya", t: "Schopenhauer", type: "influence"},
+    {s: "Vivekananda", t: "Tesla", type: "meeting"},
+    {s: "Patanjali", t: "Vivekananda", type: "influence"}
 ];
 
-// --- 3. BUILD GRAPH ---
+// --- 3. BUILD THE GRAPH ---
 let nodes = new vis.DataSet();
 let edges = new vis.DataSet();
 let allNodes = [];
 
-// Style Maps
-const colorMap = {
-    "advaita": "#ff9800", "nyaya": "#00bcd4", "kashmir": "#9c27b0", "bhakti": "#ffeb3b",
-    "buddhism": "#e91e63", "west": "#a5a5a5", "mimamsa": "#795548", "samkhya": "#607d8b",
-    "deity": "#ffd700", "Literature": "#4caf50", "modern": "#fff"
+// Icons/Shapes Mapping
+const shapeMap = {
+    "advaita": "dot", "nyaya": "triangle", "kashmir": "diamond", "bhakti": "dot",
+    "buddhism": "dot", "west": "star", "Literature": "square", "deity": "star"
 };
-const shapeMap = { "deity": "star", "west": "diamond" };
 
-// Populate Nodes
+const colorMap = {
+    "advaita": "#ff9800", "nyaya": "#00bcd4", "kashmir": "#9c27b0",
+    "buddhism": "#e91e63", "west": "#a5a5a5", "Literature": "#4caf50",
+    "bhakti": "#ffeb3b", "grammar": "#795548", "Science": "#607d8b", "deity": "#ffd700"
+};
+
+// Initialize
 rawData.forEach(p => {
-    let grp = p.group || p.school;
+    let size = p.isDeity ? 40 : 20;
+    let label = p.isDeity ? "★ " + p.label : p.label;
+    
     allNodes.push({
-        id: p.id, label: p.label, group: grp, 
-        value: p.isDeity ? 40 : 20,
-        color: colorMap[grp] || "#ddd",
-        shape: shapeMap[grp] || "dot",
-        font: { face: 'Noto Serif', color: '#ccc' },
-        data: p // Full data for panel
+        id: p.id,
+        label: label,
+        group: p.school || p.group,
+        value: size,
+        color: colorMap[p.school] || colorMap[p.group] || "#ddd",
+        shape: shapeMap[p.school] || shapeMap[p.group] || "dot",
+        font: { face: 'Noto Serif', color: '#ccc', size: 14 },
+        data: p // Store full data
     });
 });
 
-// Populate Edges
+// Create Edges
 lineages.forEach(l => {
-    let s = rawData.find(x => x.id === l.s);
-    let t = rawData.find(x => x.id === l.t);
-    if (s && t) {
-        let color = l.type === "Guru" ? "#d4af37" : "#444";
-        let dashes = l.type !== "Guru";
-        edges.add({ from: l.s, to: l.t, arrows: "to", color: {color:color}, dashes: dashes, label: l.type, font: {size: 9, align: 'middle', color: '#777', strokeWidth: 0} });
+    // Check if nodes exist
+    let srcExists = rawData.find(n => n.id === l.s);
+    let tgtExists = rawData.find(n => n.id === l.t);
+    
+    if (srcExists && tgtExists) {
+        let color = "#333";
+        let dashes = true;
+        let label = l.type;
+        
+        if(l.type === "guru" || l.type === "divine") { color = "#d4af37"; dashes = false; label = "Guru"; }
+        if(l.type === "meeting") { color = "#fff"; }
+        
+        edges.add({ from: l.s, to: l.t, color:{color:color, opacity:0.6}, dashes: dashes, arrows: 'to', label: label, font: {align: 'middle', size: 10, color: '#888', strokeWidth: 0} });
     }
 });
 
 nodes.add(allNodes);
 
-// --- 4. RENDER ---
+// --- 4. RENDERER ---
 const container = document.getElementById('mynetwork');
 const data = { nodes: nodes, edges: edges };
 const options = {
-    nodes: { borderWidth: 1, shadow: true },
-    physics: { stabilization: false, barnesHut: { gravitationalConstant: -3000, springConstant: 0.01 } },
-    interaction: { hover: true }
+    nodes: { borderWidth: 1, shadow:true },
+    edges: { smooth: { type: "continuous" } },
+    physics: {
+        stabilization: false,
+        barnesHut: { gravitationalConstant: -4000, springLength: 200, springConstant: 0.01 }
+    },
+    interaction: { hover: true, tooltipDelay: 50 }
 };
 const network = new vis.Network(container, data, options);
 
-// --- 5. TIMELINE ---
+// --- 5. TIMELINE (Exclude Deities) ---
 const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
-    id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.group || t.school, nodeId: t.id
+    id: i, content: t.label, start: new Date(0).setFullYear(t.year), 
+    className: t.school || t.group, nodeId: t.id
 })));
 
 const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
-    height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
+    height: '100%', stack: true, 
+    style: 'background:rgba(17,18,20,0.95); border:none; color:#777',
     start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000)
 });
 
-// --- 6. LOGIC ---
+// --- 6. LOGIC: FILTERING & INTERACTIONS ---
 
-window.filterGraph = function() {
-    const school = document.getElementById('schoolFilter').value;
-    const region = document.getElementById('regionFilter').value;
+// Filter Function
+window.filterNetwork = function() {
+    const type = document.getElementById('schoolFilter').value;
     
-    const filtered = allNodes.filter(n => {
-        const d = n.data;
-        const matchesSchool = (school === 'all') || (d.school === school) || (d.group === school);
-        const matchesRegion = (region === 'all') || (d.zone === region) || (region === 'global' && d.group === 'west');
-        return matchesSchool && matchesRegion;
-    });
-    
-    nodes.clear();
-    nodes.add(filtered);
-    
-    // Add Deities back if showing Indian schools
-    if (school !== 'west' && region !== 'global') {
-        nodes.add(allNodes.filter(n => n.data.isDeity));
+    if (type === 'all') {
+        nodes.clear();
+        nodes.add(allNodes);
+    } else {
+        // Show selected school + deities + westerners (for context)
+        const schoolNodes = allNodes.filter(n => n.group === type || n.group === 'deity');
+        nodes.clear();
+        nodes.add(schoolNodes);
     }
 }
 
+// Click Interaction
 network.on("click", function(params) {
     if (params.nodes.length > 0) {
         const nodeId = params.nodes[0];
         const node = nodes.get(nodeId);
+        
         if (node) {
             const d = node.data;
-            document.getElementById('p-name').innerText = d.iast || d.label;
-            document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.date || d.year);
+            document.getElementById('p-name').innerText = d.iast; // Use IAST name
+            document.getElementById('p-dates').innerText = d.isDeity ? "Timeless / Divine" : (d.date || d.year);
             document.getElementById('p-school').innerText = (d.school || d.group).toUpperCase();
-            
-            // Region HTML
-            document.getElementById('p-region').innerHTML = `<span style="color:#fff">${d.ethnicity}</span> <span class="region-tag">${d.region}</span>`;
-            
             document.getElementById('p-work').innerText = d.work || "N/A";
             document.getElementById('p-note').innerText = d.note;
             
-            // Lineage Info
-            let lin = "Independent / N/A";
-            let parent = lineages.find(l => l.t === d.id && l.type === "Guru");
-            if (parent) lin = `Shishya of ${parent.s}`;
-            else if (d.isDeity) lin = "The Source";
-            document.getElementById('p-lineage').innerText = lin;
+            // Ethnicity Rendering
+            const ethHTML = `<span class="eth-main">${d.ethnicity}</span><span class="eth-sub">${d.region}</span>`;
+            document.getElementById('p-ethnicity-container').innerHTML = ethHTML;
 
-            // Other Works
-            const ul = document.getElementById('p-other-works');
-            ul.innerHTML = "";
-            if(d.others && d.others.length) d.others.forEach(w => ul.innerHTML += `<li>${w}</li>`);
-            else ul.innerHTML = "<li>No other major records.</li>";
+            // Render Other Works
+            const worksContainer = document.getElementById('p-other-works');
+            worksContainer.innerHTML = '';
+            if (d.others && d.others.length > 0) {
+                d.others.forEach(w => { worksContainer.innerHTML += `<li>${w}</li>`; });
+            } else {
+                worksContainer.innerHTML = `<li style="color:#555">No other major records listed.</li>`;
+            }
+            
+            // Determine Lineage Text
+            let linText = "Independent Thinker";
+            if (d.school === 'advaita') linText = "Paramparā: Śaṅkara Lineage";
+            if (d.school === 'nyaya') linText = "Paramparā: Mithilā School";
+            if (d.isDeity) linText = "Divine Source";
+            document.getElementById('p-lineage').innerText = linText;
 
-            // Panel Animation
+            // Open Panel
             document.getElementById('side-panel').style.width = "400px";
             document.getElementById('panel-content').style.opacity = "1";
             
-            // Timeline Sync
-            if(!d.isDeity) {
+            // Sync Timeline (Skip deities)
+            if (!d.isDeity) {
                 const tItem = timelineData.get({ filter: i => i.nodeId === nodeId });
                 if(tItem.length) { timeline.moveTo(tItem[0].start); timeline.setSelection(tItem[0].id); }
             }
@@ -395,12 +417,17 @@ network.on("click", function(params) {
     }
 });
 
+// Search
 window.searchNode = function() {
     let q = document.getElementById('search').value.toLowerCase();
     if (!q) return;
     let found = allNodes.find(p => p.label.toLowerCase().includes(q) || (p.data.iast && p.data.iast.toLowerCase().includes(q)));
     if (found) {
-        if (!nodes.get(found.id)) { document.getElementById('schoolFilter').value='all'; document.getElementById('regionFilter').value='all'; filterGraph(); }
+        // If filtered out, reset filter
+        if (!nodes.get(found.id)) {
+            document.getElementById('schoolFilter').value = 'all';
+            filterNetwork();
+        }
         network.selectNodes([found.id]);
         network.focus(found.id, { scale: 1.5, animation: true });
         network.emit("click", { nodes: [found.id] });
