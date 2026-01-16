@@ -10,108 +10,64 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
-
+    
     <script src="data.js"></script>
 
     <style>
         :root { --bg: #050505; --panel: #0f0f0f; --gold: #d4af37; --silver: #a5a5a5; --border: #333; }
         body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Noto Serif', serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        header { height: 70px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
+        header { height: 60px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
         .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); }
-        
         .controls { display: flex; gap: 10px; }
         select, input { background: #1a1a1a; color: #ddd; border: 1px solid #444; padding: 6px 10px; font-family: 'Cinzel', serif; font-size: 0.8rem; border-radius: 3px; outline: none; }
-        select:hover, input:focus { border-color: var(--gold); }
-
-        .main-container { flex: 1; position: relative; display: flex; }
         #map { flex-grow: 1; background: #000; z-index: 1; }
-        #mytimeline { height: 120px; background: rgba(10,10,10,0.95); border-top: 1px solid var(--border); z-index: 20; position: relative; }
-
-        /* SIDE PANEL */
-        #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.4s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; box-shadow: -5px 0 30px rgba(0,0,0,0.9); }
+        #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.4s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; }
         .panel-content { padding: 30px; opacity: 0; transition: opacity 0.3s 0.2s; min-width: 300px; }
         .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
         .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 600; }
         .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; }
-        .region-tag { color: var(--gold); font-style: italic; margin-left: 5px; }
-        .iast { font-style: italic; color: #e6c673; }
-
-        /* MARKERS */
-        .leaflet-div-icon { background: transparent; border: none; }
+        #mytimeline { height: 120px; background: rgba(10,10,10,0.95); border-top: 1px solid var(--border); z-index: 20; position: relative; }
         .legend { position: absolute; bottom: 140px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
     </style>
 </head>
 <body>
-
 <header>
     <div class="brand">Indosphere</div>
     <div class="controls">
-        <select id="schoolFilter" onchange="updateMap()">
-            <option value="all">All Schools</option>
-            <option value="Advaita">Advaita</option>
-            <option value="Dvaita">Dvaita</option>
-            <option value="Nyaya">Nyaya</option>
-            <option value="Kashmir Shaivism">Kashmir Shaivism</option>
-            <option value="Buddhism">Buddhism</option>
-            <option value="Jainism">Jainism</option>
-            <option value="Bhakti">Bhakti</option>
-            <option value="Indology">Indology</option>
-        </select>
-        
-        <select id="regionFilter" onchange="updateMap()">
-            <option value="all">All Regions</option>
-            <option value="North">North India</option>
-            <option value="South">South India</option>
-            <option value="East">East (Bengal/Bihar)</option>
-            <option value="West">West (Gujarat/Maha)</option>
-            <option value="Global">Global / West</option>
-        </select>
-
+        <select id="schoolFilter" onchange="updateMap()"><option value="all">All Schools</option><option value="Advaita">Advaita</option><option value="Nyaya">Nyaya</option><option value="Buddhism">Buddhism</option><option value="Indology">Indology</option></select>
+        <select id="regionFilter" onchange="updateMap()"><option value="all">All Regions</option><option value="North">North</option><option value="South">South</option><option value="Global">Global</option></select>
         <input type="text" id="search" placeholder="Search..." onkeyup="searchNode(event)">
     </div>
 </header>
-
-<div class="main-container">
+<div style="flex: 1; position: relative; display: flex;">
     <div id="map"></div>
     <div class="legend">★ Deity | ● Guru | ● Scholar</div>
-    
     <div id="side-panel"><div class="panel-content" id="panel-content">
         <div id="p-name" class="p-title"></div>
         <span id="p-dates" class="p-value" style="color:#aaa"></span>
-        <span class="p-label">Tradition</span><div id="p-school" class="p-value" style="color: var(--gold)"></div>
-        <span class="p-label">Region</span><div id="p-region" class="p-value"></div>
-        <span class="p-label">Magnum Opus</span><div id="p-work" class="p-value iast"></div>
-        <span class="p-label">Other Works</span><ul id="p-others" class="works-list"></ul>
-        <span class="p-label">Significance</span><div id="p-note" class="p-value"></div>
-        <span class="p-label">Lineage Info</span><div id="p-lineage" class="p-value" style="border-left: 2px solid #333; padding-left: 10px;"></div>
+        <span class="p-label">School</span><div id="p-school" class="p-value" style="color: var(--gold)"></div>
+        <span class="p-label">Work</span><div id="p-work" class="p-value iast"></div>
+        <span class="p-label">Other Works</span><ul id="p-others" style="padding-left:15px; color:#aaa; font-size:0.9rem;"></ul>
+        <span class="p-label">Lineage</span><div id="p-lineage" class="p-value"></div>
     </div></div>
 </div>
-
 <div id="mytimeline"></div>
-
-<script type="text/javascript">
-    // MAP SETUP
+<script>
     const map = L.map('map', { center: [22.5, 82.0], zoom: 5, zoomControl: false, attributionControl: false });
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(map);
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    let markers = [];
-    let polylines = [];
+    let markers = [], polylines = [];
 
-    // COLOR LOGIC
     function getColor(p) {
-        if (p.isDeity) return "#ffd700"; // Gold
-        if (p.school.includes('Advaita')) return "#ff9800"; // Orange
-        if (p.school.includes('Nyaya')) return "#00bcd4"; // Blue
-        if (p.school.includes('Bhakti')) return "#ffeb3b"; // Yellow
-        if (p.school.includes('Buddhism')) return "#e91e63"; // Pink
-        if (p.school.includes('Jainism')) return "#4caf50"; // Green
-        if (p.school.includes('Indology')) return "#a5a5a5"; // Silver
-        return "#ddd"; // White default
+        if (p.isDeity) return "#ffd700";
+        if (p.school.includes('Advaita')) return "#ff9800";
+        if (p.school.includes('Nyaya')) return "#00bcd4";
+        if (p.school.includes('Buddhism')) return "#e91e63";
+        if (p.school.includes('Indology')) return "#a5a5a5";
+        return "#ddd";
     }
 
-    // UPDATE MAP
     function updateMap() {
         markers.forEach(m => map.removeLayer(m));
         polylines.forEach(l => map.removeLayer(l));
@@ -120,7 +76,6 @@
         const sFilter = document.getElementById('schoolFilter').value;
         const rFilter = document.getElementById('regionFilter').value;
 
-        // Draw Lineages
         lineages.forEach(l => {
             const s = rawData.find(x => x.id === l.s);
             const t = rawData.find(x => x.id === l.t);
@@ -128,38 +83,31 @@
                 let visible = true;
                 if (sFilter !== 'all' && s.school !== sFilter && t.school !== sFilter) visible = false;
                 if (visible) {
-                    const color = l.type.includes("Guru") ? "#d4af37" : "#444";
-                    const weight = l.type.includes("Guru") ? 2 : 1;
-                    const line = L.polyline([[s.lat, s.lng], [t.lat, t.lng]], {color: color, weight: weight, opacity: 0.5}).addTo(map);
+                    const color = "#d4af37";
+                    const line = L.polyline([[s.lat, s.lng], [t.lat, t.lng]], {color: color, weight: 1, opacity: 0.6}).addTo(map);
                     polylines.push(line);
                 }
             }
         });
 
-        // Draw Nodes
         rawData.forEach(p => {
             let show = true;
             if (sFilter !== 'all' && p.school !== sFilter && p.group !== sFilter) show = false;
-            if (rFilter !== 'all' && p.zone !== rFilter && p.region !== rFilter) show = false;
+            if (rFilter !== 'all' && p.region !== rFilter) show = false;
             
             if (show) {
-                const lat = p.lat + (Math.random() * 0.1 - 0.05);
-                const lng = p.lng + (Math.random() * 0.1 - 0.05);
-
                 const size = p.isDeity ? 16 : 10;
-                const html = `<div style="width:${size}px; height:${size}px; background:${getColor(p)}; border-radius:50%; border:1px solid #fff; box-shadow:0 0 5px ${getColor(p)};"></div>`;
-                let iconHtml = html;
-                if (p.isDeity) iconHtml = `<div style="font-size:20px; color:#ffd700;">★</div>`;
-
-                const icon = L.divIcon({ className: 'leaflet-div-icon', html: iconHtml, iconSize: [size, size] });
-                const m = L.marker([lat, lng], {icon: icon}).addTo(map);
+                let html = `<div style="width:${size}px; height:${size}px; background:${getColor(p)}; border-radius:50%; border:1px solid #fff;"></div>`;
+                if(p.isDeity) html = `<div style="font-size:20px; color:#ffd700;">★</div>`;
+                
+                const icon = L.divIcon({ className: 'leaflet-div-icon', html: html, iconSize: [size, size] });
+                const m = L.marker([p.lat, p.lng], {icon: icon}).addTo(map);
                 m.on('click', () => openPanel(p));
                 markers.push(m);
             }
         });
     }
 
-    // TIMELINE
     const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
         id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
     })));
@@ -177,22 +125,19 @@
         }
     });
 
-    // PANEL LOGIC
     function openPanel(d) {
-        document.getElementById('p-name').innerText = d.iast || d.label;
-        document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
-        document.getElementById('p-school').innerText = d.school || "";
-        document.getElementById('p-region').innerText = `${d.region} (${d.zone})`;
+        document.getElementById('p-name').innerText = d.label;
+        document.getElementById('p-dates').innerText = d.isDeity ? "Divine" : d.year;
+        document.getElementById('p-school').innerText = d.school;
         document.getElementById('p-work').innerText = d.work || "N/A";
-        document.getElementById('p-note').innerText = d.note || "";
         
-        let parent = lineages.find(l => l.t === d.id && l.type.includes("Guru"));
-        document.getElementById('p-lineage').innerText = parent ? `Disciple of ${parent.s}` : "Independent / Source";
+        let parent = lineages.find(l => l.t === d.id);
+        document.getElementById('p-lineage').innerText = parent ? `Disciple of ${parent.s}` : "Source";
 
         const ul = document.getElementById('p-others');
         ul.innerHTML = "";
         if (d.others && d.others.length > 0) d.others.forEach(w => ul.innerHTML += `<li>${w}</li>`);
-        else ul.innerHTML = "<li>No other major records listed.</li>";
+        else ul.innerHTML = "<li>No other major records.</li>";
 
         document.getElementById('side-panel').style.width = "400px";
         document.getElementById('panel-content').style.opacity = "1";
@@ -201,11 +146,8 @@
     function searchNode(e) {
         if (e.key === 'Enter') {
             const q = document.getElementById('search').value.toLowerCase();
-            const found = rawData.find(p => p.label.toLowerCase().includes(q) || (p.iast && p.iast.toLowerCase().includes(q)));
+            const found = rawData.find(p => p.label.toLowerCase().includes(q));
             if (found) {
-                document.getElementById('schoolFilter').value = 'all';
-                document.getElementById('regionFilter').value = 'all';
-                updateMap();
                 map.flyTo([found.lat, found.lng], 8);
                 openPanel(found);
             }
