@@ -13,18 +13,38 @@
 
     <style>
         :root { --bg: #050505; --panel: #0f0f0f; --gold: #d4af37; --silver: #a5a5a5; --border: #333; }
-        body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Noto Serif', serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        header { height: 60px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
+        /* LAYOUT FIX: Ensures timeline stays at bottom */
+        body { 
+            background: var(--bg); color: #e0e0e0; margin: 0; 
+            font-family: 'Noto Serif', serif; 
+            height: 100vh; width: 100vw;
+            display: flex; flex-direction: column; overflow: hidden; 
+        }
+        
+        header { 
+            height: 60px; background: var(--panel); border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 25px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); 
+            flex-shrink: 0; /* Prevents header from shrinking */
+        }
+        
         .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); }
-        
         .controls { display: flex; gap: 10px; }
         select, input { background: #1a1a1a; color: #ddd; border: 1px solid #444; padding: 6px 10px; font-family: 'Cinzel', serif; font-size: 0.8rem; border-radius: 3px; outline: none; }
         select:hover, input:focus { border-color: var(--gold); }
 
-        .main-container { flex: 1; position: relative; display: flex; }
-        #network { flex-grow: 1; background: radial-gradient(circle at center, #111 0%, #000 120%); }
-        #mytimeline { height: 120px; background: rgba(10,10,10,0.95); border-top: 1px solid var(--border); z-index: 20; position: relative; }
+        /* MAIN CONTAINER takes all available space */
+        .main-container { flex: 1; position: relative; display: flex; overflow: hidden; }
+        
+        #network { width: 100%; height: 100%; background: radial-gradient(circle at center, #111 0%, #000 120%); }
+        
+        /* TIMELINE fixed height at bottom */
+        #mytimeline { 
+            height: 140px; background: rgba(10,10,10,0.95); 
+            border-top: 1px solid var(--border); z-index: 20; position: relative; 
+            flex-shrink: 0; /* Prevents timeline from shrinking */
+        }
 
         /* SIDE PANEL */
         #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.4s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; box-shadow: -5px 0 30px rgba(0,0,0,0.9); }
@@ -33,12 +53,10 @@
         .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 600; }
         .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; }
         .iast { font-style: italic; color: #e6c673; }
-
         .works-list { margin-top: 5px; padding-left: 0; list-style: none; }
         .works-list li { margin-bottom: 4px; color: #aaa; font-size: 0.9rem; }
         .works-list li::before { content: "•"; color: var(--gold); display: inline-block; width: 1em; margin-left: -1em; }
-
-        .legend { position: absolute; bottom: 140px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
+        .legend { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -88,7 +106,7 @@
 <div id="mytimeline"></div>
 
 <script type="text/javascript">
-    // --- SETUP VARIABLES ---
+    // --- VARIABLES ---
     let nodes = new vis.DataSet([]);
     let edges = new vis.DataSet([]);
     let allNodes = [];
@@ -106,22 +124,54 @@
         return "#ddd";
     }
 
-    // --- INITIALIZE GRAPH ---
+    // --- GRAPH INITIALIZATION ---
     const container = document.getElementById('network');
     const data = { nodes: nodes, edges: edges };
+    
+    // 🔥 PERFORMANCE FIX: PHYSICS SETTINGS 🔥
     const options = {
-        nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
-        edges: { smooth: { type: "continuous" } },
+        nodes: { 
+            borderWidth: 1, 
+            shadow: true, 
+            font: { face: 'Noto Serif', color: '#ccc' },
+            shape: 'dot',
+            size: 15
+        },
+        edges: { 
+            smooth: { type: "continuous" },
+            width: 1,
+            color: { color: '#555', opacity: 0.6 }
+        },
         physics: { 
-            // STABILIZATION: This fixes the "Zooming/Moving" Glitch
-            stabilization: { enabled: true, iterations: 1000 }, 
-            barnesHut: { gravitationalConstant: -3000, springConstant: 0.04, springLength: 95 } 
+            // This stops the drifting. It stabilizes heavily on load, then STOPS.
+            stabilization: {
+                enabled: true,
+                iterations: 1000, // Run 1000 calculations before showing
+                updateInterval: 25,
+                onlyDynamicEdges: false,
+                fit: true 
+            },
+            barnesHut: { 
+                gravitationalConstant: -8000, // Stronger repulsion to separate nodes
+                centralGravity: 0.3,
+                springLength: 95,
+                springConstant: 0.04,
+                damping: 0.09
+            },
+            minVelocity: 0.75 // Stop moving sooner
         },
         interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true }
     };
+    
     const network = new vis.Network(container, data, options);
 
-    // --- LOAD DATA FROM DATA.JS ---
+    // --- EVENT: STOP PHYSICS AFTER LOAD ---
+    // This is the magic fix. Once graph is drawn, TURN OFF PHYSICS.
+    network.on("stabilizationIterationsDone", function () {
+        network.setOptions( { physics: false } );
+    });
+
+    // --- LOAD DATA ---
     if (typeof rawData !== 'undefined') {
         rawData.forEach(p => {
             allNodes.push({
@@ -145,32 +195,35 @@
                     from: l.s, to: l.t, 
                     arrows: "to", color: {color: color}, 
                     dashes: dashes, 
-                    label: l.type, font: {size: 9, color: '#777', strokeWidth: 0} 
+                    label: l.type, font: {size: 9, color: '#777', strokeWidth: 0, align:'middle'} 
                 });
             }
         });
 
-        // Add to graph
         nodes.add(allNodes);
         edges.add(allEdges);
-        
-        // This ensures the graph is centered immediately
-        network.fit(); 
     }
 
-    // --- INITIALIZE TIMELINE ---
-    // Using simple data loading directly from rawData
+    // --- TIMELINE ---
     const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
         id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
     })));
     
     const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
         height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
-        start: new Date(0).setFullYear(-500), end: new Date(0).setFullYear(2000)
+        start: new Date(0).setFullYear(-500), end: new Date(0).setFullYear(2000),
+        zoomMin: 1000 * 60 * 60 * 24 * 365 * 10 // Prevent zooming too deep (min 10 years)
     });
 
-    // --- INTERACTION LOGIC ---
+    timeline.on('select', (props) => {
+        if(props.items.length) {
+            const item = timelineData.get(props.items[0]);
+            const person = rawData.find(p => p.id === item.personId);
+            if(person) openPanel(person);
+        }
+    });
 
+    // --- INTERACTION ---
     function updateGraph() {
         const sFilter = document.getElementById('schoolFilter').value;
         const rFilter = document.getElementById('regionFilter').value;
@@ -179,7 +232,7 @@
             let p = n.data;
             let show = true;
             if (sFilter !== 'all' && p.school !== sFilter && p.group !== sFilter) show = false;
-            if (rFilter !== 'all' && p.region !== rFilter) show = false;
+            if (rFilter !== 'all' && p.region !== rFilter && p.region !== rFilter) show = false; // Fixed zone check
             if (p.isDeity && sFilter === 'all' && rFilter === 'all') show = true;
             return show;
         });
@@ -192,56 +245,12 @@
         const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
         edges.add(filteredEdges);
         
-        network.fit();
+        // RE-STABILIZE ON FILTER
+        network.setOptions( { physics: true } ); // Turn on to rearrange
+        network.fit(); // Center camera
     }
 
-    // Click on Timeline
-    timeline.on('select', (props) => {
-        if(props.items.length) {
-            const item = timelineData.get(props.items[0]);
-            const person = rawData.find(p => p.id === item.personId);
-            if(person) openPanel(person);
-        }
-    });
-
-    // Click on Network
-    network.on("click", function(params) {
-        if (params.nodes.length > 0) {
-            const nodeId = params.nodes[0];
-            const node = nodes.get(nodeId);
-            if (node) {
-                openPanel(node.data);
-                if(!node.data.isDeity) {
-                    const tItem = timelineData.get({ filter: i => i.personId === node.id });
-                    if(tItem.length) timeline.moveTo(tItem[0].start);
-                }
-            }
-        } else {
-            document.getElementById('side-panel').style.width = "0";
-            document.getElementById('panel-content').style.opacity = "0";
-        }
-    });
-
-    // Search
-    function searchNode(e) {
-        if (e.key === 'Enter') {
-            const q = document.getElementById('search').value.toLowerCase();
-            const found = allNodes.find(n => n.label.toLowerCase().includes(q));
-            if (found) {
-                document.getElementById('schoolFilter').value = 'all';
-                document.getElementById('regionFilter').value = 'all';
-                updateGraph();
-                
-                setTimeout(() => {
-                    network.selectNodes([found.id]);
-                    network.focus(found.id, { scale: 1.5, animation: true });
-                    openPanel(found.data);
-                }, 100);
-            }
-        }
-    }
-
-    // Side Panel Display
+    // Side Panel
     function openPanel(d) {
         document.getElementById('p-name').innerText = d.iast || d.label;
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
@@ -260,6 +269,41 @@
 
         document.getElementById('side-panel').style.width = "400px";
         document.getElementById('panel-content').style.opacity = "1";
+    }
+
+    network.on("click", function(params) {
+        if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            const node = nodes.get(nodeId);
+            if (node) {
+                openPanel(node.data);
+                if(!node.data.isDeity) {
+                    const tItem = timelineData.get({ filter: i => i.personId === node.id });
+                    if(tItem.length) timeline.moveTo(tItem[0].start);
+                }
+            }
+        } else {
+            document.getElementById('side-panel').style.width = "0";
+            document.getElementById('panel-content').style.opacity = "0";
+        }
+    });
+
+    function searchNode(e) {
+        if (e.key === 'Enter') {
+            const q = document.getElementById('search').value.toLowerCase();
+            const found = allNodes.find(n => n.label.toLowerCase().includes(q));
+            if (found) {
+                document.getElementById('schoolFilter').value = 'all';
+                document.getElementById('regionFilter').value = 'all';
+                updateGraph();
+                
+                setTimeout(() => {
+                    network.selectNodes([found.id]);
+                    network.focus(found.id, { scale: 1.5, animation: true });
+                    openPanel(found.data);
+                }, 100);
+            }
+        }
     }
 </script>
 </body>
