@@ -9,8 +9,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 
-    <script src="data.js"></script>
-
     <style>
         :root { --bg: #050505; --panel: #0f0f0f; --gold: #d4af37; --silver: #a5a5a5; --border: #333; }
         body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Noto Serif', serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -42,6 +40,9 @@
 
         /* LEGEND */
         .legend { position: absolute; bottom: 140px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
+        
+        /* LOADING SPINNER */
+        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--gold); font-family: 'Cinzel', serif; font-size: 1.2rem; display: none; z-index: 5000; }
     </style>
 </head>
 <body>
@@ -73,6 +74,7 @@
 </header>
 
 <div class="main-container">
+    <div id="loader">Fetching Archives...</div>
     <div id="network"></div>
     <div class="legend">★ Deity | ● Guru/Scholar | ── Lineage</div>
     
@@ -91,23 +93,17 @@
 <div id="mytimeline"></div>
 
 <script type="text/javascript">
-    // --- NETWORK SETUP ---
+    // --- GLOBAL VARIABLES ---
+    let network = null;
+    let timeline = null;
     let nodes = new vis.DataSet([]);
     let edges = new vis.DataSet([]);
     let allNodes = [];
     let allEdges = [];
+    let rawData = [];
+    let lineages = [];
 
-    const container = document.getElementById('network');
-    const data = { nodes: nodes, edges: edges };
-    const options = {
-        nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
-        edges: { smooth: { type: "continuous" } },
-        physics: { stabilization: false, barnesHut: { gravitationalConstant: -2000, springConstant: 0.04, springLength: 95 } },
-        interaction: { hover: true, tooltipDelay: 50 }
-    };
-    const network = new vis.Network(container, data, options);
-
-    // COLOR MAPPING
+    // --- COLOR MAPPING ---
     function getColor(school) {
         if (!school) return "#ddd";
         if (school.includes('Advaita')) return "#ff9800";
@@ -119,40 +115,116 @@
         return "#ddd";
     }
 
-    // INITIAL DATA PROCESSING
-    if (typeof rawData !== 'undefined') {
-        rawData.forEach(p => {
-            allNodes.push({
-                id: p.id,
-                label: p.isDeity ? "★ " + p.label : p.label,
-                group: p.school,
-                value: p.isDeity ? 30 : 15,
-                color: p.isDeity ? "#ffd700" : getColor(p.school),
-                shape: p.isDeity ? "star" : "dot",
-                data: p
-            });
-        });
+    // --- MAIN INITIALIZATION ---
+    const databaseURL = "https://indosphere-db-default-rtdb.asia-southeast1.firebasedatabase.app/indosphere_data.json";
+    
+    document.getElementById('loader').style.display = 'block';
 
-        lineages.forEach(l => {
-            let s = rawData.find(x => x.id === l.s);
-            let t = rawData.find(x => x.id === l.t);
-            if (s && t) {
-                let color = l.type.includes("Guru") ? "#d4af37" : "#555";
-                let dashes = !l.type.includes("Guru");
-                allEdges.push({ 
-                    from: l.s, to: l.t, 
-                    arrows: "to", color: {color: color}, 
-                    dashes: dashes, 
-                    label: l.type, font: {size: 9, color: '#777', strokeWidth: 0} 
+    fetch(databaseURL)
+        .then(response => response.json())
+        .then(cloudData => {
+            document.getElementById('loader').style.display = 'none';
+            if (!cloudData) return;
+
+            // 1. Process Data
+            rawData = cloudData.nodes || [];
+            lineages = cloudData.edges || [];
+
+            if (rawData.length) {
+                rawData.forEach(p => {
+                    allNodes.push({
+                        id: p.id,
+                        label: p.isDeity ? "★ " + p.label : p.label,
+                        group: p.school,
+                        value: p.isDeity ? 30 : 15,
+                        color: p.isDeity ? "#ffd700" : getColor(p.school),
+                        shape: p.isDeity ? "star" : "dot",
+                        data: p
+                    });
                 });
             }
-        });
-        
-        nodes.add(allNodes);
-        edges.add(allEdges);
-    }
 
-    // UPDATE GRAPH (FILTERING)
+            if (lineages.length) {
+                lineages.forEach(l => {
+                    let s = rawData.find(x => x.id === l.s);
+                    let t = rawData.find(x => x.id === l.t);
+                    if (s && t) {
+                        let color = l.type.includes("Guru") ? "#d4af37" : "#555";
+                        let dashes = !l.type.includes("Guru");
+                        allEdges.push({ 
+                            from: l.s, to: l.t, 
+                            arrows: "to", color: {color: color}, 
+                            dashes: dashes, 
+                            label: l.type, font: {size: 9, color: '#777', strokeWidth: 0} 
+                        });
+                    }
+                });
+            }
+
+            // 2. Initialize Network (Graph)
+            const container = document.getElementById('network');
+            nodes.add(allNodes);
+            edges.add(allEdges);
+            
+            const data = { nodes: nodes, edges: edges };
+            const options = {
+                nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
+                edges: { smooth: { type: "continuous" } },
+                physics: { 
+                    stabilization: { enabled: true, iterations: 1000 }, // Fixes lag and initial positioning
+                    barnesHut: { gravitationalConstant: -3000, springConstant: 0.04, springLength: 95 } 
+                },
+                interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true }
+            };
+            
+            network = new vis.Network(container, data, options);
+            
+            // Interaction: Click
+            network.on("click", function(params) {
+                if (params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    const node = nodes.get(nodeId);
+                    if (node) {
+                        openPanel(node.data);
+                        if(!node.data.isDeity) {
+                            const tItem = timelineData.get({ filter: i => i.personId === node.id });
+                            if(tItem.length) timeline.moveTo(tItem[0].start);
+                        }
+                    }
+                } else {
+                    document.getElementById('side-panel').style.width = "0";
+                    document.getElementById('panel-content').style.opacity = "0";
+                }
+            });
+
+            // 3. Initialize Timeline
+            const timelineContainer = document.getElementById('mytimeline');
+            const tItems = rawData.filter(x => !x.isDeity).map((t, i) => ({
+                id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
+            }));
+            
+            const timelineData = new vis.DataSet(tItems);
+            
+            timeline = new vis.Timeline(timelineContainer, timelineData, {
+                height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
+                start: new Date(0).setFullYear(-500), end: new Date(0).setFullYear(2000)
+            });
+
+            timeline.on('select', (props) => {
+                if(props.items.length) {
+                    const item = timelineData.get(props.items[0]);
+                    const person = rawData.find(p => p.id === item.personId);
+                    if(person) openPanel(person);
+                }
+            });
+
+        })
+        .catch(error => {
+            console.error("Connection failed:", error);
+            document.getElementById('loader').innerText = "Failed to load data.";
+        });
+
+    // --- FILTER LOGIC ---
     function updateGraph() {
         const sFilter = document.getElementById('schoolFilter').value;
         const rFilter = document.getElementById('regionFilter').value;
@@ -161,9 +233,8 @@
             let p = n.data;
             let show = true;
             if (sFilter !== 'all' && p.school !== sFilter && p.group !== sFilter) show = false;
-            if (rFilter !== 'all' && p.region !== rFilter && p.zone !== rFilter) show = false;
-            // Always show deities unless filtered out by specific school view logic if desired
-            if(p.isDeity && sFilter === 'all' && rFilter === 'all') show = true;
+            if (rFilter !== 'all' && p.region !== rFilter) show = false;
+            if (p.isDeity && sFilter === 'all' && rFilter === 'all') show = true;
             return show;
         });
 
@@ -171,44 +242,26 @@
         edges.clear();
         nodes.add(filteredNodes);
 
-        // Filter Edges: Only show if both nodes are present
         const visibleIds = new Set(filteredNodes.map(n => n.id));
         const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
         edges.add(filteredEdges);
+        
+        // Stabilize after filter
+        network.fit();
     }
 
-    // TIMELINE SETUP
-    const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
-        id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
-    })));
-    
-    const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
-        height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
-        start: new Date(0).setFullYear(1000), end: new Date(0).setFullYear(2000)
-    });
-
-    timeline.on('select', (props) => {
-        if(props.items.length) {
-            const item = timelineData.get(props.items[0]);
-            const person = rawData.find(p => p.id === item.personId);
-            if(person) openPanel(person);
-        }
-    });
-
-    // PANEL LOGIC
+    // --- PANEL LOGIC ---
     function openPanel(d) {
         document.getElementById('p-name').innerText = d.iast || d.label;
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
         document.getElementById('p-school').innerText = d.school || "";
-        document.getElementById('p-region').innerText = d.region + (d.zone ? ` (${d.zone})` : "");
+        document.getElementById('p-region').innerText = d.region || "";
         document.getElementById('p-work').innerText = d.work || "N/A";
         document.getElementById('p-note').innerText = d.note || "";
         
-        // Lineage
         let parent = lineages.find(l => l.t === d.id && l.type.includes("Guru"));
         document.getElementById('p-lineage').innerText = parent ? `Disciple of ${parent.s}` : "Source / Independent";
 
-        // Other Works
         const ul = document.getElementById('p-others');
         ul.innerHTML = "";
         if (d.others && d.others.length > 0) d.others.forEach(w => ul.innerHTML += `<li>${w}</li>`);
@@ -218,36 +271,22 @@
         document.getElementById('panel-content').style.opacity = "1";
     }
 
-    network.on("click", function(params) {
-        if (params.nodes.length > 0) {
-            const nodeId = params.nodes[0];
-            const node = nodes.get(nodeId);
-            if (node) {
-                openPanel(node.data);
-                if(!node.data.isDeity) {
-                    const tItem = timelineData.get({ filter: i => i.personId === node.id });
-                    if(tItem.length) timeline.moveTo(tItem[0].start);
-                }
-            }
-        } else {
-            document.getElementById('side-panel').style.width = "0";
-            document.getElementById('panel-content').style.opacity = "0";
-        }
-    });
-
+    // --- SEARCH LOGIC ---
     function searchNode(e) {
         if (e.key === 'Enter') {
             const q = document.getElementById('search').value.toLowerCase();
             const found = allNodes.find(n => n.label.toLowerCase().includes(q));
             if (found) {
-                // Ensure node is visible
                 document.getElementById('schoolFilter').value = 'all';
                 document.getElementById('regionFilter').value = 'all';
                 updateGraph();
                 
-                network.selectNodes([found.id]);
-                network.focus(found.id, { scale: 1.5, animation: true });
-                openPanel(found.data);
+                // Slight delay to allow graph to redraw
+                setTimeout(() => {
+                    network.selectNodes([found.id]);
+                    network.focus(found.id, { scale: 1.5, animation: true });
+                    openPanel(found.data);
+                }, 100);
             }
         }
     }
