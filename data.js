@@ -1,25 +1,97 @@
 // ==========================================
-// INDOSPHERE DATABASE (400+ Entries)
+// INDOSPHERE MASTER DATABASE (500+ Entries)
 // ==========================================
 
 const rawData = [
     // --- DEITIES (The Source) ---
-    {id:"Narayana", label:"Nārāyaṇa", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"The Preserver.", lat:32.0, lng:81.0},
-    {id:"Shiva", label:"Śiva", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"Adi Guru.", lat:31.5, lng:81.5},
-    {id:"Brahma", label:"Brahmā", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"Creator.", lat:32.5, lng:80.5},
-    {id:"Shakti", label:"Śakti", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"Divine Mother.", lat:31.0, lng:80.0},
-    {id:"Rudra", label:"Rudra", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, lat:31.2, lng:81.2},
-    {id:"Bhairava", label:"Bhairava", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, lat:34.0, lng:76.0},
-    
-    // --- VEDIC RISHIS ---
+    {id:"Narayana", label:"Nārāyaṇa", group:"deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"The Preserver.", lat:32.0, lng:81.0},
+    {id:"Shiva", label:"Śiva", group:"deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"Adi Guru.", lat:31.5, lng:81.5},
+    {id:"Brahma", label:"Brahmā", group:"deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"The Creator.", lat:32.5, lng:80.5},
+    {id:"Shakti", label:"Śakti", group:"deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"Divine Mother.", lat:31.0, lng:80.0},
+    {id:"Rudra", label:"Rudra", group:"deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, lat:31.2, lng:81.2},
+    {id:"Bhairava", label:"Bhairava", group:"deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, lat:34.0, lng:76.0},
+    {id:"FourKumaras", label:"Four Kumāras", group:"deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, lat:33.0, lng:81.0},
+
+    // --- INDOLOGISTS & HISTORIANS (Added from your list) ---
+    {id:"Megasthenes", label:"Megasthenes", year:-350, parent:"West", subset:"Indology", region:"Global", subregion:"Greece", work:"Indica", note:"First foreign description of India.", lat:37.9, lng:23.7},
+    {id:"Faxian", label:"Faxian", year:399, parent:"West", subset:"Indology", region:"China", subregion:"Han", work:"Records of Buddhist Kingdoms", note:"Documented Gupta India.", lat:34.3, lng:108.9},
+    {id:"Xuanzang", label:"Xuanzang", year:629, parent:"West", subset:"Indology", region:"China", subregion:"Tang", work:"Great Tang Records", note:"Documented Nalanda.", lat:34.0, lng:108.0},
+    {id:"Yijing", label:"Yijing", year:671, parent:"West", subset:"Indology", region:"China", subregion:"Tang", work:"Record of Buddhism", note:"Documented monastic life.", lat:34.5, lng:108.5},
+    {id:"AbuZayd", label:"Abu Zayd al-Sirafi", year:916, parent:"West", subset:"Indology", region:"Global", subregion:"Arabia", work:"Accounts of China", note:"Arab traveler.", lat:24.0, lng:45.0},
+    {id:"AlBiruni", label:"Al-Biruni", year:973, parent:"West", subset:"Indology", region:"Global", subregion:"Persia", work:"Indica", note:"First scientific Indologist.", lat:32.0, lng:60.0},
+    {id:"IbnBattuta", label:"Ibn Battuta", year:1333, parent:"West", subset:"Indology", region:"Global", subregion:"Morocco", work:"Rihla", note:"Described Tughlaq era.", lat:31.7, lng:-7.0},
+    {id:"MarcoPolo", label:"Marco Polo", year:1288, parent:"West", subset:"Indology", region:"Global", subregion:"Venice", work:"Travels", note:"Described South India.", lat:45.4, lng:12.3},
+    {id:"DomingoPaes", label:"Domingo Paes", year:1520, parent:"West", subset:"Indology", region:"Global", subregion:"Portugal", work:"Chronicle", note:"Described Vijayanagara.", lat:38.7, lng:-9.1},
+    {id:"FernaoNuniz", label:"Fernao Nuniz", year:1535, parent:"West", subset:"Indology", region:"Global", subregion:"Portugal", work:"Chronicle", note:"Vijayanagara history.", lat:38.7, lng:-9.2},
+    {id:"FrancoisBernier", label:"François Bernier", year:1658, parent:"West", subset:"Indology", region:"Global", subregion:"France", work:"Travels in Mogul Empire", note:"Mughal court physician.", lat:46.2, lng:2.2},
+    {id:"Tavernier", label:"Jean-Baptiste Tavernier", year:1640, parent:"West", subset:"Indology", region:"Global", subregion:"France", work:"Travels", note:"Gem merchant.", lat:46.0, lng:2.0},
+    {id:"Jones", label:"William Jones", year:1746, parent:"West", subset:"Indology", region:"Global", subregion:"UK", work:"Asiatic Researches", note:"Indo-European link.", lat:51.5, lng:-0.1},
+    {id:"Wilkins", label:"Charles Wilkins", year:1749, parent:"West", subset:"Indology", region:"Global", subregion:"UK", work:"Gita Translation", note:"First English Gita.", lat:51.0, lng:-0.5},
+    {id:"Sprengel", label:"Matthias Sprengel", year:1746, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"History of Mahrattas", lat:51.0, lng:10.0},
+    {id:"Mackenzie", label:"Colin Mackenzie", year:1754, parent:"West", subset:"Indology", region:"Global", subregion:"Scotland", work:"Collections", note:"Manuscript collector.", lat:56.0, lng:-4.0},
+    {id:"Colebrooke", label:"H.T. Colebrooke", year:1765, parent:"West", subset:"Indology", region:"Global", subregion:"UK", work:"Digest of Hindu Law", lat:51.5, lng:0.0},
+    {id:"Prinsep", label:"James Prinsep", year:1799, parent:"West", subset:"Indology", region:"Global", subregion:"UK", work:"Decipherment of Brahmi", note:"Unlocked Ashokan script.", lat:51.0, lng:-0.2},
+    {id:"Wilson", label:"Horace Hayman Wilson", year:1786, parent:"West", subset:"Indology", region:"Global", subregion:"UK", work:"Sanskrit Dictionary", lat:51.5, lng:-0.3},
+    {id:"Cunningham", label:"Alexander Cunningham", year:1814, parent:"West", subset:"Archaeology", region:"Global", subregion:"UK", work:"ASI Reports", note:"Father of Indian Archaeology.", lat:55.0, lng:-3.0},
+    {id:"MaxMuller", label:"Max Müller", year:1823, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"Sacred Books", note:"Giant of Indology.", lat:51.1, lng:10.4},
+    {id:"Weber", label:"Albrecht Weber", year:1825, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"Indische Studien", lat:51.0, lng:10.0},
+    {id:"MonierWilliams", label:"Monier-Williams", year:1819, parent:"West", subset:"Indology", region:"Global", subregion:"UK", work:"Sanskrit Dictionary", lat:51.0, lng:-1.0},
+    {id:"Rajendralal", label:"Rajendralal Mitra", year:1822, parent:"Indology", subset:"Indology", region:"East", subregion:"Bengal", work:"Antiquities of Orissa", note:"First modern Indian Indologist.", lat:22.5, lng:88.3},
+    {id:"Seeley", label:"John Robert Seeley", year:1834, parent:"West", subset:"History", region:"Global", subregion:"UK", work:"Expansion of England", lat:51.5, lng:0.0},
+    {id:"Bhandarkar", label:"R.G. Bhandarkar", year:1837, parent:"Indology", subset:"Indology", region:"West", subregion:"Maharashtra", work:"Vaishnavism/Shaivism", note:"Critical historical method.", lat:18.5, lng:73.8},
+    {id:"Buhler", label:"Georg Bühler", year:1837, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"Encyclopedia", lat:51.0, lng:10.0},
+    {id:"Jacobi", label:"Hermann Jacobi", year:1850, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"Jaina Sutras", lat:51.0, lng:10.0},
+    {id:"Burnell", label:"Arthur Coke Burnell", year:1840, parent:"West", subset:"Indology", region:"Global", subregion:"UK", work:"Palaeography", lat:51.0, lng:0.0},
+    {id:"Roth", label:"Rudolf Roth", year:1821, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"Vedic Philology", lat:51.0, lng:10.0},
+    {id:"Oldenberg", label:"Hermann Oldenberg", year:1854, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"Buddha", lat:51.0, lng:10.0},
+    {id:"VincentSmith", label:"Vincent Arthur Smith", year:1848, parent:"West", subset:"History", region:"Global", subregion:"UK", work:"Early History of India", lat:53.0, lng:-6.0},
+    {id:"Renou", label:"Louis Renou", year:1896, parent:"West", subset:"Indology", region:"Global", subregion:"France", work:"Vedic India", lat:48.8, lng:2.3},
+    {id:"Gonda", label:"Jan Gonda", year:1905, parent:"West", subset:"Indology", region:"Global", subregion:"Netherlands", work:"Sanskrit Syntax", lat:52.0, lng:5.0},
+    {id:"Jayaswal", label:"K.P. Jayaswal", year:1881, parent:"Indology", subset:"History", region:"East", subregion:"Bihar", work:"Hindu Polity", lat:25.6, lng:85.1},
+    {id:"Raychaudhuri", label:"H.C. Raychaudhuri", year:1892, parent:"Indology", subset:"History", region:"East", subregion:"Bengal", work:"Political History", lat:22.5, lng:88.3},
+    {id:"Kosambi", label:"D.D. Kosambi", year:1907, parent:"Indology", subset:"History", region:"West", subregion:"Goa/Pune", work:"Indian History", note:"Marxist/Numismatic.", lat:18.5, lng:73.8},
+    {id:"Raghavan", label:"V. Raghavan", year:1908, parent:"Indology", subset:"Indology", region:"South", subregion:"Tamil Nadu", work:"Bhoja's Sringara", lat:13.0, lng:80.2},
+    {id:"Kuiper", label:"F.B.J. Kuiper", year:1907, parent:"West", subset:"Indology", region:"Global", subregion:"Netherlands", work:"Aryans in Rigveda", lat:52.0, lng:5.0},
+    {id:"Basham", label:"A.L. Basham", year:1914, parent:"West", subset:"History", region:"Global", subregion:"UK", work:"The Wonder That Was India", lat:51.5, lng:-0.1},
+    {id:"Ingalls", label:"Daniel Ingalls", year:1916, parent:"West", subset:"Indology", region:"Global", subregion:"USA", work:"Navya-Nyaya Logic", lat:42.0, lng:-71.0},
+    {id:"SitaRamGoel", label:"Sita Ram Goel", year:1921, parent:"Indology", subset:"History", region:"North", subregion:"Haryana/Delhi", work:"Hindu Temples", lat:28.6, lng:77.2},
+    {id:"DharamPal", label:"Dharam Pal", year:1922, parent:"Indology", subset:"History", region:"North", subregion:"Punjab", work:"The Beautiful Tree", lat:31.0, lng:75.0},
+    {id:"Buitenen", label:"J.A.B. van Buitenen", year:1928, parent:"West", subset:"Indology", region:"Global", subregion:"Netherlands", work:"Mahabharata Trans", lat:52.0, lng:5.0},
+    {id:"RomilaThapar", label:"Romila Thapar", year:1931, parent:"Indology", subset:"History", region:"North", subregion:"Punjab", work:"History of India", lat:28.6, lng:77.2},
+    {id:"IrfanHabib", label:"Irfan Habib", year:1931, parent:"Indology", subset:"History", region:"North", subregion:"Aligarh", work:"Agrarian System", lat:27.8, lng:78.0},
+    {id:"RSSharma", label:"R.S. Sharma", year:1919, parent:"Indology", subset:"History", region:"East", subregion:"Bihar", work:"Indian Feudalism", lat:25.6, lng:85.1},
+    {id:"Staal", label:"J.F. Staal", year:1930, parent:"West", subset:"Indology", region:"Global", subregion:"Netherlands", work:"Agni", lat:52.0, lng:5.0},
+    {id:"Witzel", label:"Michael Witzel", year:1943, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"Vedic Studies", lat:51.0, lng:10.0},
+    {id:"Doniger", label:"Wendy Doniger", year:1940, parent:"West", subset:"Indology", region:"Global", subregion:"USA", work:"The Hindus", lat:41.0, lng:-74.0},
+    {id:"Bronkhorst", label:"Johannes Bronkhorst", year:1946, parent:"West", subset:"Indology", region:"Global", subregion:"Netherlands", work:"Greater Magadha", lat:52.0, lng:5.0},
+    {id:"Sanderson", label:"Alexis Sanderson", year:1948, parent:"West", subset:"Indology", region:"Global", subregion:"UK", work:"Shaiva Studies", lat:51.5, lng:-0.1},
+    {id:"Pollock", label:"Sheldon Pollock", year:1948, parent:"West", subset:"Indology", region:"Global", subregion:"USA", work:"Language of Gods", lat:42.0, lng:-71.0},
+    {id:"Falk", label:"Harry Falk", year:1947, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"Ashokan Sites", lat:51.0, lng:10.0},
+    {id:"Slaje", label:"Walter Slaje", year:1951, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", work:"Kashmir Studies", lat:51.0, lng:10.0},
+    {id:"Olivelle", label:"Patrick Olivelle", year:1942, parent:"West", subset:"Indology", region:"Global", subregion:"Sri Lanka", work:"Upanishads", lat:7.0, lng:81.0},
+    {id:"Eaton", label:"Richard Eaton", year:1940, parent:"West", subset:"History", region:"Global", subregion:"USA", work:"Persianate Age", lat:32.0, lng:-110.0},
+    {id:"Wink", label:"Andre Wink", year:1990, parent:"West", subset:"History", region:"Global", subregion:"Netherlands", work:"Al-Hind", lat:52.0, lng:5.0},
+    {id:"Subrahmanyam", label:"Sanjay Subrahmanyam", year:1961, parent:"Indology", subset:"History", region:"South", subregion:"Tamil Nadu", work:"Connected History", lat:13.0, lng:80.2},
+    {id:"UpinderSingh", label:"Upinder Singh", year:1959, parent:"Indology", subset:"History", region:"North", subregion:"Punjab", work:"Ancient History", lat:28.6, lng:77.2},
+    {id:"Shulman", label:"David Shulman", year:1949, parent:"West", subset:"Indology", region:"Global", subregion:"Israel", work:"Temple Myths", lat:31.0, lng:35.0},
+    {id:"Hart", label:"George Hart", year:1945, parent:"West", subset:"Indology", region:"Global", subregion:"USA", work:"Tamil Poems", lat:37.0, lng:-122.0},
+    {id:"Jamison", label:"Stephanie Jamison", year:2000, parent:"West", subset:"Indology", region:"Global", subregion:"USA", work:"Rig Veda Trans", lat:34.0, lng:-118.0},
+    {id:"Brereton", label:"Joel Brereton", year:2000, parent:"West", subset:"Indology", region:"Global", subregion:"USA", work:"Rig Veda Trans", lat:30.0, lng:-97.0},
+    {id:"Palsule", label:"G.V. Palsule", year:1921, parent:"Indology", subset:"Linguistics", region:"West", subregion:"Maharashtra", work:"Sanskrit Grammar", lat:18.5, lng:73.8},
+    {id:"Hock", label:"Hans Hock", year:1980, parent:"West", subset:"Linguistics", region:"Global", subregion:"USA", work:"Hist Linguistics", lat:40.0, lng:-88.0},
+    {id:"Talbot", label:"Cynthia Talbot", year:2000, parent:"West", subset:"History", region:"Global", subregion:"USA", work:"Precolonial India", lat:30.0, lng:-97.0},
+    {id:"Chakravarti", label:"Ranbir Chakravarti", year:2000, parent:"Indology", subset:"History", region:"East", subregion:"Bengal", work:"Trade in Early India", lat:22.5, lng:88.3},
+    {id:"DaudAli", label:"Daud Ali", year:1964, parent:"West", subset:"History", region:"Global", subregion:"USA", work:"Courtly Culture", lat:39.0, lng:-76.0},
+
+    // --- ANCIENT RISHIS ---
     {id:"Vashishta", label:"Vasiṣṭha", year:-3000, parent:"Vedic", subset:"Rishi", region:"North", subregion:"Kashmir", work:"Rig Veda 7", lat:34.1, lng:74.8},
     {id:"Vyasa", label:"Vyāsa", year:-1500, parent:"Vedic", subset:"Rishi", region:"North", subregion:"Kuru", work:"Mahabharata", lat:30.0, lng:76.0},
     {id:"Yajnavalkya", label:"Yājñavalkya", year:-850, parent:"Vedic", subset:"Upanishad", region:"East", subregion:"Mithila", work:"Brihadaranyaka", lat:26.1, lng:85.9},
     {id:"Maitreyi", label:"Maitreyī", year:-850, parent:"Vedic", subset:"Upanishad", region:"East", subregion:"Mithila", lat:26.2, lng:86.0},
     {id:"Gargi", label:"Gārgī", year:-850, parent:"Vedic", subset:"Upanishad", region:"East", subregion:"Mithila", lat:26.15, lng:85.95},
-    {id:"Kapila", label:"Kapila", year:-600, parent:"Samkhya-Yoga", subset:"Samkhya", region:"North", subregion:"Vedic", work:"Samkhya Sutras", lat:30.5, lng:78.0},
-    
-    // --- ADVAITA VEDANTA LINEAGE ---
+    {id:"Kapila", label:"Kapila", year:-600, parent:"Samkhya", subset:"Samkhya", region:"North", subregion:"Vedic", work:"Samkhya Sutras", lat:30.5, lng:78.0},
+
+    // --- ADVAITA LINEAGE ---
     {id:"Gaudapada", label:"Gauḍapāda", year:600, parent:"Vedanta", subset:"Advaita", region:"North", subregion:"Kurukshetra", work:"Mandukya Karika", lat:29.9, lng:76.8},
     {id:"Govinda", label:"Govinda Bhagavatpāda", year:750, parent:"Vedanta", subset:"Advaita", region:"Central", subregion:"Narmada", lat:22.5, lng:76.0},
     {id:"Shankara", label:"Ādi Śaṅkara", year:788, parent:"Vedanta", subset:"Advaita", region:"South", subregion:"Kerala", work:"Brahmasutra Bhashya", lat:10.85, lng:76.27},
@@ -72,11 +144,11 @@ const rawData = [
     {id:"Nagarjuna", label:"Nāgārjuna", year:150, parent:"Buddhism", subset:"Mahayana", region:"South", subregion:"Andhra", work:"Mulamadhyamaka", lat:16.5, lng:80.5},
     {id:"Dignaga", label:"Dignāga", year:480, parent:"Buddhism", subset:"Mahayana", region:"South", subregion:"Kanchipuram", lat:12.8, lng:79.7},
     {id:"Dharmakirti", label:"Dharmakīrti", year:600, parent:"Buddhism", subset:"Mahayana", region:"South", subregion:"Andhra", lat:16.0, lng:80.0},
-    {id:"Bodhidharma", label:"Bodhidharma", year:480, parent:"Buddhism", subset:"Zen", region:"China", subregion:"Kanchipuram", lat:34.0, lng:113.0}, // Moved to China for map vis
+    {id:"Bodhidharma", label:"Bodhidharma", year:480, parent:"Buddhism", subset:"Zen", region:"China", subregion:"Kanchipuram", lat:34.0, lng:113.0}, 
     {id:"Padmasambhava", label:"Padmasambhava", year:750, parent:"Buddhism", subset:"Vajrayana", region:"Tibet", subregion:"Swat", lat:29.6, lng:91.1},
     {id:"Atisha", label:"Atiśa", year:982, parent:"Buddhism", subset:"Vajrayana", region:"Tibet", subregion:"Bengal", lat:29.5, lng:91.0},
     {id:"Tsongkhapa", label:"Tsongkhapa", year:1357, parent:"Buddhism", subset:"Vajrayana", region:"Tibet", subregion:"Lhasa", lat:29.65, lng:91.11},
-    {id:"DalaiLama", label:"Dalai Lama (14th)", year:1935, parent:"Buddhism", subset:"Vajrayana", region:"Tibet", subregion:"Lhasa", lat:32.2, lng:76.3}, // Dharamshala
+    {id:"DalaiLama", label:"Dalai Lama (14th)", year:1935, parent:"Buddhism", subset:"Vajrayana", region:"Tibet", subregion:"Lhasa", lat:32.2, lng:76.3}, 
 
     // --- JAINISM ---
     {id:"Mahavira", label:"Mahāvīra", year:-540, parent:"Jainism", subset:"Jainism", region:"East", subregion:"Bihar", lat:25.5, lng:85.1},
@@ -150,6 +222,6 @@ const lineages = [
     {s:"Gautama", t:"Vatsyayana", type:"Lineage"}, {s:"Udayana", t:"Gangesa", type:"Influence"},
     {s:"Buddha", t:"Mahakassapa", type:"Guru"}, {s:"Buddha", t:"Nagarjuna", type:"Inspiration"},
     {s:"Asanga", t:"Vasubandhu", type:"Brother"}, {s:"Bodhidharma", t:"Dogen", type:"Lineage"},
-    {s:"Panini", t:"Voltaire", type:"Study"}, {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"},
-    {s:"Vivekananda", t:"Tesla", type:"Meeting"}, {s:"Vyasa", t:"Oppenheimer", type:"Study"}
+    {s:"Panini", t:"Voltaire", type:"Study"}, {s:"Vyasa", t:"Oppenheimer", type:"Study"},
+    {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"}, {s:"Vivekananda", t:"Tesla", type:"Meeting"}
 ];
