@@ -39,6 +39,17 @@ const rawData = [
     {id:"Charvaka", label:"Charvaka", year:-600, school:"Charvaka", region:"North", work:"Barhaspatya Sutras", others:[], note:"Materialist."},
     {id:"Brihaspati", label:"Brihaspati", year:-700, school:"Charvaka", region:"North", note:"Materialist Founder."},
 
+    // --- MISSING FIGURES (ADDED) ---
+    {id:"Nagarjuna", label:"Nāgārjuna", year:150, school:"Buddhism", region:"South", subregion:"Andhra", work:"Mulamadhyamakakarika", others:["Sunyatasaptati"], note:"Madhyamaka Founder."},
+    {id:"Aryadeva", label:"Āryadeva", year:200, school:"Buddhism", region:"South", subregion:"Andhra", work:"Catuhsataka", others:[], note:"Disciple of Nagarjuna."},
+    {id:"Dignaga", label:"Dignāga", year:480, school:"Buddhism", region:"South", subregion:"Kanchipuram", work:"Pramana-samuccaya", others:[], note:"Buddhist Logic."},
+    {id:"Huineng", label:"Huineng", year:638, school:"Buddhism", region:"China", work:"Platform Sutra", others:[], note:"6th Chan Patriarch."},
+    {id:"Milarepa", label:"Milarepa", year:1052, school:"Buddhism", region:"Tibet", work:"Hundred Thousand Songs", others:[], note:"Yogi & Poet."},
+    {id:"Bhadrabahu", label:"Bhadrabahu", year:-300, school:"Jainism", region:"South", subregion:"Karnataka", work:"Kalpa Sutra", others:[], note:"Spiritual Teacher of Chandragupta."},
+    {id:"Kundakunda", label:"Kundakunda", year:100, school:"Jainism", region:"South", work:"Samayasara", others:["Niyamasara"], note:"Digambara Leader."},
+    {id:"Kalidasa", label:"Kālidāsa", year:400, school:"Literature", region:"Central", subregion:"Ujjain", work:"Shakuntalam", others:["Meghaduta", "Raghuvamsha"], note:"Greatest Sanskrit Poet."},
+
+
     // --- ADVAITA LINEAGE ---
     {id:"Gaudapada", label:"Gaudapada", year:600, school:"Advaita", region:"North", work:"Mandukya Karika", others:[], note:"Grand-guru of Shankara."},
     {id:"Govinda", label:"Govinda Bhagavatpada", year:750, school:"Advaita", region:"Central", work:"Yoga Taravali", others:[], note:"Guru of Shankara."},
