@@ -52,19 +52,23 @@
         
         .panel-content { padding: 40px; min-width: 320px; opacity: 0; transition: opacity 0.3s 0.2s; }
         
-        .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 5px; }
-        .p-subtitle { font-size: 0.9rem; color: var(--silver); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 25px; display: block; }
+        .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 5px; line-height: 1.2; }
+        .p-subtitle { font-size: 0.85rem; color: var(--silver); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 25px; display: block; }
         
-        .p-label { color: #555; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 700; }
-        .p-value { font-size: 1.05rem; color: #ddd; line-height: 1.5; margin-top: 5px; font-weight: 300; }
+        /* ETHNICITY STYLING */
+        .eth-main { color: #fff; font-weight: 700; }
+        .eth-sub { color: var(--gold); font-style: italic; font-weight: 400; margin-left: 5px; font-family: 'Cinzel', serif; }
+
+        .p-label { color: #555; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 700; }
+        .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; font-weight: 300; }
         
         .p-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .tag { background: var(--tag-bg); padding: 4px 10px; border-radius: 2px; font-size: 0.8rem; color: #aaa; border: 1px solid #333; }
+        .tag { background: var(--tag-bg); padding: 4px 10px; border-radius: 2px; font-size: 0.75rem; color: #aaa; border: 1px solid #333; }
         
-        .p-quote { 
-            margin-top: 30px; padding: 20px; background: #0a0a0a; border-left: 3px solid var(--gold); 
-            font-style: italic; color: #ccc; font-family: 'Cinzel', serif; line-height: 1.6;
-        }
+        /* WORKS LIST */
+        .works-list { margin-top: 5px; padding-left: 0; list-style: none; }
+        .works-list li { margin-bottom: 4px; color: #ccc; font-size: 0.95rem; }
+        .works-list li::before { content: "•"; color: var(--gold); display: inline-block; width: 1em; margin-left: -1em; }
 
         /* TIMELINE */
         #mytimeline { 
@@ -90,8 +94,8 @@
 
             <div style="display: flex; gap: 20px;">
                 <div style="flex: 1;">
-                    <span class="p-label">Ethnicity / Origin</span>
-                    <div id="p-ethnicity" class="p-value" style="color: var(--silver)"></div>
+                    <span class="p-label">Origin / Region</span>
+                    <div id="p-ethnicity-container" class="p-value"></div>
                 </div>
                 <div style="flex: 1;">
                     <span class="p-label">Historical Context</span>
@@ -103,7 +107,10 @@
             <div id="p-tags" class="p-tags"></div>
 
             <span class="p-label">Magnum Opus</span>
-            <div id="p-work" class="p-value" style="font-style: italic;"></div>
+            <div id="p-work" class="p-value" style="font-style: italic; color: #fff;"></div>
+
+            <span class="p-label">Other Significant Works</span>
+            <ul id="p-other-works" class="works-list"></ul>
 
             <span class="p-label">Contribution</span>
             <div id="p-note" class="p-value"></div>
@@ -115,204 +122,226 @@
 
 <script type="text/javascript">
 
-// --- 1. THE DATA ENGINE ---
-
-// A. The "Enriched" Data (Hand-curated for Major Figures)
+// --- 1. RICH DATA ENRICHMENT (Top Figures) ---
 const richData = {
-    "Megasthenes": { ethnicity: "Greek (Hellenistic)", reign: "Mauryan Empire (Chandragupta)", tags: ["Diplomat", "History", "Traveler"] },
-    "Faxian": { ethnicity: "Chinese (Han)", reign: "Gupta Empire (Chandragupta II)", tags: ["Monk", "Traveler", "Translator"] },
-    "Xuanzang": { ethnicity: "Chinese (Tang)", reign: "Pushyabhuti (Harsha)", tags: ["Monk", "Traveler", "Yogacara"] },
-    "Al-Biruni": { ethnicity: "Persian (Khwarazmian)", reign: "Ghaznavid Empire", tags: ["Indology", "Anthropology", "Math"] },
-    "Marco Polo": { ethnicity: "Venetian", reign: "Pandyan Dynasty (Kulasekara)", tags: ["Merchant", "Explorer", "Traveler"] },
-    "Ibn Battuta": { ethnicity: "Moroccan (Berber)", reign: "Delhi Sultanate (Tughlaq)", tags: ["Judge (Qadi)", "Traveler", "Geography"] },
-    "Francois Bernier": { ethnicity: "French", reign: "Mughal Empire (Aurangzeb)", tags: ["Physician", "Traveler", "History"] },
-    "Vasco da Gama": { ethnicity: "Portuguese", reign: "Zamorin of Calicut", tags: ["Navigator", "Explorer", "Colonial"] },
-    "Domingo Paes": { ethnicity: "Portuguese", reign: "Vijayanagara (Krishnadevaraya)", tags: ["Merchant", "Chronicler"] },
-    "Panini": { ethnicity: "Indian (Gandhara)", reign: "Late Vedic / Nanda Era", tags: ["Linguistics", "Coding", "Grammar"] },
-    "Kautilya (Chanakya)": { ethnicity: "Indian (Takshashila)", reign: "Mauryan Empire", tags: ["Statecraft", "Spycraft", "Economics"] },
-    "Dara Shikoh": { ethnicity: "Mughal (Perso-Turkic)", reign: "Mughal Empire (Shah Jahan)", tags: ["Mystic", "Translator", "Prince"] },
-    "Adi Shankara": { ethnicity: "Indian (Kerala)", reign: "Classical Era (Rashtrakuta)", tags: ["Philosophy", "Advaita", "Monk"] },
-    "Swami Vivekananda": { ethnicity: "Indian (Bengali)", reign: "British Raj", tags: ["Philosophy", "Yoga", "Reformer"] },
-    "Voltaire": { ethnicity: "French", reign: "Enlightenment", tags: ["Philosophy", "Writer", "Indophile"] },
-    "Schopenhauer": { ethnicity: "German", reign: "German Confederation", tags: ["Philosophy", "Metaphysics", "Indophile"] },
-    "Nikola Tesla": { ethnicity: "Serbian-American", reign: "Modern USA", tags: ["Physics", "Invention", "Indophile"] },
-    "Oppenheimer": { ethnicity: "American", reign: "Atomic Age", tags: ["Physics", "Indophile", "Sanskritist"] },
-    "Steve Jobs": { ethnicity: "American", reign: "Digital Age", tags: ["Tech", "Design", "Zen"] }
+    "Dhanvantari": { region: "Vedic (Mythical)", works: ["Dhanvantari Nighantu", "Sushruta Samhita (Source)"] },
+    "Vyasa": { region: "Kuru-Panchala (North India)", works: ["Bhagavata Purana", "Brahma Sutras", "Puranas"] },
+    "Panini": { region: "Gandhara (North-West)", works: ["Dhatupatha (Root List)", "Ganapatha"] },
+    "Chanakya": { region: "Magadha (Bihar)", works: ["Chanakya Niti", "Nitishastra"] },
+    "Megasthenes": { ethnicity: "Greek", region: "Hellenistic / West", works: ["Indica (Fragments)"], tags: ["Diplomat"] },
+    "Chandragupta Maurya": { region: "Magadha (Bihar)", works: ["Jain Bhakti (Patronage)"], reign: "Mauryan Empire" },
+    "Patanjali": { region: "Gonarda (Kashmir/Oudh)", works: ["Mahabhasya (Grammar)", "Nidana Sutras"] },
+    "Manu": { region: "Brahmavarta (North India)", works: ["Manava-Dharmashastra"] },
+    "Caraka": { region: "Kashmir / NW India", works: ["Medical Treatises"] },
+    "Nagarjuna": { region: "Vidarbha / Andhra", works: ["Vigrahavyavartani", "Ratnavali", "Suhrulekha"] },
+    "Vatsyayana": { region: "Bihar / North India", works: ["Nyaya Sutra Bhashya"] },
+    "Kalidasa": { region: "Ujjain (Madhya Pradesh)", works: ["Meghaduta", "Kumarasambhavam", "Raghuvamsha", "Malavikagnimitram"] },
+    "Aryabhata": { region: "Kusumapura (Patna/Bihar)", works: ["Arya-siddhanta", "Mathematics of Solar System"] },
+    "Varahamihira": { region: "Avanti (Malwa)", works: ["Pancha-Siddhantika", "Brihat Jataka", "Laghu Jataka"] },
+    "Adi Shankara": { region: "Kaladi (Kerala)", works: ["Vivekachudamani", "Upadesasahasri", "Soundarya Lahari", "Bhaja Govindam"] },
+    "Ramanuja": { region: "Tamil Nadu", works: ["Gita Bhashya", "Vedartha Sangraha", "Gadya Trayam"] },
+    "Madhvacharya": { region: "Udupi (Karnataka)", works: ["Anuvyakhyana", "Mahabharata Tatparya Nirnaya"] },
+    "Abhinavagupta": { region: "Kashmir", works: ["Abhinavabharati", "Paramarthasara", "Tantrasara"] },
+    "Jayadeva": { region: "Odisha / Bengal", works: ["Dasavatara Stotra", "Radha-Krishna Lyrics"] },
+    "Amir Khusrau": { region: "Delhi / UP", works: ["Khaza'in ul-Futuh", "Tughlaq Nama", "Ghazals"] },
+    "Kabir": { region: "Varanasi (Uttar Pradesh)", works: ["Kabir Granthawali", "Sakhi Granth"] },
+    "Guru Nanak": { region: "Punjab", works: ["Japji Sahib", "Asa di Var", "Siddh Gost"] },
+    "Tulsidas": { region: "Varanasi / Awadh (UP)", works: ["Hanuman Chalisa", "Vinaya Patrika", "Kavitavali"] },
+    "Krishnadevaraya": { region: "Hampi (Karnataka)", works: ["Madalasa Charita", "Satyavadu Parinaya"] },
+    "Appayya Diksita": { region: "Tamil Nadu", works: ["Siddhantalesa Sangraha", "Chitra Mimamsa"] },
+    "Dara Shikoh": { ethnicity: "Mughal", region: "Delhi / Agra", works: ["Majma-ul-Bahrain (Mingling of Oceans)", "Safinat-ul-Awliya"] },
+    "Tyagaraja": { region: "Thanjavur (Tamil Nadu)", works: ["Pancharatna Kritis", "Utsava Sampradaya Kritis"] },
+    "Muthuswami Dikshitar": { region: "Tamil Nadu", works: ["Navagraha Kritis", "Kamalamba Navavaranam"] },
+    "Syama Sastri": { region: "Tamil Nadu", works: ["Swarajatis", "Devi Kritis"] },
+    "Raja Ravi Varma": { region: "Kerala (Travancore)", works: ["Damayanti Talking to a Swan", "Shakuntala"] },
+    "Rabindranath Tagore": { region: "Bengal", works: ["Gora", "Ghare-Baire", "Jana Gana Mana", "The Post Office"] },
+    "Swami Vivekananda": { region: "Bengal", works: ["Karma Yoga", "Bhakti Yoga", "Jnana Yoga", "Lectures from Colombo to Almora"] },
+    "Sri Aurobindo": { region: "Bengal / Pondicherry", works: ["The Life Divine", "Savitri", "Synthesis of Yoga"] },
+    "Srinivasa Ramanujan": { region: "Tamil Nadu", works: ["Mock Theta Functions", "Ramanujan Primes"] },
+    "Mahatma Gandhi": { region: "Gujarat", works: ["Hind Swaraj", "My Experiments with Truth"] },
+    "Voltaire": { ethnicity: "French", region: "West", works: ["Candide", "Letters on India"] },
+    "Schopenhauer": { ethnicity: "German", region: "West", works: ["Parerga and Paralipomena"] },
+    "Max Muller": { ethnicity: "German", region: "West", works: ["History of Ancient Sanskrit Literature"] },
+    "Nikola Tesla": { ethnicity: "Serbian", region: "West", works: ["Wireless Transmission", "The Spirit of Invention"] },
+    "Oppenheimer": { ethnicity: "American", region: "West", works: ["Science and the Common Understanding"] },
+    "T.S. Eliot": { ethnicity: "American/British", region: "West", works: ["The Waste Land", "Four Quartets"] },
+    "Steve Jobs": { ethnicity: "American", region: "West", works: ["Apple", "NeXT"] },
+    "George Harrison": { ethnicity: "British", region: "West", works: ["The Concert for Bangladesh", "All Things Must Pass"] }
 };
 
-// B. The Raw CSV Data (Your Full List)
+// --- 2. RAW CSV DATA (Your Full List) ---
 const csvData = `
 Dhanvantari,Medicine,Mythical / Vedic,Ayurveda (Source),Legendary God of Medicine
-Vyāsa,Literature,c. 1500–1000 BCE,Mahabharata,Compiler of the Vedas
+Vyasa,Literature,c. 1500–1000 BCE,Mahabharata,Compiler of the Vedas
 Lagadha,Astronomy,c. 1000 BCE,Vedanga Jyotisha,Earliest text on Indian timekeeping
-Baudhāyana,Math / Ritual,c. 800 BCE,Sulba Sutras,First statement of the Pythagorean theorem
-Yāska,Etymology,c. 7th–5th BCE,Nirukta,First etymologist
+Baudhayana,Math / Ritual,c. 800 BCE,Sulba Sutras,First statement of the Pythagorean theorem
+Yaska,Etymology,c. 7th–5th BCE,Nirukta,First etymologist
 Kapila,Philosophy,c. 6th BCE,Samkhya Sutras,Founder of Samkhya (Dualism)
-Suśruta,Medicine,c. 600 BCE,Sushruta Samhita,Father of Surgery
+Sushruta,Medicine,c. 600 BCE,Sushruta Samhita,Father of Surgery
 Gautama Buddha,Philosophy,c. 563–483 BCE,Pali Canon,Revolutionized Asian ethics
-Mahāvīra,Philosophy,c. 540–468 BCE,Agamas,24th Tirthankara
-Pāṇini,Linguistics,c. 5th–4th BCE,Aṣṭādhyāyī,Created generative grammar code
-Vālmīki,Literature,c. 4th BCE,Ramayana,The Adi Kavi (First Poet)
-Kauṭilya (Cāṇakya),Statecraft,c. 350–283 BCE,Arthashastra,Master of Realpolitik
+Mahavira,Philosophy,c. 540–468 BCE,Agamas,24th Tirthankara
+Panini,Linguistics,c. 5th–4th BCE,Ashtadhyayi,Created generative grammar code
+Valmiki,Literature,c. 4th BCE,Ramayana,The Adi Kavi (First Poet)
+Chanakya,Statecraft,c. 350–283 BCE,Arthashastra,Master of Realpolitik
 Megasthenes,History,c. 350–290 BCE,Indica,Greek ambassador
 Chandragupta Maurya,King,r. 321–297 BCE,Empire Founder,Unified India
-Bhadrabāhu,Philosophy,c. 3rd BCE,Kalpa Sutra,Jain monk
-Piṅgala,Mathematics,c. 3rd–2nd BCE,Chandas Shastra,Discovered binary numbers
+Bhadrabahu,Philosophy,c. 3rd BCE,Kalpa Sutra,Jain monk
+Pingala,Mathematics,c. 3rd–2nd BCE,Chandas Shastra,Discovered binary numbers
 Jaimini,Hermeneutics,c. 3rd–2nd BCE,Mimamsa Sutras,Master of ritual interpretation
 Vishnu Sharma,Literature,c. 3rd BCE,Panchatantra,Fables on statecraft
-Kaṇāda,Physics,c. 2nd BCE,Vaisheshika Sutras,First atomic theorist
-Patañjali,Yoga,c. 150 BCE,Yoga Sutras,Systematized Yoga
-Bhāsa,Literature,c. 2nd BCE,Svapnavasavadattam,Father of Sanskrit Drama
-Kātyāyana,Grammar,c. 2nd BCE,Varttika,Critical commentator on Panini
+Kanada,Physics,c. 2nd BCE,Vaisheshika Sutras,First atomic theorist
+Patanjali,Yoga,c. 150 BCE,Yoga Sutras,Systematized Yoga
+Bhasa,Literature,c. 2nd BCE,Svapnavasavadattam,Father of Sanskrit Drama
+Katyayana,Grammar,c. 2nd BCE,Varttika,Critical commentator on Panini
 Manu,Law,c. 2nd BCE – 2nd CE,Manusmriti,Most influential Hindu legal code
 Caraka,Medicine,c. 100 BCE – 100 CE,Charaka Samhita,Father of Ayurveda
 Bharata Muni,Aesthetics,c. 200 BCE – 200 CE,Natya Shastra,Foundation of drama
-Śātavāhana,King / Lit,c. 1st Cent. CE,Gaha Sattasai,First anthology of Prakrit poetry
-Guṇāḍhya,Literature,c. 1st Cent. CE,Brihatkatha,Lost Great Story
-Aśvaghoṣa,Literature,c. 80–150 CE,Buddhacharita,First Sanskrit epic poet
-Nāgārjuna,Philosophy,c. 150–250 CE,Mūlamadhyamakakārikā,Founder of Madhyamaka
-Gautama (Akṣapāda),Logic,c. 2nd Cent. CE,Nyaya Sutras,Founder of Nyaya logic
-Umāsvāti,Philosophy,c. 2nd Cent. CE,Tattvartha Sutra,Central Jain text
+Satavahana,King / Lit,c. 1st Cent. CE,Gaha Sattasai,First anthology of Prakrit poetry
+Gunadhya,Literature,c. 1st Cent. CE,Brihatkatha,Lost Great Story
+Asvaghosha,Literature,c. 80–150 CE,Buddhacharita,First Sanskrit epic poet
+Nagarjuna,Philosophy,c. 150–250 CE,Mulamadhyamakakarika,Founder of Madhyamaka
+Gautama,Logic,c. 2nd Cent. CE,Nyaya Sutras,Founder of Nyaya logic
+Umasvati,Philosophy,c. 2nd Cent. CE,Tattvartha Sutra,Central Jain text
 Kundakunda,Philosophy,c. 2nd Cent. CE,Samayasara,Mystic Digambara Jain
 Ilango Adigal,Literature,c. 2nd Cent. CE,Silappatikaram,Tamil Epic
 Sithalai Sattanar,Literature,c. 2nd Cent. CE,Manimekalai,Tamil Buddhist epic
-Śabara,Hermeneutics,c. 2nd Cent. CE,Shabarabhashya,Commentary on Mimamsa
-Vātsyāyana,Sociology,c. 3rd Cent. CE,Kamasutra,Treatise on desire
-Āryadeva,Philosophy,c. 3rd Cent. CE,Chatuhshataka,Disciple of Nagarjuna
+Sabara,Hermeneutics,c. 2nd Cent. CE,Shabarabhashya,Commentary on Mimamsa
+Vatsyayana,Sociology,c. 3rd Cent. CE,Kamasutra,Treatise on desire
+Aryadeva,Philosophy,c. 3rd Cent. CE,Chatuhshataka,Disciple of Nagarjuna
 Faxian,History,Tr. 399–412 CE,Records of Buddhist Kingdoms,Documented Gupta India
-Kālidāsa,Literature,c. 4th–5th CE,Shakuntalam,The Shakespeare of India
+Kalidasa,Literature,c. 4th–5th CE,Shakuntalam,The Shakespeare of India
 Amara,Lexicography,c. 4th Cent. CE,Amarakosha,Sanskrit thesaurus
-Asaṅga,Philosophy,c. 4th Cent. CE,Yogacarabhumi,Founder of Yogacara
+Asanga,Philosophy,c. 4th Cent. CE,Yogacarabhumi,Founder of Yogacara
 Vasubandhu,Philosophy,c. 4th Cent. CE,Abhidharmakosha,Master of Buddhist psychology
 Chandragupta II,King,r. 380–415 CE,Patronage,Gupta Emperor
 Kamandaka,Statecraft,c. 4th Cent. CE,Nitisara,Summary of Arthashastra
-Bhartṛhari,Phil / Lang,c. 450–510 CE,Vakyapadiya,Philosophy of Grammar
+Bhartrhari,Phil / Lang,c. 450–510 CE,Vakyapadiya,Philosophy of Grammar
 Bodhidharma,Philosophy,c. 5th Cent. CE,Zen Teachings,Transmitted Zen to China
-Siddhasena Divākara,Logic,c. 5th Cent. CE,Nyayavatara,Jain logician
-Āryabhaṭa,Math / Astro,b. 476 CE,Aryabhatiya,Zero & Pi
-Dignāga,Logic,c. 480–540 CE,Pramana-samuccaya,Father of Medieval Logic
+Siddhasena Divakara,Logic,c. 5th Cent. CE,Nyayavatara,Jain logician
+Aryabhata,Math / Astro,b. 476 CE,Aryabhatiya,Zero & Pi
+Dignaga,Logic,c. 480–540 CE,Pramana-samuccaya,Father of Medieval Logic
 Thiruvalluvar,Ethics,c. 5th Cent. CE,Tirukkural,Universal secular ethics
-Varāhamihira,Science,505–587 CE,Brihat Samhita,Encyclopedist
-Praśastapāda,Physics,c. 6th Cent. CE,Padarthadharmasamgraha,Commentary on atomism
+Varahamihira,Science,505–587 CE,Brihat Samhita,Encyclopedist
+Prasastapada,Physics,c. 6th Cent. CE,Padarthadharmasamgraha,Commentary on atomism
 Uddyotakara,Logic,c. 6th Cent. CE,Nyayavarttika,Defended Nyaya realism
-Gauḍapāda,Philosophy,c. 6th Cent. CE,Mandukya Karika,Advaita precursor
-Viśākhadatta,Literature,c. 6th Cent. CE,Mudrarakshasa,Political thriller play
-Bhāravi,Literature,c. 6th Cent. CE,Kiratarjuniya,Poet of heavy meaning
+Gaudapada,Philosophy,c. 6th Cent. CE,Mandukya Karika,Advaita precursor
+Visakhadatta,Literature,c. 6th Cent. CE,Mudrarakshasa,Political thriller play
+Bharavi,Literature,c. 6th Cent. CE,Kiratarjuniya,Poet of heavy meaning
 Subandhu,Literature,c. 6th Cent. CE,Vasavadatta,Prose master
 Brahmagupta,Math / Astro,b. 598 CE,Brahmasphutasiddhanta,Rules for Zero
-Chandrakīrti,Philosophy,c. 600–650 CE,Prasannapada,Interpreter of Madhyamaka
-Dharmakīrti,Logic,c. 600–660 CE,Pramanavarttika,The Kant of India
+Chandrakirti,Philosophy,c. 600–650 CE,Prasannapada,Interpreter of Madhyamaka
+Dharmakirti,Logic,c. 600–660 CE,Pramanavarttika,The Kant of India
 Mahendravarman I,King / Lit,r. 600–630 CE,Mattavilasa Prahasana,Satirist King
 Harsha,King / Lit,r. 606–647 CE,Ratnavali,Emperor of North India
-Bāṇabhaṭṭa,Literature,c. 7th Cent. CE,Kadambari,Master of complex prose
-Bhāskara I,Mathematics,c. 600–680 CE,Mahabhaskariya,Decimal place-value system
-Māgha,Literature,c. 7th Cent. CE,Shishupala Vadha,Encyclopedic poet
+Banabhatta,Literature,c. 7th Cent. CE,Kadambari,Master of complex prose
+Bhaskara I,Mathematics,c. 600–680 CE,Mahabhaskariya,Decimal place-value system
+Magha,Literature,c. 7th Cent. CE,Shishupala Vadha,Encyclopedic poet
 Xuanzang,History,Tr. 629–645 CE,Great Tang Records,Documented Nalanda
-Daṇḍin,Lit / Theory,c. 7th Cent. CE,Dashakumaracharita,Master of picaresque
-Prabhākara,Hermeneutics,c. 7th Cent. CE,Brihati,Guru school of Mimamsa
+Dandin,Lit / Theory,c. 7th Cent. CE,Dashakumaracharita,Master of picaresque
+Prabhakara,Hermeneutics,c. 7th Cent. CE,Brihati,Guru school of Mimamsa
 Yijing,History,Tr. 671–695 CE,Record of Buddhism,Documented monastic life
-Vāgbhaṭa,Medicine,c. 7th Cent. CE,Ashtanga Hridaya,Synthesized Ayurveda
-Kumārila Bhaṭṭa,Philosophy,c. 700 CE,Slokavartika,Revived Vedic ritualism
-Ādi Śaṅkarācārya,Philosophy,c. 700–750 CE,Brahmasutra Bhasya,Consolidator of Advaita
-Maṇḍana Miśra,Philosophy,c. 8th Cent. CE,Brahmasiddhi,Bridge between Ritual and Advaita
-Sureśvara,Philosophy,c. 8th Cent. CE,Naishkarmya Siddhi,Disciple of Shankara
-Bhavabhūti,Literature,c. 8th Cent. CE,Uttararamacarita,Master of Pathos
-Mādhava Nidāna,Medicine,c. 8th Cent. CE,Rug-vinishchaya,Text on Diagnosis
+Vagbhata,Medicine,c. 7th Cent. CE,Ashtanga Hridaya,Synthesized Ayurveda
+Kumarila Bhatta,Philosophy,c. 700 CE,Slokavartika,Revived Vedic ritualism
+Adi Shankara,Philosophy,c. 700–750 CE,Brahmasutra Bhasya,Consolidator of Advaita
+Mandana Misra,Philosophy,c. 8th Cent. CE,Brahmasiddhi,Bridge between Ritual and Advaita
+Suresvara,Philosophy,c. 8th Cent. CE,Naishkarmya Siddhi,Disciple of Shankara
+Bhavabhuti,Literature,c. 8th Cent. CE,Uttararamacarita,Master of Pathos
+Madhava Nidana,Medicine,c. 8th Cent. CE,Rug-vinishchaya,Text on Diagnosis
 Haribhadra Suri,Philosophy,c. 8th Cent. CE,Saddarshanasamuccaya,Jain scholar
-Akalaṅka,Logic,c. 8th Cent. CE,Astasati,Master of Jain Logic
+Akalanka,Logic,c. 8th Cent. CE,Astasati,Master of Jain Logic
 Lalla,Astronomy,c. 8th Cent. CE,Sisyadhivriddhida,Follower of Aryabhata
-Vāmana,Aesthetics,c. 800 CE,Kavyalamkara,Founded Style school
+Vamana,Aesthetics,c. 800 CE,Kavyalamkara,Founded Style school
 Anandavardhana,Aesthetics,c. 820–890 CE,Dhvanyaloka,Suggestion in poetry
-Jayanta Bhaṭṭa,Logic,c. 9th Cent. CE,Nyayamanjari,Master of Old Nyaya
-Somānanda,Philosophy,c. 9th Cent. CE,Sivadristi,Kashmir Shaivism founder
-Medhātithi,Law,c. 9th Cent. CE,Manubhashya,Commentary on Manu
-Vācaspati Miśra,Philosophy,c. 9th–10th CE,Bhamati,Commentator on all schools
-Mahāvīrācārya,Mathematics,c. 850 CE,Ganita Sara Samgraha,Jain mathematician
-Rājasekhara,Poetics,c. 880–920 CE,Kavyamimamsa,Literary critic
+Jayanta Bhatta,Logic,c. 9th Cent. CE,Nyayamanjari,Master of Old Nyaya
+Somananda,Philosophy,c. 9th Cent. CE,Sivadristi,Kashmir Shaivism founder
+Medhatithi,Law,c. 9th Cent. CE,Manubhashya,Commentary on Manu
+Vacaspati Misra,Philosophy,c. 9th–10th CE,Bhamati,Commentator on all schools
+Mahaviracharya,Mathematics,c. 850 CE,Ganita Sara Samgraha,Jain mathematician
+Rajasekhara,Poetics,c. 880–920 CE,Kavyamimamsa,Literary critic
 Abu Zayd al-Sirafi,History,Active 916 CE,Accounts of China,Arab chronicler
 Utpaladeva,Philosophy,c. 925–975 CE,Isvarapratyabhijna,Shaiva logic
 Dhananjaya,Dramaturgy,c. 10th Cent. CE,Dasharupaka,Manual on drama
 Somadeva Suri,Statecraft,c. 959 CE,Nitivakyamrita,Jain perspective on kingship
 Abhinavagupta,Philosophy,c. 950–1016 CE,Tantraloka,Genius of Shaivism
-Al-Beruni,Indology,973–1048,Indica,First scientific Indologist
+Al-Biruni,Indology,973–1048,Indica,First scientific Indologist
 Udayana,Logic,c. 984 CE,Nyayakusumanjali,Proved God using logic
-Halāyudha,Math / Lit,c. 10th Cent. CE,Mritasanjivani,Pascal's Triangle
+Halayudha,Math / Lit,c. 10th Cent. CE,Mritasanjivani,Pascal's Triangle
 Kuntaka,Aesthetics,c. 10th Cent. CE,Vakrokti-jivita,Theorist of deviant speech
-Bhaṭṭa Nāyaka,Aesthetics,c. 10th Cent. CE,Hridayadarpana,Theory of Art Enjoyment
+Bhatta Nayaka,Aesthetics,c. 10th Cent. CE,Hridayadarpana,Theory of Art Enjoyment
 Sridhara,Philosophy,c. 991 CE,Nyayakandali,Commentary on Vaisheshika
 Bhoja,Polymath / King,r. 1010–1055,Saraswati Kanthabharana,King of Arts
-Yamunācārya,Philosophy,c. 917–1042,Siddhitraya,Preceptor of Ramanuja
-Śrīpati,Astronomy,1019–1066,Siddhantasekhara,Medieval astronomer
-Kṣemendra,Lit / Satire,c. 11th Cent. CE,Kalavilasa,Kashmiri satirist
+Yamunacharya,Philosophy,c. 917–1042,Siddhitraya,Preceptor of Ramanuja
+Sripati,Astronomy,1019–1066,Siddhantasekhara,Medieval astronomer
+Ksemendra,Lit / Satire,c. 11th Cent. CE,Kalavilasa,Kashmiri satirist
 Somadeva,Literature,c. 1070 CE,Kathasaritsagara,Ocean of Stories
-Rāmānuja,Philosophy,1017–1137,Sri Bhashya,Founder of Vishishtadvaita
-Bilhaṇa,Literature,c. 11th Cent. CE,Caurapancasika,Kashmiri poet
-Mammaṭa,Aesthetics,c. 11th Cent. CE,Kavyaprakasa,Textbook of poetics
-Kṣīrasvāmin,Grammar,c. 11th Cent. CE,Kshiratarangini,Commentator on Amarakosha
+Ramanuja,Philosophy,1017–1137,Sri Bhashya,Founder of Vishishtadvaita
+Bilhana,Literature,c. 11th Cent. CE,Caurapancasika,Kashmiri poet
+Mammata,Aesthetics,c. 11th Cent. CE,Kavyaprakasa,Textbook of poetics
+Kshirasvamin,Grammar,c. 11th Cent. CE,Kshiratarangini,Commentator on Amarakosha
 Mahimabhatta,Aesthetics,c. 11th Cent. CE,Vyaktiviveka,Logician of Art
-Kaiyaṭa,Grammar,c. 11th Cent. CE,Pradipa,Commentator on Patanjali
+Kaiyata,Grammar,c. 11th Cent. CE,Pradipa,Commentator on Patanjali
 Hemacandra,Polymath,1088–1173,Yogasastra,Omniscient of Kali Age
-Bhāskara II,Mathematics,b. 1114,Lilavati,Solved Pell's equation
-Kalhaṇa,History,c. 1148 CE,Rajatarangini,Classical historian
+Bhaskara II,Mathematics,b. 1114,Lilavati,Solved Pell's equation
+Kalhana,History,c. 1148 CE,Rajatarangini,Classical historian
 Basavanna,Reformer,c. 1131–1196,Vachanas,Lingayat founder
 Allama Prabhu,Mysticism,c. 12th Cent. CE,Vachanas,Virashaiva skeptic
 Akka Mahadevi,Mysticism,c. 12th Cent. CE,Vachanas,Female mystic poet
-Śrīharṣa,Phil / Lit,c. 12th Cent. CE,Khandanakhandakhadya,Skeptic dialectician
+Sriharsa,Phil / Lit,c. 12th Cent. CE,Khandanakhandakhadya,Skeptic dialectician
 Jayadeva,Literature,c. 12th Cent. CE,Gita Govinda,Erotic-devotional poetry
 Govardhana,Literature,c. 12th Cent. CE,Aryasaptashati,Master of erotic stanzas
-Vijñāneśvara,Law,c. 1120 CE,Mitakshara,Hindu inheritance law
-Jīmūtavāhana,Law,c. 12th Cent. CE,Dayabhaga,Bengal inheritance law
-Murāri Misra,Hermeneutics,c. 12th Cent. CE,Tripadinitinayana,Third School of Mimamsa
-Nimbārka,Philosophy,c. 12th Cent. CE,Parijata-saurabha,Founder of Dvaitadvaita
-Gaṅgeśa Upādhyāya,Logic,c. 1325 CE,Tattvacintamani,Founder of Navya-Nyaya
-Madhvācārya,Philosophy,1238–1317,Sarvamula Granthas,Founder of Dvaita
+Vijnanesvara,Law,c. 1120 CE,Mitakshara,Hindu inheritance law
+Jimutavahana,Law,c. 12th Cent. CE,Dayabhaga,Bengal inheritance law
+Murari Misra,Hermeneutics,c. 12th Cent. CE,Tripadinitinayana,Third School of Mimamsa
+Nimbarka,Philosophy,c. 12th Cent. CE,Parijata-saurabha,Founder of Dvaitadvaita
+Gangesa,Logic,c. 1325 CE,Tattvacintamani,Founder of Navya-Nyaya
+Madhvacharya,Philosophy,1238–1317,Sarvamula Granthas,Founder of Dvaita
 Amir Khusrau,Music / Lit,1253–1325,Qiran-us-Sa'dain,Father of Qawwali
-Vedānta Deśika,Phil / Lit,1268–1369,Paduka Sahasram,Lion of Logic
-Jñāneśvara,Mysticism,1275–1296,Jnaneshwari,Marathi Bhakti pioneer
+Vedanta Desika,Phil / Lit,1268–1369,Paduka Sahasram,Lion of Logic
+Jnyaneshwar,Mysticism,1275–1296,Jnaneshwari,Marathi Bhakti pioneer
 Marco Polo,Traveler,Tr. 1288/1292,Travels,Venetian merchant
-Śārngadeva,Musicology,c. 1247 CE,Sangita Ratnakara,Text on Indian music
-Shārngadhara,Medicine,c. 1300 CE,Sharngadhara Samhita,Pulse diagnosis
-Kullūka Bhaṭṭa,Law,c. 13th Cent. CE,Manvarthamuktavali,Commentator on Manu
+Sarngadeva,Musicology,c. 1247 CE,Sangita Ratnakara,Text on Indian music
+Sharngadhara,Medicine,c. 1300 CE,Sharngadhara Samhita,Pulse diagnosis
+Kulluka Bhatta,Law,c. 13th Cent. CE,Manvarthamuktavali,Commentator on Manu
 Ibn Battuta,History,Tr. 1333–1347,Rihla,Moroccan traveler
-Vidyāraṇya,Phil / State,1296–1386,Panchadasi,Inspired Vijayanagara
-Sāyaṇa,Vedas,d. 1387,Veda Bhashya,Commentary on Vedas
-Nārāyaṇa Paṇḍita,Mathematics,c. 1356,Ganita Kaumudi,Combinatorics
-Mādhava,Mathematics,1340–1425,Infinite Series,Founder of Kerala School
-Parameśvara,Astronomy,1380–1460,Drigganita,Observational astronomy
+Vidyaranya,Phil / State,1296–1386,Panchadasi,Inspired Vijayanagara
+Sayana,Vedas,d. 1387,Veda Bhashya,Commentary on Vedas
+Narayana Pandita,Mathematics,c. 1356,Ganita Kaumudi,Combinatorics
+Madhava,Mathematics,1340–1425,Infinite Series,Founder of Kerala School
+Paramesvara,Astronomy,1380–1460,Drigganita,Observational astronomy
 Kabir,Mysticism,c. 1440–1518,Bijak,Critic of caste
-Nanak,Philosophy,1469–1539,Guru Granth Sahib,Founder of Sikhism
-Nīlakaṇṭha Somayājī,Astronomy,1444–1544,Tantrasamgraha,Heliocentric model
+Guru Nanak,Philosophy,1469–1539,Guru Granth Sahib,Founder of Sikhism
+Nilakantha Somayaji,Astronomy,1444–1544,Tantrasamgraha,Heliocentric model
 Vallabha,Philosophy,1479–1531,Anubhashya,Founder of Shuddhadvaita
 Chaitanya,Philosophy,1486–1534,Achintya Bheda Abheda,Gaudiya Vaishnavism
-Raghunātha Śiromaṇi,Logic,c. 1477–1547,Didhiti,Radical logician
+Raghunatha Siromani,Logic,c. 1477–1547,Didhiti,Radical logician
 Krishnadevaraya,King / Lit,r. 1509–1529,Amuktamalyada,Vijayanagara Emperor
 Domingo Paes,History,Tr. 1520–1522,Chronicle,Portuguese traveler
 Fernao Nuniz,History,Tr. 1535–1537,Chronicle,Portuguese traveler
 Tulsidas,Literature,1532–1623,Ramcharitmanas,Retold Ramayana
 Surdas,Literature,1478–1583,Sur Sagar,Krishna Bhakti
 Mirabai,Mysticism,1498–1546,Bhajans,Devotee poet-saint
-Appayya Dīkṣita,Polymath,1520–1593,Kuvalayananda,Genius of Shaivism
-Madhusūdana Sarasvatī,Philosophy,c. 1540–1640,Advaita Siddhi,Defended Advaita
-Vijñānabhikṣu,Philosophy,c. 16th Cent. CE,Yogavarttika,Syncretic philosopher
+Appayya Diksita,Polymath,1520–1593,Kuvalayananda,Genius of Shaivism
+Madhusudana Sarasvati,Philosophy,c. 1540–1640,Advaita Siddhi,Defended Advaita
+Vijnanabhiksu,Philosophy,c. 16th Cent. CE,Yogavarttika,Syncretic philosopher
 Bhavamishra,Medicine,c. 16th Cent. CE,Bhavaprakasha,Documented Syphilis
-Nārāyaṇa Bhaṭṭathiri,Literature,1560–1646,Narayaneeyam,Devotional masterpiece
-Jyeṣṭhadeva,Mathematics,c. 1500–1575,Yuktibhasa,Calculus textbook
-Mathurānātha Tarkavāgīśa,Logic,c. 1600–1675,Rahasya,Navya-Nyaya commentator
-Jagadīśa Tarkālaṅkāra,Logic,c. 16th–17th CE,Sabdasaktiprakasika,Logic of semantics
-Gadādhara Bhaṭṭāchārya,Logic,c. 1604–1709,Shaktivada,Prince of Logic
+Narayana Bhattathiri,Literature,1560–1646,Narayaneeyam,Devotional masterpiece
+Jyesthadeva,Mathematics,c. 1500–1575,Yuktibhasa,Calculus textbook
+Mathuranatha Tarkavagisa,Logic,c. 1600–1675,Rahasya,Navya-Nyaya commentator
+Jagadisa Tarkalankara,Logic,c. 16th–17th CE,Sabdasaktiprakasika,Logic of semantics
+Gadadhara Bhattacharya,Logic,c. 1604–1709,Shaktivada,Prince of Logic
 Dara Shikoh,Scholar,1615–1659,Sirr-i-Akbar,Translated Upanishads
-François Bernier,History,Tr. 1658–1668,Travels,French physician
+Francois Bernier,History,Tr. 1658–1668,Travels,French physician
 Jean-Baptiste Tavernier,History,Tr. 1640–1667,Travels,Gem merchant
-Jagannātha Paṇḍitarāja,Aesthetics,17th Cent. CE,Rasagangadhara,Aesthetician
+Jagannatha Panditaraja,Aesthetics,17th Cent. CE,Rasagangadhara,Aesthetician
 Venkatamakhin,Musicology,17th Cent. CE,Chaturdandi Prakashika,Classified Ragas
-Bhaṭṭoji Dīkṣita,Grammar,c. 17th Cent. CE,Siddhanta Kaumudi,Grammar pedagogy
+Bhattoji Diksita,Grammar,c. 17th Cent. CE,Siddhanta Kaumudi,Grammar pedagogy
 Kondabhatta,Grammar,c. 17th Cent. CE,Vaiyakaranabhushana,Philosophy of grammar
-Mitramiśra,Law,c. 17th Cent. CE,Viramitrodaya,Digest of Hindu Law
-Annambhaṭṭa,Logic,17th Cent. CE,Tarkasamgraha,Standard manual
+Mitramisra,Law,c. 17th Cent. CE,Viramitrodaya,Digest of Hindu Law
+Annambhatta,Logic,17th Cent. CE,Tarkasamgraha,Standard manual
 Munishvara,Astronomy,b. 1603,Siddhanta Sarvabhauma,Rival to Kamalakara
-Kamalākara,Astronomy,b. 1616,Siddhanta Tattva Viveka,Islamic-Hindu astronomy
-Baladeva Vidyābhūṣaṇa,Philosophy,c. 1700–1793,Govinda Bhashya,Achintya Bheda Abheda
-Nāgeśa Bhaṭṭa,Grammar,c. 1700–1750,Laghumanjusa,Last grammar giant
+Kamalakara,Astronomy,b. 1616,Siddhanta Tattva Viveka,Islamic-Hindu astronomy
+Baladeva Vidyabhusana,Philosophy,c. 1700–1793,Govinda Bhashya,Achintya Bheda Abheda
+Nagesa Bhatta,Grammar,c. 1700–1750,Laghumanjusa,Last grammar giant
 Jagannatha Samrat,Math / Astro,1652–1744,Rekhaganita,Translated Euclid
 Syama Sastri,Music,1762–1827,Kritis,Carnatic Trinity
 Tyagaraja,Music,1767–1847,Kritis,Saint-composer
@@ -325,13 +354,13 @@ H.T. Colebrooke,Indology,1765–1837,Digest of Hindu Law,Sanskritist
 James Prinsep,Indology,1799–1840,Decipherment of Brahmi,Decoded Ashokan script
 Horace Hayman Wilson,Indology,1786–1860,Dictionary,Boden Professor
 Alexander Cunningham,Archaeology,1814–1893,ASI Reports,Father of Archaeology
-Max Müller,Indology,1823–1900,Sacred Books,Editor of Rig Veda
+Max Muller,Indology,1823–1900,Sacred Books,Editor of Rig Veda
 Albrecht Weber,Indology,1825–1901,Indische Studien,Vedic literature
 Monier Monier-Williams,Indology,1819–1899,Sanskrit Dictionary,Standard dictionary
 Rajendralal Mitra,Indology,1822–1891,Antiquities of Orissa,Indian Indologist
 Sir John Robert Seeley,History,1834–1895,Expansion of England,Imperial historian
 Ramakrishna Gopal Bhandarkar,Indology,1837–1925,Vaishnavism Shaivism,Critical method
-Georg Bühler,Indology,1837–1898,Encyclopedia,Manuscripts and law
+Georg Buhler,Indology,1837–1898,Encyclopedia,Manuscripts and law
 Hermann Jacobi,Indology,1850–1937,Jaina Sutras,Jain studies
 Arthur Coke Burnell,Indology,1840–1882,Palaeography,Dravidian studies
 Rudolf Roth,Indology,1821–1893,Vedic Philology,Scientific Vedic studies
@@ -399,9 +428,13 @@ Nikola Tesla,Science,1856,AC Current,Vedic Influence
 J. Robert Oppenheimer,Science,1904,Trinity Test,Gita scholar
 Steve Jobs,Tech,1955,Apple,Yogananda devotee
 George Harrison,Music,1943,Within You Without You,Popularized Sitar
+Raja Ravi Varma,Art,1848,Paintings,Modern Hindu Iconography
+Mahatma Gandhi,Politics,1869,My Experiments with Truth,Father of Nation
+Sri Aurobindo,Philosophy,1872,The Life Divine,Integral Yoga
+T.S. Eliot,Literature,1888,The Waste Land,Sanskrit influence
 `;
 
-// --- 2. PARSING & MERGING ---
+// --- 3. LOGIC & PARSING ---
 
 function parseDate(raw) {
     if(!raw) return 0;
@@ -412,6 +445,19 @@ function parseDate(raw) {
     return isBCE ? -year : year;
 }
 
+// Helper: Attempt to guess region for those not in richData
+function guessRegion(name, field, group) {
+    if (group === 'west') return { main: "Western", sub: "Global / European" };
+    
+    // Simple heuristics based on names/titles
+    if (name.includes('Bhatta') || name.includes('Misra') || name.includes('Sharma') || name.includes('Tulsidas') || name.includes('Kabir')) return { main: "Indian", sub: "North India" };
+    if (name.includes('Sastri') || name.includes('Aiyar') || name.includes('Iyengar') || name.includes('Ramanuja') || name.includes('Dikshitar') || name.includes('Pillai')) return { main: "Indian", sub: "South India (Tamil/Kerala)" };
+    if (name.includes('Mukherjee') || name.includes('Chattopadhyay') || name.includes('Tagore') || name.includes('Sarkar') || name.includes('Mitra')) return { main: "Indian", sub: "Bengal" };
+    if (name.includes('Suri') || name.includes('Hemacandra')) return { main: "Indian", sub: "West India (Gujarat/Rajasthan)" };
+    
+    return { main: "Indian", sub: "Subcontinent" }; // Fallback
+}
+
 const finalData = [];
 const lines = csvData.trim().split('\n');
 
@@ -419,67 +465,67 @@ lines.forEach((line, index) => {
     const parts = line.split(',');
     if (parts.length < 2) return;
     
-    let name = parts[0].trim().replace(/\(.*\)/, '').trim(); // Clean name
+    let name = parts[0].trim().replace(/\(.*\)/, '').trim();
     let field = parts[1].trim();
     let rawDate = parts[2] || "";
     let work = parts[3] || "";
     let note = parts[4] || "";
     let year = parseDate(rawDate);
     
-    // Default Group
+    // Grouping
     let group = 'india';
     if(['Indology','Traveler','Archaeology'].some(k=>field.includes(k)) || 
-       ['Megasthenes','Faxian','Xuanzang','Polo','Jones','Muller','Voltaire','Tesla'].some(k=>name.includes(k))) {
+       ['Megasthenes','Faxian','Xuanzang','Polo','Jones','Muller','Voltaire','Tesla','Jobs','Eliot'].some(k=>name.includes(k))) {
         group = 'west';
     }
 
-    // MERGE WITH RICH DATA (If available)
+    // Merge Rich Data
     let extra = richData[name] || {};
+    let otherWorks = extra.works || [];
     
+    // Determine Ethnicity/Region
+    let ethObj = { main: "Indian", sub: "Subcontinent" };
+    if (extra.ethnicity) {
+        ethObj = { main: extra.ethnicity, sub: extra.region || "Global" };
+    } else if (extra.region) {
+        ethObj = { main: "Indian", sub: extra.region };
+    } else {
+        ethObj = guessRegion(name, field, group);
+    }
+
     finalData.push({
-        id: index,
-        name: name,
-        field: field,
-        year: year,
-        date: rawDate,
-        work: work,
-        note: note,
-        group: group,
-        // Enhanced fields (fallback to defaults if not in richData)
-        ethnicity: extra.ethnicity || (group === 'india' ? "Indian" : "Western/Global"),
-        reign: extra.reign || (year < 0 ? "Ancient Era" : "Common Era"),
-        tags: extra.tags || [field]
+        id: index, name: name, field: field, year: year, date: rawDate,
+        work: work, note: note, group: group,
+        ethMain: ethObj.main, ethSub: ethObj.sub,
+        tags: extra.tags || [field],
+        otherWorks: otherWorks
     });
 });
 
-// --- 3. VISUALIZATION ENGINE ---
-
-const nodes = [];
-const edges = [];
-const fields = {};
+// --- 4. VISUALIZATION ---
+const nodes = []; const edges = []; const fields = {};
 
 finalData.forEach(p => {
-    // Create Field Hub
     if(!fields[p.field]) {
         fields[p.field] = true;
         nodes.push({ id: `f_${p.field}`, label: p.field, group: 'field', shape: 'diamond', size: 5, font:{color:'#666'} });
     }
-    
-    // Create Node
-    nodes.push({
-        id: p.name, // Use name as ID for easier linking
-        label: p.name,
-        group: p.group,
-        value: 20,
-        // Store full data object for panel
-        data: p 
-    });
-    
-    // Link
+    nodes.push({ id: p.name, label: p.name, group: p.group, value: 20, data: p });
     edges.push({ from: p.name, to: `f_${p.field}`, color: { color: '#333', opacity: 0.15 } });
 });
 
-// Setup
+// Influences (Hardcoded subset)
+const influences = [
+    {s:"Shankara", t:"Vivekananda"}, {s:"Upanishads", t:"Schopenhauer"}, 
+    {s:"Vivekananda", t:"Tesla"}, {s:"Yogananda", t:"Jobs"}, 
+    {s:"Panini", t:"Ferdinand"}, {s:"Gita", t:"Oppenheimer"}
+];
+influences.forEach(i => {
+    const s = nodes.find(n => n.label.includes(i.s));
+    const t = nodes.find(n => n.label.includes(i.t));
+    if(s && t) edges.push({ from: s.id, to: t.id, color: {color:'#fff', opacity:0.3}, dashes:true });
+});
+
 const container = document.getElementById('mynetwork');
 const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
 const options = {
@@ -506,8 +552,7 @@ const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelin
     start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000)
 });
 
-// --- 4. INTERACTIONS (The Side Panel Logic) ---
-
+// --- INTERACTIONS ---
 network.on("click", function(params) {
     if (params.nodes.length > 0) {
         const nodeId = params.nodes[0];
@@ -515,55 +560,54 @@ network.on("click", function(params) {
         
         if (node && node.group !== 'field') {
             const d = node.data;
-            
-            // Populate Side Panel
             document.getElementById('p-name').innerText = d.name;
             document.getElementById('p-dates').innerText = d.date || d.year + " CE";
             
-            document.getElementById('p-ethnicity').innerText = d.ethnicity;
-            document.getElementById('p-reign').innerText = d.reign;
+            // Ethnicity Rendering
+            const ethHTML = `<span class="eth-main">${d.ethMain}</span><span class="eth-sub">${d.ethSub}</span>`;
+            document.getElementById('p-ethnicity-container').innerHTML = ethHTML;
             
-            // Render Tags
-            const tagContainer = document.getElementById('p-tags');
-            tagContainer.innerHTML = ''; // Clear old tags
-            d.tags.forEach(t => {
-                const span = document.createElement('span');
-                span.className = 'tag';
-                span.innerText = t;
-                tagContainer.appendChild(span);
-            });
-            
+            document.getElementById('p-reign').innerText = d.year < 0 ? "Ancient Era" : "Common Era";
             document.getElementById('p-work').innerText = d.work;
             document.getElementById('p-note').innerText = d.note;
+
+            // Render Tags
+            const tagContainer = document.getElementById('p-tags');
+            tagContainer.innerHTML = ''; 
+            d.tags.forEach(t => {
+                tagContainer.innerHTML += `<span class='tag'>${t}</span>`;
+            });
+
+            // Render Other Works
+            const worksContainer = document.getElementById('p-other-works');
+            worksContainer.innerHTML = '';
+            if (d.otherWorks && d.otherWorks.length > 0) {
+                d.otherWorks.forEach(w => {
+                    worksContainer.innerHTML += `<li>${w}</li>`;
+                });
+            } else {
+                worksContainer.innerHTML = `<li style="color:#555">No other major records listed.</li>`;
+            }
             
-            // Open Panel
             document.getElementById('side-panel').style.width = "400px";
             document.getElementById('panel-content').style.opacity = "1";
-            
-            // Sync Timeline
-            const tItem = timelineData.get({ filter: i => i.nodeId === nodeId });
-            if(tItem.length) { timeline.moveTo(tItem[0].start); timeline.setSelection(tItem[0].id); }
         }
     } else {
-        // Close Panel
         document.getElementById('side-panel').style.width = "0";
         document.getElementById('panel-content').style.opacity = "0";
     }
 });
 
-// Search
 window.searchNode = function() {
     let q = document.getElementById('search').value.toLowerCase();
     if (!q) return;
     let found = finalData.find(p => p.name.toLowerCase().includes(q));
     if (found) {
-        let cleanName = found.name;
-        network.selectNodes([cleanName]);
-        network.focus(cleanName, { scale: 1.5, animation: true });
-        network.emit("click", { nodes: [cleanName] });
+        network.selectNodes([found.name]);
+        network.focus(found.name, { scale: 1.5, animation: true });
+        network.emit("click", { nodes: [found.name] });
     }
 }
-
 </script>
 </body>
 </html>
