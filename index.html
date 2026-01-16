@@ -38,9 +38,15 @@
         }
         select:hover, input:focus { border-color: var(--gold); }
         
-        /* MAIN CANVAS */
+        /* MAIN CANVAS & MAP BACKGROUND */
         .main-container { display: flex; flex: 1; position: relative; height: calc(100vh - 70px); }
-        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #111 0%, #000 120%); }
+        
+        #mynetwork { 
+            flex-grow: 1; 
+            background: #050505 url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_blank_black_lines_4500px_monochrome.png') no-repeat center center;
+            background-size: cover;
+            opacity: 0.9; /* Slight fade to make nodes pop */
+        }
 
         /* SIDE PANEL */
         #side-panel {
@@ -151,82 +157,88 @@
 
 <script type="text/javascript">
 
-// 1. DATA (Generated 350+ entries)
+// --- 1. THE DATASET (350+ Entries) ---
+// Generated via Python to ensure JSON validity.
 const rawData = [
-    // DEITIES
-    {id:"Narayana", label:"Nārāyaṇa", group:"deity", isDeity:true, note:"Primordial Vishnu"},
-    {id:"Shiva", label:"Śiva", group:"deity", isDeity:true, note:"Adi Guru"},
-    {id:"Brahma", label:"Brahmā", group:"deity", isDeity:true, note:"Creator"},
+    // --- DEITIES (The Source) ---
+    {id: "Narayana", label: "Nārāyaṇa", group: "deity", region: "Vedic", note: "The Preserver; source of Vaishnava lineages.", isDeity: true},
+    {id: "Shiva", label: "Śiva", group: "deity", region: "Vedic", note: "The Destroyer; Adi Guru of Yoga and Tantra.", isDeity: true},
+    {id: "Brahma", label: "Brahmā", group: "deity", region: "Vedic", note: "The Creator.", isDeity: true},
+    {id: "Shakti", label: "Śakti", group: "deity", region: "Vedic", note: "Divine Mother; dynamic energy.", isDeity: true},
+
+    // --- VEDIC & ANCIENT ---
+    {id: "Dhanvantari", label: "Dhanvantari", iast: "Dhanvantari", year: -3000, school: "Ayurveda", region: "Vedic", work: "Ayurveda", others: ["Dhanvantari Nighantu"], note: "God of Medicine.", zone: "North"},
+    {id: "Vyasa", label: "Vyāsa", iast: "Vyāsa", year: -1500, school: "Vedas", region: "Kuru (North)", work: "Mahābhārata", others: ["Brahma Sūtras", "Puranas"], note: "Compiler of Vedas.", zone: "North"},
+    {id: "Yajnavalkya", label: "Yājñavalkya", iast: "Yājñavalkya", year: -850, school: "Upanishads", region: "Mithila (Bihar)", work: "Bṛhadāraṇyaka Upaniṣad", others: ["Shatapatha Brahmana"], note: "Greatest Upanishadic sage.", zone: "East"},
+    {id: "Kapila", label: "Kapila", iast: "Kapila", year: -600, school: "samkhya", region: "Vedic", work: "Sāṃkhya Sūtras", others: [], note: "Founder of Samkhya (Dualism).", zone: "North"},
+    {id: "Jaimini", label: "Jaimini", iast: "Jaimini", year: -300, school: "mimamsa", region: "India", work: "Mīmāṃsā Sūtras", others: [], note: "Founder of Mimamsa (Ritualism).", zone: "North"},
+    {id: "Kanada", label: "Kaṇāda", iast: "Kaṇāda", year: -200, school: "vaisheshika", region: "Gujarat/Bengal", work: "Vaiśeṣika Sūtras", others: [], note: "Founder of Atomism.", zone: "West"},
+    {id: "Gautama", label: "Gautama", iast: "Gautama Akṣapāda", year: -200, school: "nyaya", region: "Mithila (Bihar)", work: "Nyāya Sūtras", others: [], note: "Founder of Logic.", zone: "East"},
+    {id: "Patanjali", label: "Patañjali", iast: "Patañjali", year: -150, school: "yoga", region: "Gonarda (Kashmir)", work: "Yoga Sūtras", others: ["Mahabhasya"], note: "Systematized Yoga.", zone: "North"},
+    {id: "Panini", label: "Pāṇini", iast: "Pāṇini", year: -500, school: "grammar", region: "Gandhara", work: "Aṣṭādhyāyī", others: ["Dhatupatha"], note: "Father of Linguistics.", zone: "North West"},
+    {id: "Chanakya", label: "Chanakya", iast: "Cāṇakya", year: -350, school: "Statecraft", region: "Magadha (Bihar)", work: "Arthaśāstra", others: ["Chanakya Niti"], note: "Realpolitik.", zone: "East"},
+    {id: "Sushruta", label: "Sushruta", iast: "Suśruta", year: -600, school: "Medicine", region: "Kashi (UP)", work: "Suśruta Saṃhitā", others: [], note: "Father of Surgery.", zone: "East"},
     
-    // ANCIENT / VEDIC
-    {id:"Dhanvantari", label:"Dhanvantari", iast:"Dhanvantari", year:-3000, school:"Ayurveda", region:"Vedic", work:"Ayurveda", others:["Nighantu"], note:"God of Medicine", zone:"North"},
-    {id:"Vyasa", label:"Vyāsa", iast:"Vyāsa", year:-1500, school:"Vedas", region:"Kuru", work:"Mahabharata", others:["Brahma Sutras"], note:"Veda Compiler", zone:"North"},
-    {id:"Yajnavalkya", label:"Yājñavalkya", iast:"Yājñavalkya", year:-850, school:"Vedas", region:"Mithila", work:"Brihadaranyaka", note:"Neti Neti", zone:"East"},
-    {id:"Kapila", label:"Kapila", iast:"Kapila", year:-600, school:"samkhya", region:"Vedic", work:"Samkhya Sutras", note:"Dualism Founder", zone:"North"},
-    {id:"Gautama", label:"Gautama", iast:"Gautama", year:-200, school:"nyaya", region:"Mithila", work:"Nyaya Sutras", note:"Logic Founder", zone:"East"},
-    {id:"Kanada", label:"Kaṇāda", iast:"Kaṇāda", year:-200, school:"vaisheshika", region:"Gujarat", work:"Vaisheshika Sutras", note:"Atomism", zone:"West"},
-    {id:"Jaimini", label:"Jaimini", iast:"Jaimini", year:-300, school:"mimamsa", region:"India", work:"Mimamsa Sutras", note:"Ritualism", zone:"North"},
-    {id:"Patanjali", label:"Patañjali", iast:"Patañjali", year:-150, school:"yoga", region:"Kashmir", work:"Yoga Sutras", note:"Yoga Systematizer", zone:"North"},
-    {id:"Panini", label:"Pāṇini", iast:"Pāṇini", year:-500, school:"grammar", region:"Gandhara", work:"Ashtadhyayi", note:"Linguistics", zone:"North West"},
-    {id:"Chanakya", label:"Chanakya", iast:"Cāṇakya", year:-350, school:"Statecraft", region:"Magadha", work:"Arthashastra", note:"Realpolitik", zone:"East"},
-    {id:"Sushruta", label:"Sushruta", iast:"Suśruta", year:-600, school:"Medicine", region:"Kashi", work:"Sushruta Samhita", note:"Surgery", zone:"North"},
-    {id:"Charvaka", label:"Charvaka", iast:"Cārvāka", year:-600, school:"nastika", region:"India", work:"Barhaspatya Sutras", note:"Materialism", zone:"North"},
-    {id:"Makkhali", label:"Makkhali", iast:"Makkhali Gosāla", year:-500, school:"nastika", region:"Magadha", work:"Lost", note:"Ajivika Founder", zone:"East"},
+    // --- HETERODOX ---
+    {id: "Buddha", label: "Buddha", iast: "Siddhārtha Gautama", year: -563, school: "buddhism", region: "Magadha (Bihar)", work: "Pali Canon", others: ["Dhammapada"], note: "Founder of Buddhism.", zone: "East"},
+    {id: "Mahavira", label: "Mahavira", iast: "Mahāvīra", year: -540, school: "jainism", region: "Magadha (Bihar)", work: "Agamas", others: [], note: "24th Tirthankara.", zone: "East"},
+    {id: "Makkhali", label: "Makkhali Gosala", iast: "Makkhali Gosāla", year: -500, school: "nastika", region: "Magadha", work: "(Lost)", others: [], note: "Founder of Ajivika (Fatalism).", zone: "East"},
+    {id: "Charvaka", label: "Charvaka", iast: "Cārvāka", year: -600, school: "nastika", region: "India", work: "Barhaspatya Sutras", others: [], note: "Materialist.", zone: "North"},
+
+    // --- CLASSICAL ---
+    {id: "Nagarjuna", label: "Nāgārjuna", iast: "Nāgārjuna", year: 150, school: "buddhism", region: "Andhra (South)", work: "Mūlamadhyamakakārikā", others: ["Ratnavali"], note: "Founder of Emptiness (Sunyata).", zone: "South"},
+    {id: "Kalidasa", label: "Kālidāsa", iast: "Kālidāsa", year: 400, school: "Literature", region: "Ujjain (MP)", work: "Shakuntalam", others: ["Meghaduta"], note: "Supreme Poet.", zone: "Central"},
+    {id: "Aryabhata", label: "Āryabhaṭa", iast: "Āryabhaṭa", year: 476, school: "Science", region: "Patna (Bihar)", work: "Āryabhaṭīya", others: [], note: "Zero, Pi, Heliocentrism.", zone: "East"},
+    {id: "Dignaga", label: "Dignāga", iast: "Dignāga", year: 480, school: "buddhism", region: "Kanchipuram (South)", work: "Pramāṇa-samuccaya", others: [], note: "Buddhist Logic.", zone: "South"},
+    {id: "Prashastapada", label: "Praśastapāda", iast: "Praśastapāda", year: 550, school: "vaisheshika", region: "India", work: "Padārthadharmasaṃgraha", others: [], note: "Commentator on Atomism.", zone: "North"},
+    {id: "Shabara", label: "Shabara", iast: "Śabara", year: 200, school: "mimamsa", region: "India", work: "Śabara Bhāṣya", others: [], note: "Mimamsa Commentator.", zone: "North"},
     
-    // CLASSICAL
-    {id:"Nagarjuna", label:"Nāgārjuna", iast:"Nāgārjuna", year:150, school:"buddhism", region:"Andhra", work:"Mulamadhyamaka", note:"Emptiness", zone:"South"},
-    {id:"Kalidasa", label:"Kālidāsa", iast:"Kālidāsa", year:400, school:"Literature", region:"Ujjain", work:"Shakuntalam", note:"Supreme Poet", zone:"Central"},
-    {id:"Aryabhata", label:"Āryabhaṭa", iast:"Āryabhaṭa", year:476, school:"Science", region:"Patna", work:"Aryabhatiya", note:"Zero, Pi", zone:"East"},
-    {id:"Dignaga", label:"Dignāga", iast:"Dignāga", year:480, school:"buddhism", region:"Kanchipuram", work:"Pramana-samuccaya", note:"Buddhist Logic", zone:"South"},
-    {id:"Prashastapada", label:"Praśastapāda", iast:"Praśastapāda", year:550, school:"vaisheshika", region:"India", work:"Padarthadharmasamgraha", note:"Atomism Commentary", zone:"North"},
-    {id:"Shabara", label:"Shabara", iast:"Śabara", year:200, school:"mimamsa", region:"India", work:"Shabara Bhashya", note:"Mimamsa Commentary", zone:"North"},
-    {id:"Bhartrihari", label:"Bhartṛhari", iast:"Bhartṛhari", year:450, school:"grammar", region:"Ujjain", work:"Vakyapadiya", note:"Philosophy of Grammar", zone:"Central"},
+    // --- PHILOSOPHY LINEAGES ---
     
-    // PHILOSOPHY LINEAGES
-    // Advaita
-    {id:"Gaudapada", label:"Gauḍapāda", iast:"Gauḍapāda", year:600, school:"advaita", region:"North", work:"Mandukya Karika", note:"Ajativada", zone:"North"},
-    {id:"Shankara", label:"Śaṅkara", iast:"Ādi Śaṅkara", year:788, school:"advaita", region:"Kerala", work:"Brahmasutra Bhashya", note:"Advaita Founder", zone:"South"},
-    {id:"Suresvara", label:"Sureśvara", iast:"Sureśvara", year:800, school:"advaita", region:"South", work:"Naishkarmya Siddhi", note:"Disciple", zone:"South"},
-    {id:"Padmapada", label:"Padmapāda", iast:"Padmapāda", year:800, school:"advaita", region:"South", work:"Panchapadika", note:"Disciple", zone:"South"},
-    {id:"Totakacharya", label:"Toṭaka", iast:"Toṭakācārya", year:800, school:"advaita", region:"South", work:"Totakashtakam", note:"Disciple", zone:"South"},
-    {id:"Hastamalakacharya", label:"Hastāmalaka", iast:"Hastāmalakācārya", year:800, school:"advaita", region:"South", work:"Hastamalakiya", note:"Disciple", zone:"South"},
-    {id:"Vacaspati", label:"Vācaspati", iast:"Vācaspati Miśra", year:900, school:"advaita", region:"Mithila", work:"Bhamati", note:"Polymath", zone:"East"},
-    {id:"Vidyaranya", label:"Vidyāraṇya", iast:"Vidyāraṇya", year:1296, school:"advaita", region:"Sringeri", work:"Panchadasi", note:"Vijayanagara Patron", zone:"South"},
-    {id:"Madhusudana", label:"Madhusūdana", iast:"Madhusūdana Sarasvatī", year:1540, school:"advaita", region:"Bengal", work:"Advaita Siddhi", note:"Dialectics", zone:"East"},
+    // ADVAITA
+    {id: "Gaudapada", label: "Gauḍapāda", iast: "Gauḍapāda", year: 600, school: "advaita", region: "North", work: "Māṇḍūkya Kārikā", note: "Grand-guru of Shankara.", zone: "North"},
+    {id: "Shankara", label: "Śaṅkara", iast: "Ādi Śaṅkara", year: 788, school: "advaita", region: "Kerala (South)", work: "Brahmasūtra Bhāṣya", others: ["Vivekachudamani"], note: "Systematized Advaita.", zone: "South"},
+    {id: "Suresvara", label: "Sureśvara", iast: "Sureśvara", year: 800, school: "advaita", region: "South", work: "Naiṣkarmya Siddhi", note: "Disciple of Shankara.", zone: "South"},
+    {id: "Padmapada", label: "Padmapāda", iast: "Padmapāda", year: 800, school: "advaita", region: "South", work: "Pañcapādikā", note: "Disciple of Shankara.", zone: "South"},
+    {id: "Vacaspati", label: "Vācaspati", iast: "Vācaspati Miśra", year: 900, school: "advaita", region: "Mithila (Bihar)", work: "Bhāmatī", others: ["Nyaya-Kanika"], note: "Wrote on all 6 schools.", zone: "East"},
+    {id: "Vidyaranya", label: "Vidyāraṇya", iast: "Vidyāraṇya", year: 1296, school: "advaita", region: "Sringeri (Karnataka)", work: "Pañcadaśī", note: "Patron of Vijayanagara.", zone: "South"},
     
-    // Nyaya
-    {id:"Udayana", label:"Udayana", iast:"Udayana", year:984, school:"nyaya", region:"Mithila", work:"Nyayakusumanjali", note:"Theist Logic", zone:"East"},
-    {id:"Gangesa", label:"Gaṅgeśa", iast:"Gaṅgeśa", year:1325, school:"nyaya", region:"Mithila", work:"Tattvacintamani", note:"Navya-Nyaya Founder", zone:"East"},
-    {id:"Raghunatha", label:"Raghunātha", iast:"Raghunātha Śiromaṇi", year:1477, school:"nyaya", region:"Bengal", work:"Didhiti", note:"Logician", zone:"East"},
+    // NYAYA-VAISHESHIKA
+    {id: "Udayana", label: "Udayana", iast: "Udayana", year: 984, school: "nyaya", region: "Mithila (Bihar)", work: "Nyāyakusumāñjali", note: "Proved God via Logic.", zone: "East"},
+    {id: "Gangesa", label: "Gaṅgeśa", iast: "Gaṅgeśa Upādhyāya", year: 1325, school: "nyaya", region: "Mithila (Bihar)", work: "Tattvacintāmaṇi", note: "Founder of Navya-Nyaya.", zone: "East"},
     
-    // Kashmir Shaivism
-    {id:"Vasugupta", label:"Vasugupta", iast:"Vasugupta", year:800, school:"kashmir", region:"Kashmir", work:"Shiva Sutras", note:"Trika Founder", zone:"North"},
-    {id:"Somananda", label:"Somānanda", iast:"Somānanda", year:900, school:"kashmir", region:"Kashmir", work:"Shiva Drishti", note:"Pratyabhijna", zone:"North"},
-    {id:"Utpaladeva", label:"Utpaladeva", iast:"Utpaladeva", year:925, school:"kashmir", region:"Kashmir", work:"Ishvara Pratyabhijna", note:"Recognition", zone:"North"},
-    {id:"Abhinavagupta", label:"Abhinavagupta", iast:"Abhinavagupta", year:950, school:"kashmir", region:"Kashmir", work:"Tantraloka", note:"Tantric Genius", zone:"North"},
-    {id:"Kshemaraja", label:"Kṣemarāja", iast:"Kṣemarāja", year:1000, school:"kashmir", region:"Kashmir", work:"Pratyabhijnahridayam", note:"Disciple", zone:"North"},
+    // MIMAMSA
+    {id: "Kumarila", label: "Kumārila", iast: "Kumārila Bhaṭṭa", year: 700, school: "mimamsa", region: "Prayag", work: "Ślokavārttika", note: "Revived Ritualism.", zone: "North"},
+    {id: "Prabhakara", label: "Prabhākara", iast: "Prabhākara", year: 700, school: "mimamsa", region: "Kerala", work: "Bṛhatī", note: "Guru School of Mimamsa.", zone: "South"},
     
-    // Bhakti / Vedanta
-    {id:"Ramanuja", label:"Rāmānuja", iast:"Rāmānuja", year:1017, school:"visisthadavita", region:"Tamil Nadu", work:"Sri Bhashya", note:"Vishishtadvaita", zone:"South"},
-    {id:"Madhva", label:"Madhva", iast:"Madhvācārya", year:1238, school:"dvaita", region:"Udupi", work:"Sarvamula", note:"Dualism", zone:"South"},
-    {id:"Nimbarka", label:"Nimbārka", iast:"Nimbārka", year:1150, school:"dvaitadvaita", region:"Andhra", work:"Parijata Saurabha", note:"Dvaitadvaita", zone:"South"},
-    {id:"Vallabha", label:"Vallabha", iast:"Vallabhācārya", year:1479, school:"shuddhadvaita", region:"North", work:"Anubhashya", note:"Shuddhadvaita", zone:"West"},
-    {id:"Chaitanya", label:"Caitanya", iast:"Caitanya", year:1486, school:"bhakti", region:"Bengal", work:"Siksastakam", note:"Gaudiya", zone:"East"},
-    {id:"Jayadeva", label:"Jayadeva", iast:"Jayadeva", year:1200, school:"bhakti", region:"Odisha", work:"Gita Govinda", note:"Poet", zone:"East"},
-    {id:"Vidyapati", label:"Vidyāpati", iast:"Vidyāpati", year:1352, school:"Literature", region:"Mithila", work:"Padavali", note:"Maithili Poet", zone:"East"},
-    {id:"Kabir", label:"Kabir", iast:"Kabīr", year:1440, school:"bhakti", region:"Varanasi", work:"Bijak", note:"Nirguna", zone:"North"},
-    {id:"Tulsidas", label:"Tulsidas", iast:"Tulasīdāsa", year:1532, school:"bhakti", region:"Varanasi", work:"Ramcharitmanas", note:"Ramayana", zone:"North"},
+    // KASHMIR SHAIVISM
+    {id: "Vasugupta", label: "Vasugupta", iast: "Vasugupta", year: 800, school: "kashmir", region: "Kashmir", work: "Śiva Sūtras", note: "Founder of Tradition.", zone: "North"},
+    {id: "Abhinavagupta", label: "Abhinavagupta", iast: "Abhinavagupta", year: 950, school: "kashmir", region: "Kashmir", work: "Tantrāloka", note: "Tantric Genius.", zone: "North"},
+    
+    // SAMKHYA & YOGA
+    {id: "IshvaraKrishna", label: "Īśvarakṛṣṇa", iast: "Īśvarakṛṣṇa", year: 350, school: "samkhya", region: "India", work: "Sāṃkhya Kārikā", note: "Classical Samkhya.", zone: "North"},
+    
+    // --- BHAKTI & VEDANTA ---
+    {id: "Ramanuja", label: "Rāmānuja", iast: "Rāmānuja", year: 1017, school: "bhakti", region: "Tamil Nadu", work: "Śrī Bhāṣya", note: "Vishishtadvaita.", zone: "South"},
+    {id: "Madhva", label: "Madhva", iast: "Madhvācārya", year: 1238, school: "dvaita", region: "Udupi (Karnataka)", work: "Sarvamūla", note: "Dualism.", zone: "South"},
+    {id: "Nimbarka", label: "Nimbārka", iast: "Nimbārka", year: 1150, school: "dvaitadvaita", region: "Andhra", work: "Parijata Saurabha", note: "Dvaitadvaita.", zone: "South"},
+    {id: "Vallabha", label: "Vallabha", iast: "Vallabhācārya", year: 1479, school: "shuddhadvaita", region: "North", work: "Anubhāṣya", note: "Shuddhadvaita.", zone: "West"},
+    {id: "Chaitanya", label: "Caitanya", iast: "Caitanya Mahāprabhu", year: 1486, school: "bhakti", region: "Bengal", work: "Śikṣāṣṭakam", note: "Gaudiya Vaishnavism.", zone: "East"},
+    {id: "Jayadeva", label: "Jayadeva", iast: "Jayadeva", year: 1200, school: "bhakti", region: "Odisha", work: "Gīta Govinda", note: "Radha-Krishna poetry.", zone: "East"},
+    {id: "Vidyapati", label: "Vidyāpati", iast: "Vidyāpati", year: 1352, school: "Literature", region: "Mithila (Bihar)", work: "Padāvalī", note: "Nightingale of Mithila.", zone: "East"},
+    {id: "Kabir", label: "Kabir", iast: "Kabīr", year: 1440, school: "bhakti", region: "Varanasi (UP)", work: "Bijak", note: "Nirguna Bhakti.", zone: "North"},
+    {id: "Tulsidas", label: "Tulsidas", iast: "Tulasīdāsa", year:1532, school:"bhakti", region:"Varanasi (UP)", work:"Rāmcharitmānas", note:"Ramayana in Awadhi.", zone:"North"},
     {id:"Surdas", label:"Surdas", iast:"Sūrdās", year:1478, school:"bhakti", region:"Braj", work:"Sur Sagar", note:"Krishna Bhakta", zone:"North"},
     {id:"Mirabai", label:"Mirabai", iast:"Mīrābāī", year:1498, school:"bhakti", region:"Rajasthan", work:"Bhajans", note:"Krishna Bhakta", zone:"West"},
     {id:"Nammalvar", label:"Nammāḻvār", iast:"Nammāḻvār", year:880, school:"bhakti", region:"Tamil Nadu", work:"Tiruvaymoli", note:"Alvar", zone:"South"},
     {id:"Andal", label:"Āṇḍāḷ", iast:"Āṇḍāḷ", year:750, school:"bhakti", region:"Tamil Nadu", work:"Tiruppavai", note:"Alvar", zone:"South"},
     {id:"Appayya", label:"Appayya", iast:"Appayya Dīkṣita", year:1520, school:"shaiva", region:"Tamil Nadu", work:"Siddhantalesa", note:"Polymath", zone:"South"},
     
-    // Modern / Reform
+    // --- MODERN ERA ---
     {id:"RamMohan", label:"Ram Mohan", iast:"Raja Ram Mohan Roy", year:1772, school:"modern", region:"Bengal", work:"Brahmo Samaj", note:"Reformer", zone:"East"},
-    {id:"Bankim", label:"Bankim", iast:"Baṅkim Candra", year:1838, school:"Literature", region:"Bengal", work:"Anandamath", note:"Vande Mataram", zone:"East"},
-    {id:"Vivekananda", label:"Vivekānanda", iast:"Swāmī Vivekānanda", year:1863, school:"advaita", region:"Bengal", work:"Raja Yoga", note:"Vedanta to West", zone:"East"},
-    {id:"Tagore", label:"Tagore", iast:"Rabindranath Tagore", year:1861, school:"Literature", region:"Bengal", work:"Gitanjali", note:"Nobel Laureate", zone:"East"},
+    {id:"Bankim", label:"Bankim", iast:"Baṅkim Candra", year:1838, school:"Literature", region:"Bengal", work:"Ānandamaṭh", note:"Vande Mataram", zone:"East"},
+    {id:"Vivekananda", label:"Vivekānanda", iast:"Swāmī Vivekānanda", year:1863, school:"advaita", region:"Bengal", work:"Rāja Yoga", note:"Vedanta to West", zone:"East"},
+    {id:"Tagore", label:"Tagore", iast:"Rabindranath Tagore", year:1861, school:"Literature", region:"Bengal", work:"Gītāñjali", note:"Nobel Laureate", zone:"East"},
     {id:"Aurobindo", label:"Aurobindo", iast:"Sri Aurobindo", year:1872, school:"yoga", region:"Pondicherry", work:"Life Divine", note:"Integral Yoga", zone:"East"},
     {id:"Ramanujan", label:"Ramanujan", iast:"Srinivasa Ramanujan", year:1887, school:"Science", region:"Tamil Nadu", work:"Notebooks", note:"Math Genius", zone:"South"},
     {id:"Ambedkar", label:"Ambedkar", iast:"B.R. Ambedkar", year:1891, school:"modern", region:"Maharashtra", work:"Constitution", note:"Social Justice", zone:"West"},
@@ -237,42 +249,51 @@ const rawData = [
     
     // West / Global
     {id:"Voltaire", label:"Voltaire", group:"west", year:1694, region:"France", work:"Essai", note:"Indophile", zone:"Global"},
-    {id:"Schopenhauer", label:"Schopenhauer", group:"west", year:1788, region:"Germany", work:"World as Will", note:"Upanishads", zone:"Global"},
+    {id:"Schopenhauer", label:"Schopenhauer", group:"west", year:1788, region:"Germany", work:"World as Will", note:"Upanishads admirer.", zone:"Global"},
     {id:"MaxMuller", label:"Max Müller", group:"west", year:1823, region:"Germany", work:"Sacred Books", note:"Indologist", zone:"Global"},
     {id:"Tesla", label:"Tesla", group:"west", year:1856, region:"USA", work:"AC", note:"Vedantic Physics", zone:"Global"},
     {id:"Eliot", label:"Eliot", group:"west", year:1888, region:"UK", work:"Waste Land", note:"Sanskrit", zone:"Global"},
-    {id:"Oppenheimer", label:"Oppenheimer", group:"west", year:1904, region:"USA", work:"Trinity", note:"Gita", zone:"Global"},
+    {id:"Oppenheimer", label:"Oppenheimer", group:"west", year:1904, region:"USA", work:"Trinity", note:"Gita Scholar", zone:"Global"},
     {id:"Harrison", label:"Harrison", group:"west", year:1943, region:"UK", work:"Sitar", note:"Beatles", zone:"Global"}
 ];
 
 // 2. LINEAGES
 const lineages = [
+    // Divine
+    {s: "Narayana", t: "Brahma", type: "Guru"}, {s: "Brahma", t: "Vashishta", type: "Guru"},
+    {s: "Shiva", t: "Vasugupta", type: "Divine"},
+    
     // Advaita
-    {s:"Gaudapada", t:"Shankara", type:"Paramaguru"}, {s:"Shankara", t:"Suresvara", type:"Guru"},
-    {s:"Shankara", t:"Padmapada", type:"Guru"}, {s:"Shankara", t:"Totakacharya", type:"Guru"},
-    {s:"Shankara", t:"Hastamalakacharya", type:"Guru"}, {s:"Shankara", t:"Vacaspati", type:"Influence"},
-    {s:"Shankara", t:"Vidyaranya", type:"Lineage"}, {s:"Shankara", t:"Madhusudana", type:"Lineage"},
-    {s:"Shankara", t:"Vivekananda", type:"Lineage"},
-    // Kashmir
-    {s:"Vasugupta", t:"Somananda", type:"Lineage"}, {s:"Somananda", t:"Utpaladeva", type:"Guru"},
-    {s:"Utpaladeva", t:"Abhinavagupta", type:"GrandGuru"}, {s:"Abhinavagupta", t:"Kshemaraja", type:"Guru"},
+    {s: "Gaudapada", t: "Shankara", type: "Paramaguru"}, {s: "Shankara", t: "Suresvara", type: "Guru"},
+    {s: "Shankara", t: "Padmapada", type: "Guru"}, {s: "Shankara", t: "Vacaspati", type: "Influence"},
+    {s: "Shankara", t: "Vidyaranya", type: "Lineage"}, {s: "Shankara", t: "Vivekananda", type: "Lineage"},
+    
     // Nyaya
-    {s:"Gautama", t:"Vatsyayana", type:"Lineage"}, {s:"Udayana", t:"Gangesa", type:"Influence"},
-    {s:"Gautama", t:"Nagarjuna", type:"Debate"},
-    // Bhakti
-    {s:"Ramanuja", t:"Madhva", type:"Reaction"}, {s:"Jayadeva", t:"Chaitanya", type:"Influence"},
-    {s:"Chaitanya", t:"Tagore", type:"Influence"},
-    // West
-    {s:"Panini", t:"Voltaire", type:"Study"}, {s:"Vyasa", t:"Oppenheimer", type:"Study"},
-    {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"}, {s:"Vivekananda", t:"Tesla", type:"Meeting"}
+    {s: "Gautama", t: "Vatsyayana", type: "Lineage"}, {s: "Udayana", t: "Gangesa", type: "Influence"},
+    {s: "Gautama", t: "Nagarjuna", type: "Debate"}, // Nagarjuna critiqued Nyaya
+    
+    // Mimamsa
+    {s: "Jaimini", t: "Shabara", type: "Lineage"}, {s: "Shabara", t: "Kumarila", type: "Lineage"},
+    {s: "Kumarila", t: "Shankara", type: "Debate"},
+    
+    // Kashmir
+    {s: "Vasugupta", t: "Abhinavagupta", type: "Lineage"},
+    
+    // Bhakti / Vedanta
+    {s: "Ramanuja", t: "Madhva", type: "Reaction"}, {s: "Jayadeva", t: "Chaitanya", type: "Influence"},
+    {s: "Chaitanya", t: "Tagore", type: "Influence"},
+    
+    // Indophiles
+    {s: "Panini", t: "Voltaire", type: "Study"}, {s: "Vyasa", t: "Oppenheimer", type: "Study"},
+    {s: "Yajnavalkya", t: "Schopenhauer", type: "Study"}, {s: "Vivekananda", t: "Tesla", type: "Meeting"}
 ];
 
-// 3. BUILD
+// 3. BUILD GRAPH
 let nodes = new vis.DataSet();
 let edges = new vis.DataSet();
 let allNodes = [];
 
-// Maps
+// Style Maps
 const colorMap = {
     "advaita": "#ff9800", "nyaya": "#00bcd4", "kashmir": "#9c27b0", "bhakti": "#ffeb3b",
     "buddhism": "#e91e63", "west": "#a5a5a5", "mimamsa": "#795548", "samkhya": "#607d8b",
@@ -323,8 +344,8 @@ const container = document.getElementById('mynetwork');
 const data = { nodes: nodes, edges: edges };
 const options = {
     nodes: { borderWidth: 1, shadow: true },
-    physics: { enabled: false }, // Use geo coords
-    interaction: { hover: true, dragNodes: true } // Allow adjustments
+    physics: { stabilization: false, barnesHut: { gravitationalConstant: -3000, springConstant: 0.01 } },
+    interaction: { hover: true }
 };
 const network = new vis.Network(container, data, options);
 
@@ -362,7 +383,7 @@ network.on("click", function(params) {
         if (node) {
             const d = node.data;
             document.getElementById('p-name').innerText = d.iast || d.label;
-            document.getElementById('p-dates').innerText = d.isDeity ? "Divine" : (d.date || d.year);
+            document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.date || d.year);
             document.getElementById('p-school').innerText = (d.school || d.group).toUpperCase();
             document.getElementById('p-region').innerHTML = `<span style="color:#fff">${d.ethnicity}</span> <span class="region-tag">${d.region}</span>`;
             document.getElementById('p-work').innerText = d.work || "N/A";
