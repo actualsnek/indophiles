@@ -49,17 +49,14 @@
     <div class="controls">
         <select id="schoolFilter" onchange="updateMap()">
             <option value="all">All Schools</option>
-            <option value="Deity">Deities</option>
-            <option value="Vedic">Vedas & Upanishads</option>
-            <option value="Vedanta">Vedanta (All)</option>
-            <option value="Advaita">Vedanta: Advaita</option>
-            <option value="Dvaita">Vedanta: Dvaita</option>
-            <option value="Nyaya">Nyaya & Vaisheshika</option>
-            <option value="Shaivism">Kashmir Shaivism</option>
+            <option value="Advaita">Advaita</option>
+            <option value="Dvaita">Dvaita</option>
+            <option value="Nyaya">Nyaya</option>
+            <option value="Kashmir Shaivism">Kashmir Shaivism</option>
             <option value="Buddhism">Buddhism</option>
             <option value="Jainism">Jainism</option>
-            <option value="Bhakti">Bhakti Movement</option>
-            <option value="West">Indology (West)</option>
+            <option value="Bhakti">Bhakti</option>
+            <option value="Indology">Indology</option>
         </select>
         
         <select id="regionFilter" onchange="updateMap()">
@@ -85,8 +82,9 @@
         <span class="p-label">Tradition</span><div id="p-school" class="p-value" style="color: var(--gold)"></div>
         <span class="p-label">Region</span><div id="p-region" class="p-value"></div>
         <span class="p-label">Magnum Opus</span><div id="p-work" class="p-value iast"></div>
-        <span class="p-label">Other Works</span><ul id="p-others" style="padding-left:15px; color:#aaa; font-size:0.9rem;"></ul>
+        <span class="p-label">Other Works</span><ul id="p-others" class="works-list"></ul>
         <span class="p-label">Significance</span><div id="p-note" class="p-value"></div>
+        <span class="p-label">Lineage Info</span><div id="p-lineage" class="p-value" style="border-left: 2px solid #333; padding-left: 10px;"></div>
     </div></div>
 </div>
 
@@ -104,13 +102,12 @@
     // COLOR LOGIC
     function getColor(p) {
         if (p.isDeity) return "#ffd700"; // Gold
-        if (p.parent === "Vedanta") return "#ff9800"; // Orange
-        if (p.parent === "Buddhism") return "#e91e63"; // Pink
-        if (p.parent === "Jainism") return "#4caf50"; // Green
-        if (p.parent === "Nyaya" || p.parent === "Vaisheshika") return "#00bcd4"; // Blue
-        if (p.parent === "Shaivism") return "#9c27b0"; // Purple
-        if (p.parent === "West") return "#a5a5a5"; // Silver
-        if (p.parent === "Bhakti") return "#ffeb3b"; // Yellow
+        if (p.school.includes('Advaita')) return "#ff9800"; // Orange
+        if (p.school.includes('Nyaya')) return "#00bcd4"; // Blue
+        if (p.school.includes('Bhakti')) return "#ffeb3b"; // Yellow
+        if (p.school.includes('Buddhism')) return "#e91e63"; // Pink
+        if (p.school.includes('Jainism')) return "#4caf50"; // Green
+        if (p.school.includes('Indology')) return "#a5a5a5"; // Silver
         return "#ddd"; // White default
     }
 
@@ -123,41 +120,38 @@
         const sFilter = document.getElementById('schoolFilter').value;
         const rFilter = document.getElementById('regionFilter').value;
 
-        // Draw Lineages (if available in rawData)
-        // Note: Lineages are usually separate edges, but here we visualize nodes. 
-        // If you want lines, you need an edges array in data.js. 
-        // Assuming edges exist in data.js as 'edges' variable.
-        if (typeof edges !== 'undefined') {
-            edges.forEach(l => {
-                const s = rawData.find(x => x.id === l.from);
-                const t = rawData.find(x => x.id === l.to);
-                if (s && t) {
-                    let visible = true;
-                    if (sFilter !== 'all' && s.parent !== sFilter && s.subset !== sFilter) visible = false;
-                    if (visible) {
-                        const color = l.type.includes("Guru") ? "#d4af37" : "#444";
-                        const line = L.polyline([[s.lat, s.lng], [t.lat, t.lng]], {color: color, weight: 1, opacity: 0.5}).addTo(map);
-                        polylines.push(line);
-                    }
+        // Draw Lineages
+        lineages.forEach(l => {
+            const s = rawData.find(x => x.id === l.s);
+            const t = rawData.find(x => x.id === l.t);
+            if (s && t) {
+                let visible = true;
+                if (sFilter !== 'all' && s.school !== sFilter && t.school !== sFilter) visible = false;
+                if (visible) {
+                    const color = l.type.includes("Guru") ? "#d4af37" : "#444";
+                    const weight = l.type.includes("Guru") ? 2 : 1;
+                    const line = L.polyline([[s.lat, s.lng], [t.lat, t.lng]], {color: color, weight: weight, opacity: 0.5}).addTo(map);
+                    polylines.push(line);
                 }
-            });
-        }
+            }
+        });
 
         // Draw Nodes
         rawData.forEach(p => {
             let show = true;
-            if (sFilter !== 'all' && p.parent !== sFilter && p.subset !== sFilter && p.group !== sFilter) show = false;
+            if (sFilter !== 'all' && p.school !== sFilter && p.group !== sFilter) show = false;
             if (rFilter !== 'all' && p.zone !== rFilter && p.region !== rFilter) show = false;
             
             if (show) {
-                // Jitter
                 const lat = p.lat + (Math.random() * 0.1 - 0.05);
                 const lng = p.lng + (Math.random() * 0.1 - 0.05);
 
-                const size = p.isDeity ? 16 : 8;
+                const size = p.isDeity ? 16 : 10;
                 const html = `<div style="width:${size}px; height:${size}px; background:${getColor(p)}; border-radius:50%; border:1px solid #fff; box-shadow:0 0 5px ${getColor(p)};"></div>`;
-                const icon = L.divIcon({ className: 'leaflet-div-icon', html: html, iconSize: [size, size] });
-                
+                let iconHtml = html;
+                if (p.isDeity) iconHtml = `<div style="font-size:20px; color:#ffd700;">★</div>`;
+
+                const icon = L.divIcon({ className: 'leaflet-div-icon', html: iconHtml, iconSize: [size, size] });
                 const m = L.marker([lat, lng], {icon: icon}).addTo(map);
                 m.on('click', () => openPanel(p));
                 markers.push(m);
@@ -167,7 +161,7 @@
 
     // TIMELINE
     const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
-        id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.parent, personId: t.id
+        id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
     })));
     
     const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
@@ -187,15 +181,18 @@
     function openPanel(d) {
         document.getElementById('p-name').innerText = d.iast || d.label;
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
-        document.getElementById('p-school').innerText = `${d.parent} (${d.subset})`;
-        document.getElementById('p-region').innerText = `${d.subregion || d.region} (${d.zone})`;
+        document.getElementById('p-school').innerText = d.school || "";
+        document.getElementById('p-region').innerText = `${d.region} (${d.zone})`;
         document.getElementById('p-work').innerText = d.work || "N/A";
         document.getElementById('p-note').innerText = d.note || "";
         
+        let parent = lineages.find(l => l.t === d.id && l.type.includes("Guru"));
+        document.getElementById('p-lineage').innerText = parent ? `Disciple of ${parent.s}` : "Independent / Source";
+
         const ul = document.getElementById('p-others');
         ul.innerHTML = "";
         if (d.others && d.others.length > 0) d.others.forEach(w => ul.innerHTML += `<li>${w}</li>`);
-        else ul.innerHTML = "<li>No other major records.</li>";
+        else ul.innerHTML = "<li>No other major records listed.</li>";
 
         document.getElementById('side-panel').style.width = "400px";
         document.getElementById('panel-content').style.opacity = "1";
@@ -215,7 +212,6 @@
         }
     }
 
-    // Init
     updateMap();
 </script>
 </body>
