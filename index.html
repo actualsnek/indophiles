@@ -1,232 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indophiles Network</title>
-    
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/vis-timeline/standalone/umd/vis-timeline-graph2d.min.js"></script>
-    <link href="https://unpkg.com/vis-timeline/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg: #050505;
-            --panel: #111;
-            --india: #ff9800;  /* Orange */
-            --west: #00bcd4;   /* Cyan */
-            --text: #e0e0e0;
-        }
-
-        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* HEADER */
-        header { 
-            padding: 15px 25px; background: var(--panel); border-bottom: 1px solid #333; 
-            display: flex; justify-content: space-between; align-items: center; z-index: 100;
-        }
-        .brand h1 { margin: 0; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
-        .brand span { color: var(--india); font-weight: bold; }
-        
-        .search-box input { 
-            background: #222; border: 1px solid #444; color: #fff; padding: 10px 15px; 
-            border-radius: 30px; width: 250px; outline: none; transition: 0.3s; font-family: inherit;
-        }
-        .search-box input:focus { border-color: var(--west); width: 320px; box-shadow: 0 0 15px rgba(0, 188, 212, 0.2); }
-
-        /* MAIN CONTENT */
-        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #151515 0%, #000 100%); width: 100%; }
-        #mytimeline { height: 220px; background: var(--panel); border-top: 2px solid #333; }
-
-        /* LOADING */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000;
-            display: flex; justify-content: center; align-items: center; z-index: 9999;
-            font-size: 1.5rem; letter-spacing: 5px; color: var(--india);
-        }
-
-        /* CUSTOM TOOLTIP */
-        div.vis-tooltip {
-            background: rgba(10,10,10,0.95); border: 1px solid var(--west); color: #fff;
-            padding: 15px; border-radius: 8px; font-size: 0.9rem; line-height: 1.4;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5); pointer-events: none;
-        }
-        .tip-name { color: var(--india); font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 5px; display:block;}
-        .tip-meta { color: #888; font-size: 0.8rem; margin-bottom: 8px; display:block; text-transform: uppercase; letter-spacing: 1px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indophiles Network</title>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script src="https://unpkg.com/vis-timeline/standalone/umd/vis-timeline-graph2d.min.js"></script>
+<link href="https://unpkg.com/vis-timeline/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #050505; --panel: #111; --india: #ff9800; --west: #00bcd4; --text: #e0e0e0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  header { padding: 15px 25px; background: var(--panel); border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+  .brand h1 { margin: 0; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; color: #fff; }
+  .brand span { color: var(--india); font-weight: bold; }
+  .search-box input { background: #222; border: 1px solid #444; color: #fff; padding: 10px 15px; border-radius: 30px; width: 250px; outline: none; font-family: inherit; }
+  .search-box input:focus { border-color: var(--west); width: 320px; }
+  #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #151515 0%, #000 100%); width: 100%; }
+  #mytimeline { height: 220px; background: var(--panel); border-top: 2px solid #333; }
+  div.vis-tooltip { background: rgba(10,10,10,0.95); border: 1px solid var(--west); color: #fff; padding: 15px; border-radius: 8px; font-size: 0.9rem; pointer-events: none; }
+  .tip-name { color: var(--india); font-size: 1.1rem; font-weight: 700; display:block; border-bottom:1px solid #333; margin-bottom:5px;}
+</style>
 </head>
 <body>
-
-<div id="loader">INITIALIZING NETWORK...</div>
-
 <header>
-    <div class="brand">
-        <h1>Indophiles <span>Network</span></h1>
-    </div>
-    <div class="search-box">
-        <input type="text" id="search" placeholder="Search (e.g. Tesla, Shankara)..." onkeyup="searchNode()">
-    </div>
+  <div class="brand"><h1>Indophiles <span>Network</span></h1></div>
+  <div class="search-box"><input type="text" id="search" placeholder="Search..." onkeyup="searchNode()"></div>
 </header>
-
 <div id="mynetwork"></div>
 <div id="mytimeline"></div>
-
 <script type="text/javascript">
+const thinkers = [
+  {id:1, name:"Dhanvantari", field:"Medicine", year:-3000, group:"india", note:"Legendary God of Medicine"},
+  {id:2, name:"Vyasa", field:"Literature", year:-1500, group:"india", note:"Compiler of the Vedas"},
+  {id:3, name:"Lagadha", field:"Astronomy", year:-1000, group:"india", note:"Earliest text on Indian timekeeping"},
+  {id:4, name:"Baudhayana", field:"Math", year:-800, group:"india", note:"First statement of Pythagorean theorem"},
+  {id:5, name:"Kapila", field:"Philosophy", year:-600, group:"india", note:"Founder of Samkhya (Dualism)"},
+  {id:6, name:"Sushruta", field:"Medicine", year:-600, group:"india", note:"Father of Surgery"},
+  {id:7, name:"Gautama Buddha", field:"Philosophy", year:-563, group:"india", note:"Revolutionized Asian ethics"},
+  {id:8, name:"Mahavira", field:"Philosophy", year:-540, group:"india", note:"24th Tirthankara"},
+  {id:9, name:"Panini", field:"Linguistics", year:-500, group:"india", note:"Created generative grammar"},
+  {id:10, name:"Valmiki", field:"Literature", year:-400, group:"india", note:"The Adi Kavi (First Poet)"},
+  {id:11, name:"Chanakya", field:"Statecraft", year:-350, group:"india", note:"Master of Realpolitik (Arthashastra)"},
+  {id:12, name:"Megasthenes", field:"History", year:-350, group:"west", note:"Greek ambassador to India"},
+  {id:13, name:"Chandragupta Maurya", field:"King", year:-321, group:"india", note:"Founder of Maurya Empire"},
+  {id:14, name:"Pingala", field:"Math", year:-300, group:"india", note:"Discovered binary numbers"},
+  {id:15, name:"Vishnu Sharma", field:"Literature", year:-300, group:"india", note:"Author of Panchatantra"},
+  {id:16, name:"Patanjali", field:"Yoga", year:-150, group:"india", note:"Systematized Yoga Sutras"},
+  {id:17, name:"Manu", field:"Law", year:-100, group:"india", note:"Manusmriti Legal Code"},
+  {id:18, name:"Charaka", field:"Medicine", year:100, group:"india", note:"Father of Ayurveda"},
+  {id:19, name:"Nagarjuna", field:"Philosophy", year:150, group:"india", note:"Founder of Madhyamaka (Emptiness)"},
+  {id:20, name:"Vatsyayana", field:"Sociology", year:200, group:"india", note:"Author of Kamasutra"},
+  {id:21, name:"Faxian", field:"History", year:399, group:"west", note:"Chinese monk documented Gupta India"},
+  {id:22, name:"Kalidasa", field:"Literature", year:400, group:"india", note:"The Shakespeare of India"},
+  {id:23, name:"Aryabhata", field:"Math", year:476, group:"india", note:"Calculated Pi and Zero"},
+  {id:24, name:"Bodhidharma", field:"Philosophy", year:480, group:"india", note:"Transmitted Zen to China"},
+  {id:25, name:"Varahamihira", field:"Science", year:505, group:"india", note:"Ancient Encyclopedist"},
+  {id:26, name:"Brahmagupta", field:"Math", year:598, group:"india", note:"Rules for Zero and Gravity"},
+  {id:27, name:"Xuanzang", field:"History", year:629, group:"west", note:"Documented Nalanda University"},
+  {id:28, name:"Adi Shankara", field:"Philosophy", year:788, group:"india", note:"Consolidator of Advaita Vedanta"},
+  {id:29, name:"Al-Biruni", field:"Indology", year:973, group:"west", note:"First scientific Indologist"},
+  {id:30, name:"Ramanuja", field:"Philosophy", year:1017, group:"india", note:"Founder of Vishishtadvaita"},
+  {id:31, name:"Bhaskara II", field:"Math", year:1114, group:"india", note:"Precursor to Calculus"},
+  {id:32, name:"Madhvacharya", field:"Philosophy", year:1238, group:"india", note:"Founder of Dvaita (Dualism)"},
+  {id:33, name:"Marco Polo", field:"Traveler", year:1288, group:"west", note:"Venetian merchant in India"},
+  {id:34, name:"Ibn Battuta", field:"History", year:1333, group:"west", note:"Moroccan traveler"},
+  {id:35, name:"Madhava", field:"Math", year:1340, group:"india", note:"Founder of Kerala School (Infinite Series)"},
+  {id:36, name:"Kabir", field:"Mysticism", year:1440, group:"india", note:"Critic of caste and dogma"},
+  {id:37, name:"Guru Nanak", field:"Philosophy", year:1469, group:"india", note:"Founder of Sikhism"},
+  {id:38, name:"Chaitanya", field:"Philosophy", year:1486, group:"india", note:"Gaudiya Vaishnavism"},
+  {id:39, name:"Krishnadevaraya", field:"King", year:1509, group:"india", note:"Vijayanagara Emperor"},
+  {id:40, name:"Tulsidas", field:"Literature", year:1532, group:"india", note:"Author of Ramcharitmanas"},
+  {id:41, name:"Dara Shikoh", field:"Scholar", year:1615, group:"india", note:"Mughal Prince, Translated Upanishads"},
+  {id:42, name:"Francois Bernier", field:"History", year:1658, group:"west", note:"French physician at Mughal Court"},
+  {id:43, name:"Voltaire", field:"Indology", year:1694, group:"west", note:"Praised Vedas as oldest wisdom"},
+  {id:44, name:"William Jones", field:"Indology", year:1746, group:"west", note:"Discovered Indo-European link"},
+  {id:45, name:"Schopenhauer", field:"Indology", year:1788, group:"west", note:"'Upanishads are the solace of my life'"},
+  {id:46, name:"Max Muller", field:"Indology", year:1823, group:"west", note:"Editor of Sacred Books of the East"},
+  {id:47, name:"Swami Vivekananda", field:"Philosophy", year:1863, group:"india", note:"Brought Yoga/Vedanta to the West"},
+  {id:48, name:"Rabindranath Tagore", field:"Literature", year:1861, group:"india", note:"Nobel Laureate Poet"},
+  {id:49, name:"Nikola Tesla", field:"Science", year:1856, group:"west", note:"Discussed Akasha/Prana with Vivekananda"},
+  {id:50, name:"Srinivasa Ramanujan", field:"Math", year:1887, group:"india", note:"The Man Who Knew Infinity"},
+  {id:51, name:"Erwin Schrodinger", field:"Science", year:1887, group:"west", note:"Quantum physicist influenced by Vedanta"},
+  {id:52, name:"J. Robert Oppenheimer", field:"Science", year:1904, group:"west", note:"Quoted Gita at Trinity Test"},
+  {id:53, name:"Carl Sagan", field:"Science", year:1934, group:"west", note:"Praised Hindu cosmological timelines"},
+  {id:54, name:"George Harrison", field:"Music", year:1943, group:"west", note:"The Beatle who popularized Sitar"},
+  {id:55, name:"Steve Jobs", field:"Tech", year:1955, group:"west", note:"Devotee of Autobiography of a Yogi"},
+  {id:56, name:"Romila Thapar", field:"History", year:1931, group:"india", note:"Historian of Ancient India"},
+  {id:57, name:"Wendy Doniger", field:"Indology", year:1940, group:"west", note:"Scholar of Hindu Mythology"},
+  {id:58, name:"Sheldon Pollock", field:"Indology", year:1948, group:"west", note:"Scholar of Sanskrit Power"},
+  {id:59, name:"David Shulman", field:"Indology", year:1949, group:"west", note:"Scholar of South Indian Culture"}
+];
 
-    // 1. CLEAN JSON DATA (No parsing errors possible)
-    const thinkers = [
-        {id:1, name:"Dhanvantari", field:"Medicine", year:-3000, group:"india", note:"Legendary God of Medicine"},
-        {id:2, name:"Vyasa", field:"Literature", year:-1500, group:"india", note:"Compiler of the Vedas"},
-        {id:3, name:"Lagadha", field:"Astronomy", year:-1000, group:"india", note:"Earliest text on Indian timekeeping"},
-        {id:4, name:"Baudhayana", field:"Math", year:-800, group:"india", note:"First statement of Pythagorean theorem"},
-        {id:5, name:"Kapila", field:"Philosophy", year:-600, group:"india", note:"Founder of Samkhya (Dualism)"},
-        {id:6, name:"Sushruta", field:"Medicine", year:-600, group:"india", note:"Father of Surgery"},
-        {id:7, name:"Gautama Buddha", field:"Philosophy", year:-563, group:"india", note:"Revolutionized Asian ethics"},
-        {id:8, name:"Mahavira", field:"Philosophy", year:-540, group:"india", note:"24th Tirthankara"},
-        {id:9, name:"Panini", field:"Linguistics", year:-500, group:"india", note:"Created generative grammar"},
-        {id:10, name:"Valmiki", field:"Literature", year:-400, group:"india", note:"The Adi Kavi (First Poet)"},
-        {id:11, name:"Chanakya", field:"Statecraft", year:-350, group:"india", note:"Master of Realpolitik (Arthashastra)"},
-        {id:12, name:"Megasthenes", field:"History", year:-350, group:"west", note:"Greek ambassador to India"},
-        {id:13, name:"Chandragupta Maurya", field:"King", year:-321, group:"india", note:"Founder of Maurya Empire"},
-        {id:14, name:"Pingala", field:"Math", year:-300, group:"india", note:"Discovered binary numbers"},
-        {id:15, name:"Vishnu Sharma", field:"Literature", year:-300, group:"india", note:"Author of Panchatantra"},
-        {id:16, name:"Patanjali", field:"Yoga", year:-150, group:"india", note:"Systematized Yoga Sutras"},
-        {id:17, name:"Manu", field:"Law", year:-100, group:"india", note:"Manusmriti Legal Code"},
-        {id:18, name:"Charaka", field:"Medicine", year:100, group:"india", note:"Father of Ayurveda"},
-        {id:19, name:"Nagarjuna", field:"Philosophy", year:150, group:"india", note:"Founder of Madhyamaka (Emptiness)"},
-        {id:20, name:"Vatsyayana", field:"Sociology", year:200, group:"india", note:"Author of Kamasutra"},
-        {id:21, name:"Faxian", field:"History", year:399, group:"west", note:"Chinese monk documented Gupta India"},
-        {id:22, name:"Kalidasa", field:"Literature", year:400, group:"india", note:"The Shakespeare of India"},
-        {id:23, name:"Aryabhata", field:"Math", year:476, group:"india", note:"Calculated Pi and Zero"},
-        {id:24, name:"Bodhidharma", field:"Philosophy", year:480, group:"india", note:"Transmitted Zen to China"},
-        {id:25, name:"Varahamihira", field:"Science", year:505, group:"india", note:"Ancient Encyclopedist"},
-        {id:26, name:"Brahmagupta", field:"Math", year:598, group:"india", note:"Rules for Zero and Gravity"},
-        {id:27, name:"Xuanzang", field:"History", year:629, group:"west", note:"Documented Nalanda University"},
-        {id:28, name:"Adi Shankara", field:"Philosophy", year:788, group:"india", note:"Consolidator of Advaita Vedanta"},
-        {id:29, name:"Al-Biruni", field:"Indology", year:973, group:"west", note:"First scientific Indologist"},
-        {id:30, name:"Ramanuja", field:"Philosophy", year:1017, group:"india", note:"Founder of Vishishtadvaita"},
-        {id:31, name:"Bhaskara II", field:"Math", year:1114, group:"india", note:"Precursor to Calculus"},
-        {id:32, name:"Madhvacharya", field:"Philosophy", year:1238, group:"india", note:"Founder of Dvaita (Dualism)"},
-        {id:33, name:"Marco Polo", field:"Traveler", year:1288, group:"west", note:"Venetian merchant in India"},
-        {id:34, name:"Ibn Battuta", field:"History", year:1333, group:"west", note:"Moroccan traveler"},
-        {id:35, name:"Madhava", field:"Math", year:1340, group:"india", note:"Founder of Kerala School (Infinite Series)"},
-        {id:36, name:"Kabir", field:"Mysticism", year:1440, group:"india", note:"Critic of caste and dogma"},
-        {id:37, name:"Guru Nanak", field:"Philosophy", year:1469, group:"india", note:"Founder of Sikhism"},
-        {id:38, name:"Chaitanya", field:"Philosophy", year:1486, group:"india", note:"Gaudiya Vaishnavism"},
-        {id:39, name:"Krishnadevaraya", field:"King", year:1509, group:"india", note:"Vijayanagara Emperor"},
-        {id:40, name:"Tulsidas", field:"Literature", year:1532, group:"india", note:"Author of Ramcharitmanas"},
-        {id:41, name:"Dara Shikoh", field:"Scholar", year:1615, group:"india", note:"Mughal Prince, Translated Upanishads"},
-        {id:42, name:"Francois Bernier", field:"History", year:1658, group:"west", note:"French physician at Mughal Court"},
-        {id:43, name:"Voltaire", field:"Indology", year:1694, group:"west", note:"Praised Vedas as oldest wisdom"},
-        {id:44, name:"William Jones", field:"Indology", year:1746, group:"west", note:"Discovered Indo-European link"},
-        {id:45, name:"Schopenhauer", field:"Indology", year:1788, group:"west", note:"'Upanishads are the solace of my life'"},
-        {id:46, name:"Max Muller", field:"Indology", year:1823, group:"west", note:"Editor of Sacred Books of the East"},
-        {id:47, name:"Swami Vivekananda", field:"Philosophy", year:1863, group:"india", note:"Brought Yoga/Vedanta to the West"},
-        {id:48, name:"Rabindranath Tagore", field:"Literature", year:1861, group:"india", note:"Nobel Laureate Poet"},
-        {id:49, name:"Nikola Tesla", field:"Science", year:1856, group:"west", note:"Discussed Akasha/Prana with Vivekananda"},
-        {id:50, name:"Srinivasa Ramanujan", field:"Math", year:1887, group:"india", note:"The Man Who Knew Infinity"},
-        {id:51, name:"Erwin Schrodinger", field:"Science", year:1887, group:"west", note:"Quantum physicist influenced by Vedanta"},
-        {id:52, name:"J. Robert Oppenheimer", field:"Science", year:1904, group:"west", note:"Quoted Gita at Trinity Test"},
-        {id:53, name:"Carl Sagan", field:"Science", year:1934, group:"west", note:"Praised Hindu cosmological timelines"},
-        {id:54, name:"George Harrison", field:"Music", year:1943, group:"west", note:"The Beatle who popularized Sitar"},
-        {id:55, name:"Steve Jobs", field:"Tech", year:1955, group:"west", note:"Devotee of Autobiography of a Yogi"},
-        {id:56, name:"Romila Thapar", field:"History", year:1931, group:"india", note:"Historian of Ancient India"},
-        {id:57, name:"Wendy Doniger", field:"Indology", year:1940, group:"west", note:"Scholar of Hindu Mythology"},
-        {id:58, name:"Sheldon Pollock", field:"Indology", year:1948, group:"west", note:"Scholar of Sanskrit Power"},
-        {id:59, name:"David Shulman", field:"Indology", year:1949, group:"west", note:"Scholar of South Indian Culture"}
-    ];
-    // (This list is clean and guaranteed to load. You can add more rows later following this format)
+const nodes = []; const edges = []; const fields = {};
+thinkers.forEach(p => {
+  if (!fields[p.field]) {
+    fields[p.field] = true;
+    nodes.push({ id: `f_${p.field}`, label: p.field, group: 'field', shape: 'diamond', size: 10, font:{color:'#777'} });
+  }
+  nodes.push({
+    id: p.id, label: p.name, group: p.group,
+    title: `<span class='tip-name'>${p.name}</span>${p.field}<br>${p.year < 0 ? Math.abs(p.year)+" BCE" : p.year}`,
+    value: 20
+  });
+  edges.push({ from: p.id, to: `f_${p.field}`, color: { color: '#333', opacity: 0.2 } });
+});
 
-    // 2. NETWORK SETUP
-    const nodes = [];
-    const edges = [];
-    const fields = {};
+const container = document.getElementById('mynetwork');
+const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+const options = {
+  nodes: { shape: 'dot', font: { face: 'Space Grotesk', color: '#fff' }, borderWidth: 2 },
+  groups: {
+    india: { color: { background: '#ff9800', border: '#ffb74d' } },
+    west: { color: { background: '#00bcd4', border: '#4dd0e1' } },
+    field: { color: { background: '#222', border: '#444' } }
+  },
+  physics: { stabilization: false, barnesHut: { gravitationalConstant: -3000 } }
+};
+const network = new vis.Network(container, data, options);
 
-    thinkers.forEach(p => {
-        // Create Field Hubs (e.g. "Math", "Philosophy")
-        if (!fields[p.field]) {
-            fields[p.field] = true;
-            nodes.push({ 
-                id: `f_${p.field}`, label: p.field, group: 'field', 
-                shape: 'diamond', size: 10, font: {color: '#666'} 
-            });
-        }
-        
-        // Create Person Node
-        nodes.push({
-            id: p.id,
-            label: p.name,
-            group: p.group,
-            title: `<span class='tip-name'>${p.name}</span><span class='tip-meta'>${p.field} • ${p.year < 0 ? Math.abs(p.year) + " BCE" : p.year + " CE"}</span>${p.note}`,
-            value: 20
-        });
+const timelineData = new vis.DataSet(thinkers.map(t => ({
+  id: t.id, content: t.name, start: new Date(0).setFullYear(t.year), group: t.group === 'india' ? 1 : 2, className: t.group
+})));
 
-        // Link Person to Field
-        edges.push({ from: p.id, to: `f_${p.field}`, color: { color: '#333', opacity: 0.2 } });
-    });
+const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, [
+  {id: 1, content: "INDIA", style: "color:#ff9800"}, {id: 2, content: "GLOBAL", style: "color:#00bcd4"}
+], { height: '100%', stack: true, style: 'background:#111; border:none; color:#bbb', start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000) });
 
-    // 3. RENDER NETWORK
-    const container = document.getElementById('mynetwork');
-    const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
-    const options = {
-        nodes: { shape: 'dot', font: { face: 'Space Grotesk', color: '#fff' }, borderWidth: 2 },
-        groups: {
-            india: { color: { background: '#ff9800', border: '#ffb74d' } }, // Orange
-            west: { color: { background: '#00bcd4', border: '#4dd0e1' } },  // Cyan
-            field: { color: { background: '#222', border: '#444' } }
-        },
-        physics: { stabilization: false, barnesHut: { gravitationalConstant: -3000 } },
-        interaction: { hover: true, tooltipDelay: 50 }
-    };
-    const network = new vis.Network(container, data, options);
+network.on("click", params => {
+  if (params.nodes.length) {
+    let id = params.nodes[0];
+    if (typeof id === 'string') return;
+    let item = timelineData.get(id);
+    timeline.moveTo(item.start);
+    timeline.setSelection(id);
+  }
+});
 
-    // 4. TIMELINE SETUP
-    const timelineData = new vis.DataSet(thinkers.map(t => ({
-        id: t.id, 
-        content: t.name, 
-        start: new Date(0).setFullYear(t.year), 
-        group: t.group === 'india' ? 1 : 2,
-        className: t.group
-    })));
-
-    const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, [
-        {id: 1, content: "INDIA", style: "color:#ff9800"}, 
-        {id: 2, content: "GLOBAL", style: "color:#00bcd4"}
-    ], {
-        height: '100%', stack: true, style: 'background:#111; border:none; color:#bbb',
-        start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000)
-    });
-
-    // 5. REMOVE LOADER ONCE LOADED
-    network.once("afterDrawing", function() {
-        document.getElementById('loader').style.display = 'none';
-    });
-
-    // 6. INTERACTIONS
-    network.on("click", params => {
-        if (params.nodes.length) {
-            let id = params.nodes[0];
-            if (typeof id === 'string') return;
-            let item = timelineData.get(id);
-            timeline.moveTo(item.start);
-            timeline.setSelection(id);
-        }
-    });
-
-    // Search Logic
-    window.searchNode = function() {
-        let q = document.getElementById('search').value.toLowerCase();
-        if (!q) return;
-        let found = thinkers.find(p => p.name.toLowerCase().includes(q));
-        if (found) {
-            network.selectNodes([found.id]);
-            network.focus(found.id, { scale: 1.5, animation: true });
-            timeline.setSelection(found.id);
-            timeline.moveTo(new Date(0).setFullYear(found.year));
-        }
-    }
-
+window.searchNode = function() {
+  let q = document.getElementById('search').value.toLowerCase();
+  if (!q) return;
+  let found = thinkers.find(p => p.name.toLowerCase().includes(q));
+  if (found) {
+    network.selectNodes([found.id]);
+    network.focus(found.id, { scale: 1.5, animation: true });
+    timeline.setSelection(found.id);
+    timeline.moveTo(new Date(0).setFullYear(found.year));
+  }
+}
 </script>
 </body>
 </html>
