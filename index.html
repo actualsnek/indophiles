@@ -15,10 +15,10 @@
         :root { --bg: #050505; --panel: #0f0f0f; --gold: #d4af37; --silver: #a5a5a5; --border: #333; }
         body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Noto Serif', serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        header { height: 70px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
+        header { height: 60px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
         .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); }
         
-        .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+        .controls { display: flex; gap: 10px; }
         select, input { background: #1a1a1a; color: #ddd; border: 1px solid #444; padding: 6px 10px; font-family: 'Cinzel', serif; font-size: 0.8rem; border-radius: 3px; outline: none; }
         select:hover, input:focus { border-color: var(--gold); }
 
@@ -27,9 +27,9 @@
         #mytimeline { height: 120px; background: rgba(10,10,10,0.95); border-top: 1px solid var(--border); z-index: 20; position: relative; }
 
         /* SIDE PANEL */
-        #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.3s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; box-shadow: -5px 0 30px rgba(0,0,0,0.9); }
-        .panel-content { padding: 30px; opacity: 0; transition: opacity 0.2s 0.2s; min-width: 300px; }
-        .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; line-height: 1.2; }
+        #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.4s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; box-shadow: -5px 0 30px rgba(0,0,0,0.9); }
+        .panel-content { padding: 30px; opacity: 0; transition: opacity 0.3s 0.2s; min-width: 300px; }
+        .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
         .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 600; }
         .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; }
         .region-tag { color: var(--gold); font-style: italic; margin-left: 5px; }
@@ -50,50 +50,24 @@
     <div class="brand">Indosphere</div>
     <div class="controls">
         <select id="schoolFilter" onchange="updateGraph()">
-            <option value="all">All Traditions</option>
-            <optgroup label="Vedanta">
-                <option value="Advaita">Advaita</option>
-                <option value="Dvaita">Dvaita</option>
-                <option value="Vishishtadvaita">Vishishtadvaita</option>
-                <option value="Dvaitadvaita">Dvaitadvaita</option>
-                <option value="Shuddhadvaita">Shuddhadvaita</option>
-            </optgroup>
-            <optgroup label="Hindu Philosophy">
-                <option value="Nyaya">Nyaya</option>
-                <option value="Vaisheshika">Vaisheshika</option>
-                <option value="Samkhya">Samkhya</option>
-                <option value="Yoga">Yoga</option>
-                <option value="Mimamsa">Mimamsa</option>
-                <option value="Kashmir Shaivism">Kashmir Shaivism</option>
-                <option value="Shaiva">Shaiva</option>
-                <option value="Bhakti">Bhakti</option>
-            </optgroup>
-            <optgroup label="Buddhism (General)">
-                <option value="Buddhism">All Buddhism</option>
-            </optgroup>
-            <optgroup label="Heterodox">
-                <option value="Jainism">Jainism</option>
-                <option value="Charvaka">Charvaka</option>
-                <option value="Ajivika">Ajivika</option>
-            </optgroup>
-            <optgroup label="Other">
-                <option value="Indology">Indology</option>
-                <option value="Literature">Literature</option>
-                <option value="Science">Science</option>
-                <option value="Modern">Modern Reformers</option>
-            </optgroup>
+            <option value="all">All Schools</option>
+            <option value="Advaita">Advaita</option>
+            <option value="Dvaita">Dvaita</option>
+            <option value="Nyaya">Nyaya</option>
+            <option value="Kashmir Shaivism">Kashmir Shaivism</option>
+            <option value="Buddhism">Buddhism</option>
+            <option value="Jainism">Jainism</option>
+            <option value="Bhakti">Bhakti</option>
+            <option value="Indology">Indology</option>
         </select>
-        
         <select id="regionFilter" onchange="updateGraph()">
             <option value="all">All Regions</option>
             <option value="North">North India</option>
             <option value="South">South India</option>
             <option value="East">East (Bengal/Bihar)</option>
             <option value="West">West (Gujarat/Maha)</option>
-            <option value="Central">Central India</option>
-            <option value="Global">Global / West</option>
+            <option value="Global">Global</option>
         </select>
-
         <input type="text" id="search" placeholder="Search..." onkeyup="searchNode(event)">
     </div>
 </header>
@@ -125,32 +99,24 @@
 
     const container = document.getElementById('network');
     const data = { nodes: nodes, edges: edges };
-    
-    // Performance Optimization: Reduced iterations, improved physics settings
     const options = {
         nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
-        edges: { smooth: { type: "continuous", roundness: 0.2 }, arrows: { to: { scaleFactor: 0.5 } } },
-        physics: { 
-            stabilization: { iterations: 200 }, 
-            barnesHut: { gravitationalConstant: -2500, springConstant: 0.04, springLength: 95 } 
-        },
-        interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true }
+        edges: { smooth: { type: "continuous" } },
+        physics: { stabilization: false, barnesHut: { gravitationalConstant: -2000, springConstant: 0.04, springLength: 95 } },
+        interaction: { hover: true, tooltipDelay: 50 }
     };
     const network = new vis.Network(container, data, options);
 
     // COLOR MAPPING
     function getColor(school) {
         if (!school) return "#ddd";
-        if (school.includes('Advaita')) return "#ff9800"; // Saffron
-        if (school.includes('Dvaita') || school.includes('Vishishtadvaita')) return "#ff5722"; // Deep Orange
-        if (school.includes('Nyaya') || school.includes('Vaisheshika')) return "#00bcd4"; // Cyan
-        if (school.includes('Shaivism')) return "#9c27b0"; // Purple
-        if (school.includes('Bhakti')) return "#ffeb3b"; // Yellow
-        if (school.includes('Buddhism')) return "#e91e63"; // Pink
-        if (school.includes('Jainism')) return "#4caf50"; // Green
-        if (school.includes('Indology')) return "#a5a5a5"; // Silver
-        if (school.includes('Charvaka') || school.includes('Ajivika')) return "#607d8b"; // Grey Blue
-        return "#ddd"; // White default
+        if (school.includes('Advaita')) return "#ff9800";
+        if (school.includes('Nyaya')) return "#00bcd4";
+        if (school.includes('Bhakti')) return "#ffeb3b";
+        if (school.includes('Buddhism')) return "#e91e63";
+        if (school.includes('Jainism')) return "#4caf50";
+        if (school.includes('Indology')) return "#a5a5a5";
+        return "#ddd";
     }
 
     // INITIAL DATA PROCESSING
@@ -177,16 +143,16 @@
                     from: l.s, to: l.t, 
                     arrows: "to", color: {color: color}, 
                     dashes: dashes, 
-                    label: l.type, font: {size: 9, color: '#777', strokeWidth: 0, align: 'middle'} 
+                    label: l.type, font: {size: 9, color: '#777', strokeWidth: 0} 
                 });
             }
         });
         
-        // Initial Load
-        updateGraph();
+        nodes.add(allNodes);
+        edges.add(allEdges);
     }
 
-    // UPDATE GRAPH (FIXED LOGIC)
+    // UPDATE GRAPH (FILTERING)
     function updateGraph() {
         const sFilter = document.getElementById('schoolFilter').value;
         const rFilter = document.getElementById('regionFilter').value;
@@ -194,18 +160,10 @@
         const filteredNodes = allNodes.filter(n => {
             let p = n.data;
             let show = true;
-            
-            // School Logic (Fixed property name: p.school)
-            if (sFilter !== 'all') {
-                if (p.school !== sFilter && p.group !== sFilter) show = false;
-            }
-            
-            // Region Logic (Fixed property name: p.subregion)
-            if (rFilter !== 'all' && p.region !== rFilter && p.subregion !== rFilter) show = false;
-            
-            // Deities only show if filter is 'all' or matches lineage logic
-            if (p.isDeity && sFilter !== 'all') show = false; 
-
+            if (sFilter !== 'all' && p.school !== sFilter && p.group !== sFilter) show = false;
+            if (rFilter !== 'all' && p.region !== rFilter && p.zone !== rFilter) show = false;
+            // Always show deities unless filtered out by specific school view logic if desired
+            if(p.isDeity && sFilter === 'all' && rFilter === 'all') show = true;
             return show;
         });
 
@@ -213,40 +171,20 @@
         edges.clear();
         nodes.add(filteredNodes);
 
+        // Filter Edges: Only show if both nodes are present
         const visibleIds = new Set(filteredNodes.map(n => n.id));
         const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
         edges.add(filteredEdges);
     }
 
-    // TIMELINE SETUP (FIXED YEARS)
-    // Convert year to Date object for proper Vis.js handling
-    const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => {
-        let date = new Date(0);
-        date.setFullYear(t.year);
-        return {
-            id: i, 
-            content: t.label, 
-            start: date, 
-            className: t.school, 
-            personId: t.id
-        };
-    }));
+    // TIMELINE SETUP
+    const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
+        id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
+    })));
     
     const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
         height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
-        // Default View: 500 BCE to 2000 CE
-        start: new Date(0).setFullYear(-500), 
-        end: new Date(0).setFullYear(2000),
-        format: {
-            minorLabels: function(date, scale, step) {
-                let year = date.getFullYear();
-                return year < 0 ? Math.abs(year) + " BCE" : year + " CE";
-            },
-            majorLabels: function(date, scale, step) {
-                let year = date.getFullYear();
-                return year < 0 ? Math.abs(year) + " BCE" : year + " CE";
-            }
-        }
+        start: new Date(0).setFullYear(1000), end: new Date(0).setFullYear(2000)
     });
 
     timeline.on('select', (props) => {
@@ -259,16 +197,18 @@
 
     // PANEL LOGIC
     function openPanel(d) {
-        document.getElementById('p-name').innerText = d.iast || d.label; // Fallback to label if IAST missing
+        document.getElementById('p-name').innerText = d.iast || d.label;
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
         document.getElementById('p-school').innerText = d.school || "";
-        document.getElementById('p-region').innerText = d.region + (d.subregion ? ` (${d.subregion})` : "");
+        document.getElementById('p-region').innerText = d.region + (d.zone ? ` (${d.zone})` : "");
         document.getElementById('p-work').innerText = d.work || "N/A";
         document.getElementById('p-note').innerText = d.note || "";
         
+        // Lineage
         let parent = lineages.find(l => l.t === d.id && l.type.includes("Guru"));
         document.getElementById('p-lineage').innerText = parent ? `Disciple of ${parent.s}` : "Source / Independent";
 
+        // Other Works
         const ul = document.getElementById('p-others');
         ul.innerHTML = "";
         if (d.others && d.others.length > 0) d.others.forEach(w => ul.innerHTML += `<li>${w}</li>`);
@@ -295,26 +235,19 @@
         }
     });
 
-    // IMPROVED SEARCH (Checks Note + Label)
     function searchNode(e) {
         if (e.key === 'Enter') {
             const q = document.getElementById('search').value.toLowerCase();
-            const found = allNodes.find(n => 
-                n.label.toLowerCase().includes(q) || 
-                (n.data.note && n.data.note.toLowerCase().includes(q)) ||
-                (n.data.id && n.data.id.toLowerCase().includes(q))
-            );
-            
+            const found = allNodes.find(n => n.label.toLowerCase().includes(q));
             if (found) {
+                // Ensure node is visible
                 document.getElementById('schoolFilter').value = 'all';
                 document.getElementById('regionFilter').value = 'all';
                 updateGraph();
                 
-                setTimeout(() => {
-                    network.selectNodes([found.id]);
-                    network.focus(found.id, { scale: 1.5, animation: true });
-                    openPanel(found.data);
-                }, 100);
+                network.selectNodes([found.id]);
+                network.focus(found.id, { scale: 1.5, animation: true });
+                openPanel(found.data);
             }
         }
     }
