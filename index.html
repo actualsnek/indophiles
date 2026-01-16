@@ -3,280 +3,466 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grand Master India: Interactive Timeline</title>
+    <title>Grand Master India: Complete Repository</title>
     
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/vis-timeline/standalone/umd/vis-timeline-graph2d.min.js"></script>
     <link href="https://unpkg.com/vis-timeline/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* DESIGN SYSTEM - DARK & GOLD */
-        :root {
-            --bg: #0b0c10;
-            --panel: #1f2833;
-            --text-main: #c5c6c7;
-            --accent-india: #ff9800; /* Saffron */
-            --accent-west: #45a29e;  /* Cyan */
-            --border: #45a29e;
-        }
-
-        body { font-family: 'Rajdhani', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-        /* HEADER */
-        header { 
-            padding: 10px 20px; background: #000; border-bottom: 2px solid var(--accent-india); 
-            display: flex; justify-content: space-between; align-items: center; z-index: 10;
-        }
-        .title h1 { margin: 0; color: var(--accent-india); text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; }
-        .title span { font-size: 0.8rem; opacity: 0.7; }
-
-        .search-container input {
-            background: var(--panel); border: 1px solid #333; color: #fff; padding: 8px 15px; 
-            border-radius: 4px; width: 200px; font-family: 'Rajdhani'; letter-spacing: 1px;
-        }
-        .search-container input:focus { outline: none; border-color: var(--accent-west); width: 250px; transition: 0.3s; }
-
-        /* MAIN VISUALIZATION AREA */
-        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); }
+        :root { --bg: #050505; --card: #151515; --accent: #ff9800; --text: #ddd; }
+        body { font-family: 'Rajdhani', sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; }
         
-        /* TIMELINE AREA */
-        #mytimeline { height: 250px; border-top: 2px solid var(--accent-west); background: #111; }
+        /* HEADER */
+        header { padding: 15px 20px; border-bottom: 1px solid #333; background: #111; display: flex; justify-content: space-between; align-items: center; z-index: 99; }
+        h1 { margin: 0; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-size: 1.4rem; }
+        input { background: #222; border: 1px solid #444; color: white; padding: 8px; width: 250px; border-radius: 4px; font-family: inherit; }
+        input:focus { border-color: var(--accent); outline: none; }
 
-        /* POPUP TOOLTIPS */
-        div.vis-tooltip {
-            background: rgba(0,0,0,0.9); border: 1px solid var(--accent-india); color: #fff;
-            padding: 10px; font-family: 'Rajdhani'; font-size: 14px; max-width: 300px; z-index: 100;
-        }
-        .tooltip-title { color: var(--accent-india); font-weight: bold; font-size: 1.1em; border-bottom: 1px solid #444; margin-bottom: 5px; }
-        .tooltip-field { color: var(--accent-west); font-size: 0.9em; text-transform: uppercase; margin-bottom: 5px; }
-
-        /* LEGEND */
-        .legend { position: absolute; top: 80px; left: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; pointer-events: none; }
-        .dot { height: 10px; width: 10px; display: inline-block; border-radius: 50%; margin-right: 5px; }
+        /* CONTENT */
+        #mynetwork { flex: 1; background: radial-gradient(circle, #1a1a1a, #000); }
+        #mytimeline { height: 250px; border-top: 2px solid var(--accent); background: #111; }
+        
+        /* POPUP */
+        .vis-tooltip { background: rgba(0,0,0,0.95); border: 1px solid var(--accent); color: #fff; padding: 10px; border-radius: 0; font-size: 14px; max-width: 300px; box-shadow: 0 0 15px rgba(255,152,0,0.2); }
+        
+        /* LOADING SCREEN */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; color: var(--accent); display: flex; justify-content: center; align-items: center; z-index: 1000; font-size: 2rem; transition: opacity 0.5s; }
     </style>
 </head>
 <body>
 
+<div id="loader">LOADING REPOSITORY...</div>
+
 <header>
-    <div class="title">
-        <h1>Grand Master India</h1>
-        <span>Repository of Thinkers & Indophiles</span>
-    </div>
-    <div class="search-container">
-        <input type="text" id="search" placeholder="Search (e.g. Panini, Voltaire)..." onkeyup="searchNode()">
-    </div>
+    <h1>INDOSPHERE</h1>
+    <input type="text" id="search" placeholder="Search 250+ Thinkers..." onkeyup="handleSearch()">
 </header>
 
-<div id="mynetwork">
-    <div class="legend">
-        <div><span class="dot" style="background:#ff9800"></span>Indian Origin</div>
-        <div><span class="dot" style="background:#45a29e"></span>Western / Indophile</div>
-        <div><span class="dot" style="background:#666"></span>Field Hub (Logic, Math, etc.)</div>
-    </div>
-</div>
+<div id="mynetwork"></div>
 <div id="mytimeline"></div>
 
-<script type="text/javascript">
+<script>
+// --- 1. THE FULL DATA (RAW CSV PASTE) ---
+// I pasted your entire list here. The script below will read it.
+const csvData = `
+Dhanvantari,Medicine,Mythical / Vedic,Ayurveda (Source),Legendary God of Medicine
+Vyāsa,Literature,c. 1500–1000 BCE,Mahabharata,Compiler of the Vedas
+Lagadha,Astronomy,c. 1000 BCE,Vedanga Jyotisha,Earliest text on Indian timekeeping
+Baudhāyana,Math / Ritual,c. 800 BCE,Sulba Sutras,First statement of the Pythagorean theorem
+Yāska,Etymology,c. 7th–5th BCE,Nirukta,First etymologist
+Kapila,Philosophy,c. 6th BCE,Samkhya Sutras,Founder of Samkhya (Dualism)
+Suśruta,Medicine,c. 600 BCE,Sushruta Samhita,Father of Surgery
+Gautama Buddha,Philosophy,c. 563–483 BCE,Pali Canon,Revolutionized Asian ethics
+Mahāvīra,Philosophy,c. 540–468 BCE,Agamas,24th Tirthankara
+Pāṇini,Linguistics,c. 5th–4th BCE,Aṣṭādhyāyī,Created generative grammar code
+Vālmīki,Literature,c. 4th BCE,Ramayana,The Adi Kavi (First Poet)
+Kauṭilya (Cāṇakya),Statecraft,c. 350–283 BCE,Arthashastra,Master of Realpolitik
+Megasthenes,History,c. 350–290 BCE,Indica,Greek ambassador
+Chandragupta Maurya,King,r. 321–297 BCE,Empire Founder,Unified India
+Bhadrabāhu,Philosophy,c. 3rd BCE,Kalpa Sutra,Jain monk
+Piṅgala,Mathematics,c. 3rd–2nd BCE,Chandas Shastra,Discovered binary numbers
+Jaimini,Hermeneutics,c. 3rd–2nd BCE,Mimamsa Sutras,Master of ritual interpretation
+Vishnu Sharma,Literature,c. 3rd BCE,Panchatantra,Fables on statecraft
+Kaṇāda,Physics,c. 2nd BCE,Vaisheshika Sutras,First atomic theorist
+Patañjali,Yoga,c. 150 BCE,Yoga Sutras,Systematized Yoga
+Bhāsa,Literature,c. 2nd BCE,Svapnavasavadattam,Father of Sanskrit Drama
+Kātyāyana,Grammar,c. 2nd BCE,Varttika,Critical commentator on Panini
+Manu,Law,c. 2nd BCE – 2nd CE,Manusmriti,Most influential Hindu legal code
+Caraka,Medicine,c. 100 BCE – 100 CE,Charaka Samhita,Father of Ayurveda
+Bharata Muni,Aesthetics,c. 200 BCE – 200 CE,Natya Shastra,Foundation of drama
+Śātavāhana,King / Lit,c. 1st Cent. CE,Gaha Sattasai,First anthology of Prakrit poetry
+Guṇāḍhya,Literature,c. 1st Cent. CE,Brihatkatha,Lost Great Story
+Aśvaghoṣa,Literature,c. 80–150 CE,Buddhacharita,First Sanskrit epic poet
+Nāgārjuna,Philosophy,c. 150–250 CE,Mūlamadhyamakakārikā,Founder of Madhyamaka
+Gautama (Akṣapāda),Logic,c. 2nd Cent. CE,Nyaya Sutras,Founder of Nyaya logic
+Umāsvāti,Philosophy,c. 2nd Cent. CE,Tattvartha Sutra,Central Jain text
+Kundakunda,Philosophy,c. 2nd Cent. CE,Samayasara,Mystic Digambara Jain
+Ilango Adigal,Literature,c. 2nd Cent. CE,Silappatikaram,Tamil Epic
+Sithalai Sattanar,Literature,c. 2nd Cent. CE,Manimekalai,Tamil Buddhist epic
+Śabara,Hermeneutics,c. 2nd Cent. CE,Shabarabhashya,Commentary on Mimamsa
+Vātsyāyana,Sociology,c. 3rd Cent. CE,Kamasutra,Treatise on desire
+Āryadeva,Philosophy,c. 3rd Cent. CE,Chatuhshataka,Disciple of Nagarjuna
+Faxian,History,Tr. 399–412 CE,Records of Buddhist Kingdoms,Documented Gupta India
+Kālidāsa,Literature,c. 4th–5th CE,Shakuntalam,The Shakespeare of India
+Amara,Lexicography,c. 4th Cent. CE,Amarakosha,Sanskrit thesaurus
+Asaṅga,Philosophy,c. 4th Cent. CE,Yogacarabhumi,Founder of Yogacara
+Vasubandhu,Philosophy,c. 4th Cent. CE,Abhidharmakosha,Master of Buddhist psychology
+Chandragupta II,King,r. 380–415 CE,Patronage,Gupta Emperor
+Kamandaka,Statecraft,c. 4th Cent. CE,Nitisara,Summary of Arthashastra
+Bhartṛhari,Phil / Lang,c. 450–510 CE,Vakyapadiya,Philosophy of Grammar
+Bodhidharma,Philosophy,c. 5th Cent. CE,Zen Teachings,Transmitted Zen to China
+Siddhasena Divākara,Logic,c. 5th Cent. CE,Nyayavatara,Jain logician
+Āryabhaṭa,Math / Astro,b. 476 CE,Aryabhatiya,Zero & Pi
+Dignāga,Logic,c. 480–540 CE,Pramana-samuccaya,Father of Medieval Logic
+Thiruvalluvar,Ethics,c. 5th Cent. CE,Tirukkural,Universal secular ethics
+Varāhamihira,Science,505–587 CE,Brihat Samhita,Encyclopedist
+Praśastapāda,Physics,c. 6th Cent. CE,Padarthadharmasamgraha,Commentary on atomism
+Uddyotakara,Logic,c. 6th Cent. CE,Nyayavarttika,Defended Nyaya realism
+Gauḍapāda,Philosophy,c. 6th Cent. CE,Mandukya Karika,Advaita precursor
+Viśākhadatta,Literature,c. 6th Cent. CE,Mudrarakshasa,Political thriller play
+Bhāravi,Literature,c. 6th Cent. CE,Kiratarjuniya,Poet of heavy meaning
+Subandhu,Literature,c. 6th Cent. CE,Vasavadatta,Prose master
+Brahmagupta,Math / Astro,b. 598 CE,Brahmasphutasiddhanta,Rules for Zero
+Chandrakīrti,Philosophy,c. 600–650 CE,Prasannapada,Interpreter of Madhyamaka
+Dharmakīrti,Logic,c. 600–660 CE,Pramanavarttika,The Kant of India
+Mahendravarman I,King / Lit,r. 600–630 CE,Mattavilasa Prahasana,Satirist King
+Harsha,King / Lit,r. 606–647 CE,Ratnavali,Emperor of North India
+Bāṇabhaṭṭa,Literature,c. 7th Cent. CE,Kadambari,Master of complex prose
+Bhāskara I,Mathematics,c. 600–680 CE,Mahabhaskariya,Decimal place-value system
+Māgha,Literature,c. 7th Cent. CE,Shishupala Vadha,Encyclopedic poet
+Xuanzang,History,Tr. 629–645 CE,Great Tang Records,Documented Nalanda
+Daṇḍin,Lit / Theory,c. 7th Cent. CE,Dashakumaracharita,Master of picaresque
+Prabhākara,Hermeneutics,c. 7th Cent. CE,Brihati,Guru school of Mimamsa
+Yijing,History,Tr. 671–695 CE,Record of Buddhism,Documented monastic life
+Vāgbhaṭa,Medicine,c. 7th Cent. CE,Ashtanga Hridaya,Synthesized Ayurveda
+Kumārila Bhaṭṭa,Philosophy,c. 700 CE,Slokavartika,Revived Vedic ritualism
+Ādi Śaṅkarācārya,Philosophy,c. 700–750 CE,Brahmasutra Bhasya,Consolidator of Advaita
+Maṇḍana Miśra,Philosophy,c. 8th Cent. CE,Brahmasiddhi,Bridge between Ritual and Advaita
+Sureśvara,Philosophy,c. 8th Cent. CE,Naishkarmya Siddhi,Disciple of Shankara
+Bhavabhūti,Literature,c. 8th Cent. CE,Uttararamacarita,Master of Pathos
+Mādhava Nidāna,Medicine,c. 8th Cent. CE,Rug-vinishchaya,Text on Diagnosis
+Haribhadra Suri,Philosophy,c. 8th Cent. CE,Saddarshanasamuccaya,Jain scholar
+Akalaṅka,Logic,c. 8th Cent. CE,Astasati,Master of Jain Logic
+Lalla,Astronomy,c. 8th Cent. CE,Sisyadhivriddhida,Follower of Aryabhata
+Vāmana,Aesthetics,c. 800 CE,Kavyalamkara,Founded Style school
+Anandavardhana,Aesthetics,c. 820–890 CE,Dhvanyaloka,Suggestion in poetry
+Jayanta Bhaṭṭa,Logic,c. 9th Cent. CE,Nyayamanjari,Master of Old Nyaya
+Somānanda,Philosophy,c. 9th Cent. CE,Sivadristi,Kashmir Shaivism founder
+Medhātithi,Law,c. 9th Cent. CE,Manubhashya,Commentary on Manu
+Vācaspati Miśra,Philosophy,c. 9th–10th CE,Bhamati,Commentator on all schools
+Mahāvīrācārya,Mathematics,c. 850 CE,Ganita Sara Samgraha,Jain mathematician
+Rājasekhara,Poetics,c. 880–920 CE,Kavyamimamsa,Literary critic
+Abu Zayd al-Sirafi,History,Active 916 CE,Accounts of China,Arab chronicler
+Utpaladeva,Philosophy,c. 925–975 CE,Isvarapratyabhijna,Shaiva logic
+Dhananjaya,Dramaturgy,c. 10th Cent. CE,Dasharupaka,Manual on drama
+Somadeva Suri,Statecraft,c. 959 CE,Nitivakyamrita,Jain perspective on kingship
+Abhinavagupta,Philosophy,c. 950–1016 CE,Tantraloka,Genius of Shaivism
+Al-Beruni,Indology,973–1048,Indica,First scientific Indologist
+Udayana,Logic,c. 984 CE,Nyayakusumanjali,Proved God using logic
+Halāyudha,Math / Lit,c. 10th Cent. CE,Mritasanjivani,Pascal's Triangle
+Kuntaka,Aesthetics,c. 10th Cent. CE,Vakrokti-jivita,Theorist of deviant speech
+Bhaṭṭa Nāyaka,Aesthetics,c. 10th Cent. CE,Hridayadarpana,Theory of Art Enjoyment
+Sridhara,Philosophy,c. 991 CE,Nyayakandali,Commentary on Vaisheshika
+Bhoja,Polymath / King,r. 1010–1055,Saraswati Kanthabharana,King of Arts
+Yamunācārya,Philosophy,c. 917–1042,Siddhitraya,Preceptor of Ramanuja
+Śrīpati,Astronomy,1019–1066,Siddhantasekhara,Medieval astronomer
+Kṣemendra,Lit / Satire,c. 11th Cent. CE,Kalavilasa,Kashmiri satirist
+Somadeva,Literature,c. 1070 CE,Kathasaritsagara,Ocean of Stories
+Rāmānuja,Philosophy,1017–1137,Sri Bhashya,Founder of Vishishtadvaita
+Bilhaṇa,Literature,c. 11th Cent. CE,Caurapancasika,Kashmiri poet
+Mammaṭa,Aesthetics,c. 11th Cent. CE,Kavyaprakasa,Textbook of poetics
+Kṣīrasvāmin,Grammar,c. 11th Cent. CE,Kshiratarangini,Commentator on Amarakosha
+Mahimabhatta,Aesthetics,c. 11th Cent. CE,Vyaktiviveka,Logician of Art
+Kaiyaṭa,Grammar,c. 11th Cent. CE,Pradipa,Commentator on Patanjali
+Hemacandra,Polymath,1088–1173,Yogasastra,Omniscient of Kali Age
+Bhāskara II,Mathematics,b. 1114,Lilavati,Solved Pell's equation
+Kalhaṇa,History,c. 1148 CE,Rajatarangini,Classical historian
+Basavanna,Reformer,c. 1131–1196,Vachanas,Lingayat founder
+Allama Prabhu,Mysticism,c. 12th Cent. CE,Vachanas,Virashaiva skeptic
+Akka Mahadevi,Mysticism,c. 12th Cent. CE,Vachanas,Female mystic poet
+Śrīharṣa,Phil / Lit,c. 12th Cent. CE,Khandanakhandakhadya,Skeptic dialectician
+Jayadeva,Literature,c. 12th Cent. CE,Gita Govinda,Erotic-devotional poetry
+Govardhana,Literature,c. 12th Cent. CE,Aryasaptashati,Master of erotic stanzas
+Vijñāneśvara,Law,c. 1120 CE,Mitakshara,Hindu inheritance law
+Jīmūtavāhana,Law,c. 12th Cent. CE,Dayabhaga,Bengal inheritance law
+Murāri Misra,Hermeneutics,c. 12th Cent. CE,Tripadinitinayana,Third School of Mimamsa
+Nimbārka,Philosophy,c. 12th Cent. CE,Parijata-saurabha,Founder of Dvaitadvaita
+Gaṅgeśa Upādhyāya,Logic,c. 1325 CE,Tattvacintamani,Founder of Navya-Nyaya
+Madhvācārya,Philosophy,1238–1317,Sarvamula Granthas,Founder of Dvaita
+Amir Khusrau,Music / Lit,1253–1325,Qiran-us-Sa'dain,Father of Qawwali
+Vedānta Deśika,Phil / Lit,1268–1369,Paduka Sahasram,Lion of Logic
+Jñāneśvara,Mysticism,1275–1296,Jnaneshwari,Marathi Bhakti pioneer
+Marco Polo,Traveler,Tr. 1288/1292,Travels,Venetian merchant
+Śārngadeva,Musicology,c. 1247 CE,Sangita Ratnakara,Text on Indian music
+Shārngadhara,Medicine,c. 1300 CE,Sharngadhara Samhita,Pulse diagnosis
+Kullūka Bhaṭṭa,Law,c. 13th Cent. CE,Manvarthamuktavali,Commentator on Manu
+Ibn Battuta,History,Tr. 1333–1347,Rihla,Moroccan traveler
+Vidyāraṇya,Phil / State,1296–1386,Panchadasi,Inspired Vijayanagara
+Sāyaṇa,Vedas,d. 1387,Veda Bhashya,Commentary on Vedas
+Nārāyaṇa Paṇḍita,Mathematics,c. 1356,Ganita Kaumudi,Combinatorics
+Mādhava,Mathematics,1340–1425,Infinite Series,Founder of Kerala School
+Parameśvara,Astronomy,1380–1460,Drigganita,Observational astronomy
+Kabir,Mysticism,c. 1440–1518,Bijak,Critic of caste
+Nanak,Philosophy,1469–1539,Guru Granth Sahib,Founder of Sikhism
+Nīlakaṇṭha Somayājī,Astronomy,1444–1544,Tantrasamgraha,Heliocentric model
+Vallabha,Philosophy,1479–1531,Anubhashya,Founder of Shuddhadvaita
+Chaitanya,Philosophy,1486–1534,Achintya Bheda Abheda,Gaudiya Vaishnavism
+Raghunātha Śiromaṇi,Logic,c. 1477–1547,Didhiti,Radical logician
+Krishnadevaraya,King / Lit,r. 1509–1529,Amuktamalyada,Vijayanagara Emperor
+Domingo Paes,History,Tr. 1520–1522,Chronicle,Portuguese traveler
+Fernao Nuniz,History,Tr. 1535–1537,Chronicle,Portuguese traveler
+Tulsidas,Literature,1532–1623,Ramcharitmanas,Retold Ramayana
+Surdas,Literature,1478–1583,Sur Sagar,Krishna Bhakti
+Mirabai,Mysticism,1498–1546,Bhajans,Devotee poet-saint
+Appayya Dīkṣita,Polymath,1520–1593,Kuvalayananda,Genius of Shaivism
+Madhusūdana Sarasvatī,Philosophy,c. 1540–1640,Advaita Siddhi,Defended Advaita
+Vijñānabhikṣu,Philosophy,c. 16th Cent. CE,Yogavarttika,Syncretic philosopher
+Bhavamishra,Medicine,c. 16th Cent. CE,Bhavaprakasha,Documented Syphilis
+Nārāyaṇa Bhaṭṭathiri,Literature,1560–1646,Narayaneeyam,Devotional masterpiece
+Jyeṣṭhadeva,Mathematics,c. 1500–1575,Yuktibhasa,Calculus textbook
+Mathurānātha Tarkavāgīśa,Logic,c. 1600–1675,Rahasya,Navya-Nyaya commentator
+Jagadīśa Tarkālaṅkāra,Logic,c. 16th–17th CE,Sabdasaktiprakasika,Logic of semantics
+Gadādhara Bhaṭṭāchārya,Logic,c. 1604–1709,Shaktivada,Prince of Logic
+Dara Shikoh,Scholar,1615–1659,Sirr-i-Akbar,Translated Upanishads
+François Bernier,History,Tr. 1658–1668,Travels,French physician
+Jean-Baptiste Tavernier,History,Tr. 1640–1667,Travels,Gem merchant
+Jagannātha Paṇḍitarāja,Aesthetics,17th Cent. CE,Rasagangadhara,Aesthetician
+Venkatamakhin,Musicology,17th Cent. CE,Chaturdandi Prakashika,Classified Ragas
+Bhaṭṭoji Dīkṣita,Grammar,c. 17th Cent. CE,Siddhanta Kaumudi,Grammar pedagogy
+Kondabhatta,Grammar,c. 17th Cent. CE,Vaiyakaranabhushana,Philosophy of grammar
+Mitramiśra,Law,c. 17th Cent. CE,Viramitrodaya,Digest of Hindu Law
+Annambhaṭṭa,Logic,17th Cent. CE,Tarkasamgraha,Standard manual
+Munishvara,Astronomy,b. 1603,Siddhanta Sarvabhauma,Rival to Kamalakara
+Kamalākara,Astronomy,b. 1616,Siddhanta Tattva Viveka,Islamic-Hindu astronomy
+Baladeva Vidyābhūṣaṇa,Philosophy,c. 1700–1793,Govinda Bhashya,Achintya Bheda Abheda
+Nāgeśa Bhaṭṭa,Grammar,c. 1700–1750,Laghumanjusa,Last grammar giant
+Jagannatha Samrat,Math / Astro,1652–1744,Rekhaganita,Translated Euclid
+Syama Sastri,Music,1762–1827,Kritis,Carnatic Trinity
+Tyagaraja,Music,1767–1847,Kritis,Saint-composer
+Muthuswami Dikshitar,Music,1775–1835,Kritis,Carnatic Trinity
+William Jones,Indology,1746–1794,Asiatic Researches,Indo-European link
+Charles Wilkins,Indology,1749–1836,Gita Trans,First English Gita
+Matthias Sprengel,History,1746–1803,History of Mahrattas,German historian
+Colin Mackenzie,History,1754–1821,Mackenzie Collections,Collector of manuscripts
+H.T. Colebrooke,Indology,1765–1837,Digest of Hindu Law,Sanskritist
+James Prinsep,Indology,1799–1840,Decipherment of Brahmi,Decoded Ashokan script
+Horace Hayman Wilson,Indology,1786–1860,Dictionary,Boden Professor
+Alexander Cunningham,Archaeology,1814–1893,ASI Reports,Father of Archaeology
+Max Müller,Indology,1823–1900,Sacred Books,Editor of Rig Veda
+Albrecht Weber,Indology,1825–1901,Indische Studien,Vedic literature
+Monier Monier-Williams,Indology,1819–1899,Sanskrit Dictionary,Standard dictionary
+Rajendralal Mitra,Indology,1822–1891,Antiquities of Orissa,Indian Indologist
+Sir John Robert Seeley,History,1834–1895,Expansion of England,Imperial historian
+Ramakrishna Gopal Bhandarkar,Indology,1837–1925,Vaishnavism Shaivism,Critical method
+Georg Bühler,Indology,1837–1898,Encyclopedia,Manuscripts and law
+Hermann Jacobi,Indology,1850–1937,Jaina Sutras,Jain studies
+Arthur Coke Burnell,Indology,1840–1882,Palaeography,Dravidian studies
+Rudolf Roth,Indology,1821–1893,Vedic Philology,Scientific Vedic studies
+Hermann Oldenberg,Indology,1854–1920,Buddha,Rig Veda composition
+Vincent Arthur Smith,History,1848–1920,Early History of India,Colonial history
+Rabindranath Tagore,Literature,1861–1941,Gitanjali,Nobel Laureate
+Ganganath Jha,Indology,1871–1941,Translations,Translator of Nyaya
+M. Hiriyanna,Philosophy,1871–1950,Outlines of Philosophy,Indian values
+Jadunath Sarkar,History,1870–1958,History of Aurangzib,Mughal historian
+G.S. Sardesai,History,1865–1959,Marathi Riyasat,Historian of Marathas
+Kuppuswami Sastri,Philosophy,1880–1943,Advaita,Traditional pundit
+P.V. Kane,Indology,1880–1972,History of Dharmasastra,Historian of Law
+S.N. Dasgupta,Philosophy,1885–1952,History of Philosophy,Definitive history
+Srinivasa Ramanujan,Mathematics,1887–1920,Notebooks,Number theory genius
+V.S. Sukthankar,Indology,1887–1943,Mahabharata,Textual criticism
+R.C. Majumdar,History,1888–1980,History and Culture,Doyen of history
+K.A. Nilakanta Sastri,History,1892–1975,The Cholas,Historian of South
+Mortimer Wheeler,Archaeology,1890–1976,IVC Excavations,Indus Valley
+John Marshall,Archaeology,1876–1958,Mohenjo-daro,Discoverer of IVC
+Louis Renou,Indology,1896–1966,Vedic India,French Indology
+Jan Gonda,Indology,1905–1991,Sanskrit Syntax,Prolific Indologist
+K.P. Jayaswal,History,1881–1937,Hindu Polity,Ancient republics
+H.C. Raychaudhuri,History,1892–1957,Political History,Ancient history
+D.D. Kosambi,History,1907–1966,Study of Indian History,Marxist methods
+V. Raghavan,Indology,1908–1979,Bhoja's Sringara,Aesthetics scholar
+Jean Filliozat,Indology,1906–1982,Classical Medicine,Ayurveda scholar
+F.B.J. Kuiper,Indology,1907–2003,Aryans in Rigveda,Linguist
+A.L. Basham,History,1914–1986,The Wonder That Was India,Cultural historian
+Daniel H.H. Ingalls,Indology,1916–1999,Navya-Nyaya,Navya-Nyaya decoder
+K.C. Bhattacharya,Philosophy,1875–1949,Subject as Freedom,Academic philosopher
+Ram Swarup,Philosophy,1920–1998,The Word as Revelation,Revivalist thinker
+Sita Ram Goel,History,1921–2003,Hindu Temples,Historian of conflict
+Dharam Pal,History,1922–2006,The Beautiful Tree,Indigenous education
+Daya Krishna,Philosophy,1924–2007,Counter Perspective,Critical philosopher
+J.A.B. van Buitenen,Indology,1928–1979,Mahabharata Trans,Epic translator
+Bimal Krishna Matilal,Philosophy,1935–1991,Logic Language,Analytical philosophy
+Romila Thapar,History,1931–Present,History of India,Ancient history
+Irfan Habib,History,1931–Present,Agrarian System,Mughal economy
+R.S. Sharma,History,1919–2011,Indian Feudalism,Marxist historian
+J.F. Staal,Indology,1930–2012,Agni,Vedic ritual scholar
+Michael Witzel,Indology,1943–Present,Vedic Studies,Vedic origins
+Wendy Doniger,Indology,1940–Present,The Hindus,Mythology scholar
+Johannes Bronkhorst,Indology,1946–Present,Greater Magadha,Cultural theorist
+Alexis Sanderson,Indology,1948–Present,Shaiva Studies,Tantra expert
+Sheldon Pollock,Indology,1948–Present,Language of the Gods,Literary history
+Harry Falk,Indology,1947–Present,Ashokan Sites,Archaeology
+Walter Slaje,Indology,1951–Present,Kashmir Studies,Historian of Kashmir
+Patrick Olivelle,Indology,1942–Present,Upanishads,Philologist
+Richard Eaton,History,1940–Present,Persianate Age,Islam in India
+Andre Wink,History,Active 1990s,Al-Hind,Indo-Islamic world
+Sanjay Subrahmanyam,History,1961–Present,Connected History,Early Modern
+Upinder Singh,History,1959–Present,Ancient History,Ancient authority
+David Shulman,Indology,1949–Present,Temple Myths,South India
+George Hart,Indology,1945–Present,Tamil Poems,Sangam translator
+Stephanie Jamison,Indology,Active 2000s,Rig Veda,Rig Veda translator
+Joel Brereton,Indology,Active 2000s,Rig Veda,Rig Veda translator
+G. V. Palsule,Linguistics,1921–2010,Sanskrit Grammar,Grammarian
+Hans Hock,Linguistics,Active 1980s,Linguistics,Sanskrit syntax
+Cynthia Talbot,History,Active 2000s,Precolonial India,Kakatiya historian
+Ranbir Chakravarti,History,Active 2000s,Trade,Economic history
+Daud Ali,History,1964–Present,Courtly Culture,Medieval aesthetics
+`;
 
-    // --- 1. THE DATA ENGINE ---
-    // I have parsed your CSV list into this JSON object.
+// --- 2. THE PARSING LOGIC (SMART READER) ---
+const processedData = [];
+
+function parseDate(raw) {
+    let year = 0;
+    let isBCE = raw.includes('BCE');
+    const numbers = raw.match(/\d+/g);
     
-    const rawData = [
-{id:1, name:"Dhanvantari", field:"Medicine", start:-3000, end:-2900, group:"india", work:"Ayurveda (Source)", note:"Legendary God of Medicine"},
-{id:2, name:"Vyasa", field:"Literature", start:-1500, end:-1000, group:"india", work:"Mahabharata", note:"Compiler of the Vedas"},
-{id:3, name:"Lagadha", field:"Astronomy", start:-1000, end:-950, group:"india", work:"Vedanga Jyotisha", note:"Earliest timekeeping text"},
-{id:4, name:"Baudhayana", field:"Math", start:-800, end:-750, group:"india", work:"Sulba Sutras", note:"First Pythagorean theorem"},
-{id:5, name:"Yaska", field:"Linguistics", start:-700, end:-600, group:"india", work:"Nirukta", note:"First etymologist"},
-{id:6, name:"Kapila", field:"Philosophy", start:-600, end:-550, group:"india", work:"Samkhya Sutras", note:"Founder of Samkhya (Dualism)"},
-{id:7, name:"Sushruta", field:"Medicine", start:-600, end:-550, group:"india", work:"Sushruta Samhita", note:"Father of Surgery (Rhinoplasty)"},
-{id:8, name:"Gautama Buddha", field:"Philosophy", start:-563, end:-483, group:"india", work:"Pali Canon", note:"Revolutionized Asian ethics"},
-{id:9, name:"Mahavira", field:"Philosophy", start:-540, end:-468, group:"india", work:"Agamas", note:"24th Tirthankara (Jainism)"},
-{id:10, name:"Panini", field:"Linguistics", start:-500, end:-400, group:"india", work:"Ashtadhyayi", note:"Generative grammar code"},
-{id:11, name:"Valmiki", field:"Literature", start:-400, end:-350, group:"india", work:"Ramayana", note:"The Adi Kavi (First Poet)"},
-{id:12, name:"Kautilya (Chanakya)", field:"Statecraft", start:-350, end:-283, group:"india", work:"Arthashastra", note:"Master of Realpolitik"},
-{id:13, name:"Megasthenes", field:"History", start:-350, end:-290, group:"west", work:"Indica", note:"Greek ambassador; first foreign description"},
-{id:14, name:"Chandragupta Maurya", field:"King", start:-321, end:-297, group:"india", work:"Empire", note:"Founder of Maurya Empire"},
-{id:16, name:"Pingala", field:"Math", start:-300, end:-200, group:"india", work:"Chandas Shastra", note:"Binary numbers & Pascal's Triangle"},
-{id:18, name:"Vishnu Sharma", field:"Literature", start:-300, end:-250, group:"india", work:"Panchatantra", note:"Fables on statecraft"},
-{id:19, name:"Kanada", field:"Physics", start:-200, end:-150, group:"india", work:"Vaisheshika Sutras", note:"First atomic theorist"},
-{id:20, name:"Patanjali", field:"Yoga", start:-150, end:-100, group:"india", work:"Yoga Sutras", note:"Systematized Yoga psychology"},
-{id:23, name:"Manu", field:"Law", start:-200, end:200, group:"india", work:"Manusmriti", note:"Influential legal code"},
-{id:24, name:"Caraka", field:"Medicine", start:-100, end:100, group:"india", work:"Charaka Samhita", note:"Father of Internal Medicine"},
-{id:25, name:"Bharata Muni", field:"Aesthetics", start:-200, end:200, group:"india", work:"Natya Shastra", note:"Foundation of drama & Rasa"},
-{id:29, name:"Nagarjuna", field:"Philosophy", start:150, end:250, group:"india", work:"Mulamadhyamakakarika", note:"Founder of Madhyamaka (Emptiness)"},
-{id:36, name:"Vatsyayana", field:"Sociology", start:200, end:300, group:"india", work:"Kamasutra", note:"Treatise on desire"},
-{id:38, name:"Faxian", field:"History", start:399, end:412, group:"west", work:"Records", note:"Documented Gupta India"},
-{id:39, name:"Kalidasa", field:"Literature", start:400, end:450, group:"india", work:"Shakuntalam", note:"The Shakespeare of India"},
-{id:46, name:"Bodhidharma", field:"Philosophy", start:450, end:520, group:"india", work:"Zen", note:"Transmitted Zen to China"},
-{id:48, name:"Aryabhata", field:"Math", start:476, end:550, group:"india", work:"Aryabhatiya", note:"Zero, Pi, Rotation of Earth"},
-{id:50, name:"Thiruvalluvar", field:"Ethics", start:400, end:500, group:"india", work:"Tirukkural", note:"Universal secular ethics"},
-{id:58, name:"Brahmagupta", field:"Math", start:598, end:668, group:"india", work:"Brahmasphutasiddhanta", note:"Rules for Zero & Gravity"},
-{id:66, name:"Xuanzang", field:"History", start:629, end:645, group:"west", work:"Tang Records", note:"Documented Nalanda"},
-{id:72, name:"Adi Shankara", field:"Philosophy", start:700, end:732, group:"india", work:"Brahmasutra Bhasya", note:"Consolidator of Advaita"},
-{id:93, name:"Al-Beruni", field:"Indology", start:973, end:1048, group:"west", work:"Indica", note:"First scientific Indologist"},
-{id:104, name:"Ramanuja", field:"Philosophy", start:1017, end:1137, group:"india", work:"Sri Bhashya", note:"Founder of Vishishtadvaita"},
-{id:111, name:"Bhaskara II", field:"Math", start:1114, end:1185, group:"india", work:"Lilavati", note:"Calculus precursor"},
-{id:124, name:"Madhvacharya", field:"Philosophy", start:1238, end:1317, group:"india", work:"Sarvamula", note:"Founder of Dvaita"},
-{id:128, name:"Marco Polo", field:"History", start:1288, end:1292, group:"west", work:"Travels", note:"Venetian merchant"},
-{id:132, name:"Ibn Battuta", field:"History", start:1333, end:1347, group:"west", work:"Rihla", note:"Moroccan traveler"},
-{id:136, name:"Madhava", field:"Math", start:1340, end:1425, group:"india", work:"Infinite Series", note:"Founder of Kerala School"},
-{id:138, name:"Kabir", field:"Mysticism", start:1440, end:1518, group:"india", work:"Bijak", note:"Critic of caste/ritual"},
-{id:139, name:"Guru Nanak", field:"Philosophy", start:1469, end:1539, group:"india", work:"Guru Granth Sahib", note:"Founder of Sikhism"},
-{id:159, name:"Dara Shikoh", field:"Scholar", start:1615, end:1659, group:"india", work:"Sirr-i-Akbar", note:"Mughal Prince, translated Upanishads"},
-{id:160, name:"Francois Bernier", field:"History", start:1658, end:1668, group:"west", work:"Travels", note:"French physician in Mughal court"},
-{id:176, name:"William Jones", field:"Indology", start:1746, end:1794, group:"west", work:"Asiatic Researches", note:"Discovered Indo-European link"},
-{id:177, name:"Charles Wilkins", field:"Indology", start:1749, end:1836, group:"west", work:"Gita Trans", note:"First English Gita"},
-{id:184, name:"Max Muller", field:"Indology", start:1823, end:1900, group:"west", work:"Sacred Books", note:"Editor of Rig Veda"},
-{id:196, name:"Rabindranath Tagore", field:"Literature", start:1861, end:1941, group:"india", work:"Gitanjali", note:"Nobel Laureate"},
-{id:204, name:"Srinivasa Ramanujan", field:"Math", start:1887, end:1920, group:"india", work:"Notebooks", note:"Number theory genius"},
-{id:208, name:"Mortimer Wheeler", field:"Archaeology", start:1890, end:1976, group:"west", work:"IVC Excavations", note:"Indus Valley Systematizer"},
-{id:209, name:"John Marshall", field:"Archaeology", start:1876, end:1958, group:"west", work:"Mohenjo-daro", note:"Discoverer of Indus Valley Civ"},
-{id:218, name:"A.L. Basham", field:"History", start:1914, end:1986, group:"west", work:"Wonder That Was India", note:"Cultural historian"},
-{id:228, name:"Irfan Habib", field:"History", start:1931, end:2024, group:"india", work:"Agrarian System", note:"Marxist Mughal historian"},
-{id:231, name:"Michael Witzel", field:"Indology", start:1943, end:2024, group:"west", work:"Vedic Studies", note:"Vedic origins scholar"},
-{id:232, name:"Wendy Doniger", field:"Indology", start:1940, end:2024, group:"west", work:"The Hindus", note:"Mythology scholar"},
-{id:235, name:"Sheldon Pollock", field:"Indology", start:1948, end:2024, group:"west", work:"Language of Gods", note:"Sanskrit literary history"},
-{id:242, name:"Upinder Singh", field:"History", start:1959, end:2024, group:"india", work:"Ancient History", note:"Authority on ancient India"}
-    ];
-    // Note: I have included the Top 55 key figures to keep the file size manageable for the chat. 
-    // You can add the rest of the 250 rows following this same pattern {id:..., name:..., ...}
-
-    // --- 2. LOGIC TO CREATE CLUSTERS ---
-    // Since we don't have "who influenced who", we connect people by FIELD.
-    // This creates a beautiful "Star Network" automatically.
-
-    const nodes = [];
-    const edges = [];
-    const fields = {};
-
-    // Create Field Hubs first (Invisible centers)
-    rawData.forEach(person => {
-        if (!fields[person.field]) {
-            fields[person.field] = true;
-            nodes.push({
-                id: "field_" + person.field,
-                label: person.field,
-                group: "field",
-                shape: "hexagon",
-                size: 25,
-                color: "#333",
-                font: {color: "#888"}
-            });
-        }
-        
-        // Create Person Node
-        nodes.push({
-            id: person.id,
-            label: person.name,
-            group: person.group,
-            title: `<div class='tooltip-field'>${person.field}</div><div class='tooltip-title'>${person.name}</div>${person.work}<br><i>${person.note}</i>`,
-            value: 20
-        });
-
-        // Create Edge (Person -> Field)
-        edges.push({
-            from: person.id,
-            to: "field_" + person.field,
-            color: {color: "#333", opacity: 0.2},
-            length: 200 // Long lines to spread them out
-        });
-    });
-
-    // --- 3. TIMELINE SETUP ---
-    const timelineData = new vis.DataSet(rawData.map(d => ({
-        id: d.id,
-        content: d.name,
-        start: new Date(0).setFullYear(d.start), // Handle BC dates correctly
-        end: new Date(0).setFullYear(d.end),
-        group: d.group === 'india' ? 1 : 2,
-        className: d.group
-    })));
-
-    const container = document.getElementById('mynetwork');
-    const data = {
-        nodes: new vis.DataSet(nodes),
-        edges: new vis.DataSet(edges)
-    };
-
-    const options = {
-        nodes: {
-            shape: 'dot',
-            font: { face: 'Rajdhani', color: '#fff' },
-            borderWidth: 2
-        },
-        groups: {
-            india: { color: { background: '#ff9800', border: '#ffb74d' } },
-            west: { color: { background: '#45a29e', border: '#66fcf1' } },
-            field: { color: { background: '#222', border: '#444' } }
-        },
-        physics: {
-            stabilization: false,
-            barnesHut: { gravitationalConstant: -3000, springConstant: 0.04 }
-        },
-        interaction: { hover: true }
-    };
-
-    const network = new vis.Network(container, data, options);
-
-    // --- 4. TIMELINE CONFIG ---
-    const timelineOptions = {
-        height: '100%',
-        min: new Date(0).setFullYear(-3500), // Allow scrolling back to Vedic age
-        max: new Date(0).setFullYear(2050),
-        start: new Date(0).setFullYear(1800), // Start view at Colonial era
-        end: new Date(0).setFullYear(2000),
-        stack: true,
-        style: 'background: #111; color: #aaa; border:none;'
-    };
-
-    const timelineGroups = [
-        {id: 1, content: "<span style='color:#ff9800'>INDIA</span>"},
-        {id: 2, content: "<span style='color:#45a29e'>GLOBAL / WEST</span>"}
-    ];
-
-    const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, timelineGroups, timelineOptions);
-
-    // --- 5. INTERACTION LOGIC (The Glue) ---
-    
-    // Click Node -> Move Timeline
-    network.on("click", function (params) {
-        if (params.nodes.length > 0) {
-            const nodeId = params.nodes[0];
-            // Ignore Field Hubs
-            if (typeof nodeId === 'string' && nodeId.startsWith('field_')) return;
-            
-            const item = timelineData.get(nodeId);
-            if(item) {
-                const center = new Date(item.start).getTime();
-                timeline.moveTo(center);
-                timeline.setSelection(nodeId);
-            }
-        }
-    });
-
-    // Select Timeline -> Focus Network
-    timeline.on("select", function (props) {
-        if (props.items.length > 0) {
-            const nodeId = props.items[0];
-            network.selectNodes([nodeId]);
-            network.focus(nodeId, { scale: 1.2, animation: true });
-        }
-    });
-
-    // Search Function
-    function searchNode() {
-        const query = document.getElementById('search').value.toLowerCase();
-        if(!query) return;
-        const allNodes = data.nodes.get();
-        const found = allNodes.find(n => n.label.toLowerCase().includes(query));
-        if(found) {
-            network.selectNodes([found.id]);
-            network.focus(found.id, {scale: 1.5, animation: true});
-            timeline.setSelection(found.id);
-            timeline.moveTo(timelineData.get(found.id).start);
-        }
+    if (!numbers) {
+        if (raw.includes('Mythical') || raw.includes('Vedic')) return -3000;
+        return 0; // Fallback
     }
+
+    if (raw.includes('–') || raw.includes('-')) {
+        // Range logic
+        let start = parseInt(numbers[0]);
+        let end = numbers.length > 1 ? parseInt(numbers[1]) : start + 50;
+        if (isBCE) {
+            return { start: -start, end: -end };
+        }
+        return { start: start, end: end };
+    }
+    
+    // Single date logic
+    let val = parseInt(numbers[0]);
+    if (isBCE) val = -val;
+    return { start: val, end: val + 60 }; // Assume 60 year lifespan if unknown
+}
+
+// Convert CSV to Objects
+const lines = csvData.trim().split('\n');
+lines.forEach((line, index) => {
+    // Basic CSV parser (handles simple commas)
+    const parts = line.split(',');
+    if (parts.length < 4) return;
+    
+    const dates = parseDate(parts[2]);
+    let start, end;
+    
+    if (typeof dates === 'object') {
+        start = dates.start;
+        end = dates.end;
+        if(isNaN(end)) end = 2024; // Handle "Present"
+    } else {
+        start = dates;
+        end = dates + 50;
+    }
+
+    // Determine Group (West vs India)
+    let group = 'india';
+    if (parts[1].includes('Indology') || parts[1].includes('Traveler') || parts[1].includes('Archaeology') || 
+       ['Megasthenes', 'Faxian', 'Xuanzang', 'Marco Polo', 'Al-Beruni'].some(n => parts[0].includes(n)) ||
+       parts[2].includes('Tr.')) {
+        group = 'west';
+    }
+
+    processedData.push({
+        id: index,
+        name: parts[0].trim(),
+        field: parts[1].trim(),
+        start: start,
+        end: end,
+        group: group,
+        work: parts[3] ? parts[3].trim() : '',
+        note: parts[4] ? parts[4].trim() : ''
+    });
+});
+
+document.getElementById('loader').style.display = 'none';
+
+// --- 3. VISUALIZATION ENGINE ---
+
+// Create Nodes and Edges
+const nodes = [];
+const edges = [];
+const fields = {};
+
+processedData.forEach(p => {
+    // Link by Field
+    if(!fields[p.field]) {
+        fields[p.field] = true;
+        nodes.push({ id: `f_${p.field}`, label: p.field, group: 'field', shape: 'diamond', size: 10 });
+    }
+    
+    nodes.push({
+        id: p.id,
+        label: p.name,
+        group: p.group,
+        title: `<b style="color:#ff9800">${p.name}</b><br>${p.field}<br><i>${p.work}</i><br>${p.note}`,
+        value: 20
+    });
+    
+    edges.push({ from: p.id, to: `f_${p.field}`, color: { color: '#333', opacity: 0.3 } });
+});
+
+// Network Config
+const container = document.getElementById('mynetwork');
+const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+const options = {
+    nodes: { shape: 'dot', font: { face: 'Rajdhani', color: '#fff' }, borderWidth: 2 },
+    groups: {
+        india: { color: { background: '#ff9800', border: '#ffb74d' } },
+        west: { color: { background: '#00bcd4', border: '#4dd0e1' } },
+        field: { color: { background: '#333', border: '#555' }, font:{size:10, color:'#888'} }
+    },
+    physics: { stabilization: false, barnesHut: { gravitationalConstant: -2000, springConstant: 0.01 } }
+};
+const network = new vis.Network(container, data, options);
+
+// Timeline Config
+const timelineItems = new vis.DataSet(processedData.map(p => ({
+    id: p.id, content: p.name, 
+    start: new Date(0).setFullYear(p.start), 
+    end: new Date(0).setFullYear(p.end),
+    group: p.group === 'india' ? 1 : 2,
+    className: p.group
+})));
+
+const timelineGroups = [
+    {id: 1, content: "INDIA", style: "color:#ff9800"}, 
+    {id: 2, content: "GLOBAL", style: "color:#00bcd4"}
+];
+
+const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineItems, timelineGroups, {
+    height: '100%', stack: true, style: 'background:#111; border:none; color:#bbb',
+    min: new Date(0).setFullYear(-3500), max: new Date(0).setFullYear(2050),
+    start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000)
+});
+
+// --- 4. INTERACTIONS ---
+
+// Link Graph & Timeline
+network.on("click", params => {
+    if (params.nodes.length) {
+        let id = params.nodes[0];
+        if (typeof id === 'string') return; // Ignore field nodes
+        let item = timelineItems.get(id);
+        let center = (item.start.getTime() + item.end.getTime()) / 2;
+        timeline.moveTo(center);
+        timeline.setSelection(id);
+    }
+});
+
+timeline.on("select", props => {
+    if (props.items.length) {
+        network.selectNodes([props.items[0]]);
+        network.focus(props.items[0], { scale: 1.2, animation: true });
+    }
+});
+
+// Search
+window.handleSearch = function() {
+    let q = document.getElementById('search').value.toLowerCase();
+    if (!q) return;
+    
+    let found = processedData.find(p => p.name.toLowerCase().includes(q));
+    if (found) {
+        network.selectNodes([found.id]);
+        network.focus(found.id, { scale: 1.5, animation: true });
+        timeline.setSelection(found.id);
+        timeline.moveTo(new Date(0).setFullYear(found.start));
+    }
+};
 
 </script>
 </body>
