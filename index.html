@@ -22,9 +22,12 @@
         select, input { background: #1a1a1a; color: #ddd; border: 1px solid #444; padding: 6px 10px; font-family: 'Cinzel', serif; font-size: 0.8rem; border-radius: 3px; outline: none; }
         select:hover, input:focus { border-color: var(--gold); }
 
-        .main-container { flex: 1; position: relative; display: flex; }
+        /* Main layout: Network takes available space */
+        .main-container { flex: 1; position: relative; display: flex; min-height: 0; }
         #network { flex-grow: 1; background: radial-gradient(circle at center, #111 0%, #000 120%); }
-        #mytimeline { height: 120px; background: rgba(10,10,10,0.95); border-top: 1px solid var(--border); z-index: 20; position: relative; }
+        
+        /* Timeline Layout: Fixed height at bottom */
+        #mytimeline { height: 150px; background: rgba(10,10,10,0.95); border-top: 1px solid var(--border); z-index: 20; position: relative; }
 
         /* SIDE PANEL */
         #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.3s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; box-shadow: -5px 0 30px rgba(0,0,0,0.9); }
@@ -41,7 +44,7 @@
         .works-list li::before { content: "•"; color: var(--gold); display: inline-block; width: 1em; margin-left: -1em; }
 
         /* LEGEND */
-        .legend { position: absolute; bottom: 140px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
+        .legend { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -126,7 +129,6 @@
     const container = document.getElementById('network');
     const data = { nodes: nodes, edges: edges };
     
-    // Performance Optimization: Reduced iterations, improved physics settings
     const options = {
         nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
         edges: { smooth: { type: "continuous", roundness: 0.2 }, arrows: { to: { scaleFactor: 0.5 } } },
@@ -186,7 +188,7 @@
         updateGraph();
     }
 
-    // UPDATE GRAPH (FIXED LOGIC)
+    // UPDATE GRAPH
     function updateGraph() {
         const sFilter = document.getElementById('schoolFilter').value;
         const rFilter = document.getElementById('regionFilter').value;
@@ -195,12 +197,12 @@
             let p = n.data;
             let show = true;
             
-            // School Logic (Fixed property name: p.school)
+            // School Logic
             if (sFilter !== 'all') {
                 if (p.school !== sFilter && p.group !== sFilter) show = false;
             }
             
-            // Region Logic (Fixed property name: p.subregion)
+            // Region Logic
             if (rFilter !== 'all' && p.region !== rFilter && p.subregion !== rFilter) show = false;
             
             // Deities only show if filter is 'all' or matches lineage logic
@@ -218,11 +220,11 @@
         edges.add(filteredEdges);
     }
 
-    // TIMELINE SETUP (FIXED YEARS)
-    // Convert year to Date object for proper Vis.js handling
+    // --- TIMELINE SETUP ---
+    // 1. Prepare data for Timeline
     const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => {
         let date = new Date(0);
-        date.setFullYear(t.year);
+        date.setFullYear(t.year); // Handles negative years (BCE) correctly
         return {
             id: i, 
             content: t.label, 
@@ -232,11 +234,14 @@
         };
     }));
     
+    // 2. Initialize Timeline
     const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
-        height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
-        // Default View: 500 BCE to 2000 CE
-        start: new Date(0).setFullYear(-500), 
-        end: new Date(0).setFullYear(2000),
+        height: '100%', 
+        stack: true, 
+        style: 'background:#111; border:none; color:#777',
+        // VIEW RANGE: Start at -3500 BCE so you see everything immediately
+        start: new Date(0).setFullYear(-3500), 
+        end: new Date(0).setFullYear(2025),
         format: {
             minorLabels: function(date, scale, step) {
                 let year = date.getFullYear();
@@ -249,17 +254,23 @@
         }
     });
 
+    // 3. Timeline Interaction
     timeline.on('select', (props) => {
         if(props.items.length) {
             const item = timelineData.get(props.items[0]);
             const person = rawData.find(p => p.id === item.personId);
-            if(person) openPanel(person);
+            if(person) {
+                openPanel(person);
+                // Also focus the node in the network
+                network.selectNodes([person.id]);
+                network.focus(person.id, { scale: 1.5, animation: true });
+            }
         }
     });
 
     // PANEL LOGIC
     function openPanel(d) {
-        document.getElementById('p-name').innerText = d.iast || d.label; // Fallback to label if IAST missing
+        document.getElementById('p-name').innerText = d.iast || d.label;
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
         document.getElementById('p-school').innerText = d.school || "";
         document.getElementById('p-region').innerText = d.region + (d.subregion ? ` (${d.subregion})` : "");
@@ -295,7 +306,6 @@
         }
     });
 
-    // IMPROVED SEARCH (Checks Note + Label)
     function searchNode(e) {
         if (e.key === 'Enter') {
             const q = document.getElementById('search').value.toLowerCase();
