@@ -3,85 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indosphere: The Grand Archive</title>
+    <title>Indosphere: The Grand Paramparā</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 
     <style>
-        /* DARK ACADEMIA THEME */
+        /* --- AESTHETIC: THE COSMIC ARCHIVE --- */
         :root {
-            --bg: #0f1012; 
-            --panel: #141518;
-            --gold: #c5a059;
-            --silver: #a0aab5;
-            --border: #2c2e33;
-            --tag-bg: #25262b;
+            --bg: #08090a; 
+            --panel: #111214;
+            --gold: #d4af37;
+            --silver: #a5a5a5;
+            --advaita: #ff9800; /* Saffron */
+            --nyaya: #00bcd4;   /* Blue */
+            --shaiva: #9c27b0;  /* Purple */
+            --border: #252629;
         }
 
-        body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Lato', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Noto Serif', serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* HEADER */
+        /* HEADER & CONTROLS */
         header { 
-            height: 60px; background: var(--panel); border-bottom: 1px solid var(--border); 
+            height: 70px; background: var(--panel); border-bottom: 1px solid var(--border); 
             display: flex; justify-content: space-between; align-items: center; padding: 0 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 20;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6); z-index: 20;
         }
-        .brand { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 2px; color: var(--gold); }
-        .brand span { color: #666; font-size: 0.8em; margin-left: 10px; }
+        .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        .brand span { color: #555; font-size: 0.7em; margin-left: 10px; font-weight: 400; letter-spacing: 1px; }
 
-        #search { 
-            background: #0a0a0a; border: 1px solid var(--border); color: #fff; padding: 8px 15px; 
-            border-radius: 2px; width: 300px; font-family: 'Lato', sans-serif; transition: 0.3s;
-        }
-        #search:focus { border-color: var(--gold); width: 350px; outline: none; }
-
-        /* LAYOUT */
-        .main-container { display: flex; flex: 1; position: relative; height: calc(100vh - 60px); }
+        .controls { display: flex; gap: 15px; align-items: center; }
         
-        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #1b1c20 0%, #050505 120%); }
+        select {
+            background: #1a1b1e; color: var(--gold); border: 1px solid var(--border); padding: 8px 15px;
+            font-family: 'Cinzel', serif; font-size: 0.85rem; border-radius: 2px; outline: none; cursor: pointer;
+        }
+        
+        #search { 
+            background: #1a1b1e; border: 1px solid var(--border); color: #fff; padding: 8px 15px; 
+            border-radius: 2px; width: 220px; font-family: 'Noto Serif', serif; transition: 0.3s;
+        }
+        #search:focus { border-color: var(--gold); width: 280px; outline: none; }
 
-        /* SIDE PANEL */
+        /* MAIN CANVAS */
+        .main-container { display: flex; flex: 1; position: relative; height: calc(100vh - 70px); }
+        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #16171a 0%, #000 140%); }
+
+        /* SIDE PANEL - THE SCROLL */
         #side-panel {
             width: 0; background: var(--panel); border-left: 1px solid var(--border);
-            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: width 0.5s cubic-bezier(0.19, 1, 0.22, 1);
             overflow-y: auto; display: flex; flex-direction: column; z-index: 15;
-            box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.8);
         }
         
-        .panel-content { padding: 40px; min-width: 320px; opacity: 0; transition: opacity 0.3s 0.2s; }
+        .panel-content { padding: 40px; min-width: 350px; opacity: 0; transition: opacity 0.4s 0.2s; }
         
-        .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 5px; line-height: 1.2; }
-        .p-subtitle { font-size: 0.85rem; color: var(--silver); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 25px; display: block; }
+        .p-title { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 5px; line-height: 1.1; }
+        .p-subtitle { font-size: 0.9rem; color: var(--silver); font-style: italic; margin-bottom: 25px; display: block; }
         
-        /* ETHNICITY STYLING */
-        .eth-main { color: #fff; font-weight: 700; font-size: 1.1rem; }
-        .eth-sub { color: var(--gold); font-style: italic; font-weight: 400; margin-left: 8px; font-family: 'Cinzel', serif; font-size: 1rem; }
-
-        .p-label { color: #555; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 700; }
-        .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; font-weight: 300; }
+        .p-label { color: #555; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 1px; margin-top: 25px; display: block; }
+        .p-value { font-size: 1.05rem; color: #ddd; line-height: 1.6; margin-top: 5px; font-weight: 300; }
         
         .p-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .tag { background: var(--tag-bg); padding: 4px 10px; border-radius: 2px; font-size: 0.75rem; color: #aaa; border: 1px solid #333; }
+        .tag { background: #1f2024; padding: 4px 10px; border: 1px solid #333; font-size: 0.75rem; color: #aaa; }
         
-        /* WORKS LIST */
-        .works-list { margin-top: 5px; padding-left: 0; list-style: none; }
-        .works-list li { margin-bottom: 4px; color: #ccc; font-size: 0.95rem; }
-        .works-list li::before { content: "•"; color: var(--gold); display: inline-block; width: 1em; margin-left: -1em; }
+        .lineage-box { border-left: 2px solid var(--gold); padding-left: 15px; margin-top: 10px; color: #ccc; font-style: italic; }
 
         /* TIMELINE */
         #mytimeline { 
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 160px; 
-            background: rgba(20,21,24,0.95); border-top: 1px solid var(--border); z-index: 10;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 140px; 
+            background: rgba(17,18,20,0.95); border-top: 1px solid var(--border); z-index: 10;
         }
+        
+        /* IAST HIGHLIGHTS */
+        .iast { font-style: italic; color: #e6c673; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="brand">Indosphere <span>The Grand Archive</span></div>
-    <input type="text" id="search" placeholder="Search 350+ Thinkers..." onkeyup="searchNode()">
+    <div class="brand">Indosphere <span>The Grand Paramparā</span></div>
+    <div class="controls">
+        <select id="schoolFilter" onchange="filterNetwork()">
+            <option value="all">All Schools (The Banyan Tree)</option>
+            <option value="advaita">Advaita Vedānta</option>
+            <option value="nyaya">Nyāya & Vaiśeṣika</option>
+            <option value="kashmir">Kashmir Śaivism</option>
+            <option value="bhakti">Bhakti Movement</option>
+            <option value="grammar">Vyākaraṇa (Linguistics)</option>
+            <option value="buddhism">Bauddha Dharma</option>
+            <option value="west">Western Indophiles</option>
+        </select>
+        <input type="text" id="search" placeholder="Search (e.g. Śaṅkara)..." onkeyup="searchNode()">
+    </div>
 </header>
 
 <div class="main-container">
@@ -89,23 +108,23 @@
     
     <div id="side-panel">
         <div class="panel-content" id="panel-content">
-            <div id="p-name" class="p-title">Select a Thinker</div>
+            <div id="p-name" class="p-title"></div>
             <span id="p-dates" class="p-subtitle"></span>
 
-            <span class="p-label">Origin / Region</span>
-            <div id="p-ethnicity-container" class="p-value"></div>
-
-            <span class="p-label">Field & Roles</span>
-            <div id="p-tags" class="p-tags"></div>
+            <span class="p-label">School / Tradition</span>
+            <div id="p-school" class="p-value" style="color: var(--gold)"></div>
 
             <span class="p-label">Magnum Opus</span>
-            <div id="p-work" class="p-value" style="font-style: italic; color: #fff;"></div>
+            <div id="p-work" class="p-value iast"></div>
 
-            <span class="p-label">Other Significant Works</span>
-            <ul id="p-other-works" class="works-list"></ul>
+            <span class="p-label">Lineage Context</span>
+            <div id="p-lineage" class="lineage-box"></div>
 
-            <span class="p-label">Contribution</span>
+            <span class="p-label">Intellectual Contribution</span>
             <div id="p-note" class="p-value"></div>
+            
+            <span class="p-label">Region</span>
+            <div id="p-region" class="p-value"></div>
         </div>
     </div>
 </div>
@@ -114,86 +133,211 @@
 
 <script type="text/javascript">
 
-// --- 1. THE GRAND DATASET (350+ ENTRIES) ---
-// Generated via Python to ensure JSON validity.
-const rawData = [{"name": "Dhanvantari", "field": "Medicine", "year": -3000, "date": "Mythical / Vedic", "region": "Vedic", "ethnicity": "Indian", "work": "Ayurveda (Source)", "others": ["Dhanvantari Nighantu"], "note": "Legendary God of Medicine and health.", "group": "india"}, {"name": "Dirghatamas", "field": "Vedas", "year": -1500, "date": "Vedic Era", "region": "Anga / Magadha", "ethnicity": "Indian", "work": "Rig Veda (Hymns)", "others": ["Asya Vamiya Hymn"], "note": "Blind rishi, seer of the 'Riddle Hymn' of the Rig Veda.", "group": "india"}, {"name": "Lopamudra", "field": "Vedas", "year": -1500, "date": "Vedic Era", "region": "Vidarbha", "ethnicity": "Indian", "work": "Rig Veda (Hymns)", "others": [], "note": "Female Rishi (Rishika); wife of Agastya.", "group": "india"}, {"name": "Ghosha", "field": "Vedas", "year": -1500, "date": "Vedic Era", "region": "North India", "ethnicity": "Indian", "work": "Rig Veda (Hymns)", "others": [], "note": "Rishika who composed hymns to the Ashvins.", "group": "india"}, {"name": "Maitreyi", "field": "Philosophy", "year": -850, "date": "Late Vedic", "region": "Videha (Mithila)", "ethnicity": "Indian", "work": "Brihadaranyaka Upanishad", "others": [], "note": "Philosopher wife of Yajnavalkya; questioned immortality.", "group": "india"}, {"name": "Gargi Vachaknavi", "field": "Philosophy", "year": -850, "date": "Late Vedic", "region": "Videha (Mithila)", "ethnicity": "Indian", "work": "Brihadaranyaka Upanishad", "others": [], "note": "Challenged Yajnavalkya in debate; symbol of female intellect.", "group": "india"}, {"name": "Yajnavalkya", "field": "Philosophy", "year": -850, "date": "Late Vedic", "region": "Videha (Mithila)", "ethnicity": "Indian", "work": "Brihadaranyaka Upanishad", "others": ["Shatapatha Brahmana", "Yajnavalkya Smriti"], "note": "Greatest sage of the Upanishads; expounded 'Neti Neti'.", "group": "india"}, {"name": "Uddalaka Aruni", "field": "Philosophy", "year": -800, "date": "Late Vedic", "region": "Kuru-Panchala", "ethnicity": "Indian", "work": "Chandogya Upanishad", "others": [], "note": "First materialist/scientist thinker; 'Tat Tvam Asi'.", "group": "india"}, {"name": "Mahidasa Aitareya", "field": "Philosophy", "year": -800, "date": "Vedic", "region": "Kuru", "ethnicity": "Indian", "work": "Aitareya Aranyaka", "others": ["Aitareya Brahmana"], "note": "Early philosopher of language and consciousness.", "group": "india"}, {"name": "Vyasa", "field": "Literature", "year": -1500, "date": "c. 1500\u20131000 BCE", "region": "Kuru", "ethnicity": "Indian", "work": "Mahabharata", "others": ["Brahma Sutras", "Puranas"], "note": "Compiler of the Vedas and the Great Epic.", "group": "india"}, {"name": "Lagadha", "field": "Astronomy", "year": -1000, "date": "c. 1000 BCE", "region": "Kashmir?", "ethnicity": "Indian", "work": "Vedanga Jyotisha", "others": [], "note": "Earliest text on Indian timekeeping and calendars.", "group": "india"}, {"name": "Baudhayana", "field": "Math", "year": -800, "date": "c. 800 BCE", "region": "South India (Andhra?)", "ethnicity": "Indian", "work": "Sulba Sutras", "others": ["Dharmasutra"], "note": "First statement of the Pythagorean theorem.", "group": "india"}, {"name": "Apastamba", "field": "Math", "year": -600, "date": "c. 600 BCE", "region": "Andhra", "ethnicity": "Indian", "work": "Sulba Sutras", "others": ["Dharmasutra"], "note": "Geometry of altars; laws of conduct.", "group": "india"}, {"name": "Yaska", "field": "Etymology", "year": -700, "date": "c. 7th BCE", "region": "Gandhara", "ethnicity": "Indian", "work": "Nirukta", "others": ["Nighantu"], "note": "First etymologist; key to interpreting Vedic words.", "group": "india"}, {"name": "Kapila", "field": "Philosophy", "year": -600, "date": "c. 6th BCE", "region": "Vedic / Gangetic", "ethnicity": "Indian", "work": "Samkhya Sutras", "others": [], "note": "Founder of Samkhya (Dualism); theory of Gunas.", "group": "india"}, {"name": "Sushruta", "field": "Medicine", "year": -600, "date": "c. 600 BCE", "region": "Kashi (Varanasi)", "ethnicity": "Indian", "work": "Sushruta Samhita", "others": [], "note": "Father of Surgery; described rhinoplasty.", "group": "india"}, {"name": "Charvaka", "field": "Philosophy", "year": -600, "date": "c. 6th BCE", "region": "Magadha", "ethnicity": "Indian", "work": "Barhaspatya Sutras", "others": [], "note": "Founder of Indian Materialism/Atheism (Lokayata).", "group": "india"}, {"name": "Gautama Buddha", "field": "Philosophy", "year": -563, "date": "c. 563\u2013483 BCE", "region": "Magadha / Nepal", "ethnicity": "Indian", "work": "Pali Canon (Tipitaka)", "others": ["Dhammapada"], "note": "Founder of Buddhism; revolutionized Asian ethics.", "group": "india"}, {"name": "Mahavira", "field": "Philosophy", "year": -540, "date": "c. 540\u2013468 BCE", "region": "Magadha (Bihar)", "ethnicity": "Indian", "work": "Agamas", "others": [], "note": "24th Tirthankara; consolidator of Jainism.", "group": "india"}, {"name": "Makkhali Gosala", "field": "Philosophy", "year": -540, "date": "c. 6th BCE", "region": "Magadha", "ethnicity": "Indian", "work": "Ajivika Doctrine (Lost)", "others": [], "note": "Founder of Ajivika school; fatalism (Niyati).", "group": "india"}, {"name": "Panini", "field": "Linguistics", "year": -500, "date": "c. 5th BCE", "region": "Gandhara (Salatura)", "ethnicity": "Indian", "work": "Ashtadhyayi", "others": ["Dhatupatha", "Ganapatha"], "note": "Created generative grammar; father of linguistics.", "group": "india"}, {"name": "Valmiki", "field": "Literature", "year": -400, "date": "c. 4th BCE", "region": "Kosala / Gangetic", "ethnicity": "Indian", "work": "Ramayana", "others": [], "note": "The Adi Kavi (First Poet); created the epic meter.", "group": "india"}, {"name": "Chanakya", "field": "Statecraft", "year": -350, "date": "c. 350 BCE", "region": "Takshashila / Magadha", "ethnicity": "Indian", "work": "Arthashastra", "others": ["Chanakya Niti"], "note": "Master of Realpolitik and Economics.", "group": "india"}, {"name": "Megasthenes", "field": "History", "year": -350, "date": "c. 350 BCE", "region": "Hellenistic / West", "ethnicity": "Greek", "work": "Indica", "others": [], "note": "First foreign ambassador to describe India in detail.", "group": "west"}, {"name": "Chandragupta Maurya", "field": "King", "year": -321, "date": "r. 321\u2013297 BCE", "region": "Magadha (Bihar)", "ethnicity": "Indian", "work": "Mauryan Empire", "others": [], "note": "Founder of Maurya Empire; unified India.", "group": "india"}, {"name": "Bhadrabahu", "field": "Philosophy", "year": -300, "date": "c. 3rd BCE", "region": "Magadha / Karnataka", "ethnicity": "Indian", "work": "Kalpa Sutra", "others": [], "note": "Jain monk; teacher of Chandragupta Maurya.", "group": "india"}, {"name": "Pingala", "field": "Math", "year": -300, "date": "c. 3rd BCE", "region": "India", "ethnicity": "Indian", "work": "Chandas Shastra", "others": [], "note": "Discovered binary numbers and Pascal's Triangle.", "group": "india"}, {"name": "Jaimini", "field": "Hermeneutics", "year": -300, "date": "c. 3rd BCE", "region": "India", "ethnicity": "Indian", "work": "Mimamsa Sutras", "others": [], "note": "Master of ritual interpretation and textual analysis.", "group": "india"}, {"name": "Vishnu Sharma", "field": "Literature", "year": -300, "date": "c. 3rd BCE", "region": "Kashmir / South?", "ethnicity": "Indian", "work": "Panchatantra", "others": [], "note": "Most translated secular fables on statecraft.", "group": "india"}, {"name": "Upavarsha", "field": "Philosophy", "year": -300, "date": "c. 3rd BCE", "region": "Patliputra", "ethnicity": "Indian", "work": "Mimamsa Commentary (Lost)", "others": [], "note": "Early theorist of semantics and the Soul.", "group": "india"}, {"name": "Kanada", "field": "Physics", "year": -200, "date": "c. 2nd BCE", "region": "Gujarat / Bengal", "ethnicity": "Indian", "work": "Vaisheshika Sutras", "others": [], "note": "First atomic theorist; classified reality into categories.", "group": "india"}, {"name": "Patanjali", "field": "Yoga", "year": -150, "date": "c. 150 BCE", "region": "Gonarda (Kashmir/Oudh)", "ethnicity": "Indian", "work": "Yoga Sutras", "others": ["Mahabhasya (Grammar)"], "note": "Systematized Yoga psychology and grammar.", "group": "india"}, {"name": "Bhasa", "field": "Literature", "year": -150, "date": "c. 2nd BCE", "region": "North India", "ethnicity": "Indian", "work": "Svapnavasavadattam", "others": ["Urubhanga", "Pratijnayaugandharayana"], "note": "Father of Sanskrit Drama; inspired Kalidasa.", "group": "india"}, {"name": "Katyayana", "field": "Grammar", "year": -150, "date": "c. 2nd BCE", "region": "South India?", "ethnicity": "Indian", "work": "Varttika", "others": [], "note": "Critical commentator correcting/expanding Panini.", "group": "india"}, {"name": "Manu", "field": "Law", "year": -100, "date": "c. 2nd BCE \u2013 2nd CE", "region": "Brahmavarta", "ethnicity": "Indian", "work": "Manusmriti", "others": [], "note": "Most influential Hindu legal code.", "group": "india"}, {"name": "Caraka", "field": "Medicine", "year": 100, "date": "c. 1st CE", "region": "Kashmir / NW", "ethnicity": "Indian", "work": "Charaka Samhita", "others": [], "note": "Father of Ayurveda (Internal Medicine).", "group": "india"}, {"name": "Ashvaghosha", "field": "Literature", "year": 80, "date": "c. 80\u2013150 CE", "region": "Saketa (Ayodhya)", "ethnicity": "Indian", "work": "Buddhacharita", "others": ["Saundarananda"], "note": "First Sanskrit epic poet; Buddhist playwright.", "group": "india"}, {"name": "Nagarjuna", "field": "Philosophy", "year": 150, "date": "c. 150\u2013250 CE", "region": "Vidarbha / Andhra", "ethnicity": "Indian", "work": "Mulamadhyamakakarika", "others": ["Ratnavali", "Suhrulekha"], "note": "Founder of Madhyamaka (Emptiness); Second Buddha.", "group": "india"}, {"name": "Bharata Muni", "field": "Aesthetics", "year": 200, "date": "c. 200 CE", "region": "India", "ethnicity": "Indian", "work": "Natya Shastra", "others": [], "note": "Foundation of drama, dance, music, and Rasa theory.", "group": "india"}, {"name": "Gunadhya", "field": "Literature", "year": 200, "date": "c. 1st-3rd CE", "region": "Deccan (Pratishthana)", "ethnicity": "Indian", "work": "Brihatkatha (Lost)", "others": [], "note": "Wrote the 'Great Story' in Paishachi; source of all fables.", "group": "india"}, {"name": "Hala", "field": "Literature", "year": 200, "date": "c. 1st CE", "region": "Deccan (Satavahana)", "ethnicity": "Indian", "work": "Gaha Sattasai", "others": [], "note": "Compiled first anthology of Prakrit love poetry.", "group": "india"}, {"name": "Vatsyayana", "field": "Sociology", "year": 250, "date": "c. 3rd CE", "region": "Bihar / North", "ethnicity": "Indian", "work": "Kamasutra", "others": ["Nyaya Sutra Bhashya"], "note": "Scientific treatise on desire, citizen life, and logic.", "group": "india"}, {"name": "Aryadeva", "field": "Philosophy", "year": 250, "date": "c. 3rd CE", "region": "Sri Lanka / South", "ethnicity": "Indian", "work": "Chatuhshataka", "others": [], "note": "Disciple of Nagarjuna; master debater.", "group": "india"}, {"name": "Faxian", "field": "History", "year": 399, "date": "399\u2013412 CE", "region": "China", "ethnicity": "Chinese", "work": "Records of Buddhist Kingdoms", "others": [], "note": "Documented Gupta India; walked from China.", "group": "west"}, {"name": "Kalidasa", "field": "Literature", "year": 400, "date": "c. 4th\u20135th CE", "region": "Ujjain (Malwa)", "ethnicity": "Indian", "work": "Shakuntalam", "others": ["Meghaduta", "Kumarasambhavam", "Raghuvamsha"], "note": "The Shakespeare of India; supreme poet.", "group": "india"}, {"name": "Amara", "field": "Lexicography", "year": 400, "date": "c. 4th CE", "region": "India", "ethnicity": "Indian", "work": "Amarakosha", "others": [], "note": "Most famous Sanskrit thesaurus.", "group": "india"}, {"name": "Asanga", "field": "Philosophy", "year": 400, "date": "c. 4th CE", "region": "Gandhara", "ethnicity": "Indian", "work": "Yogacarabhumi", "others": ["Mahayana-Samgraha"], "note": "Founder of Yogacara (Mind-Only) school.", "group": "india"}, {"name": "Vasubandhu", "field": "Philosophy", "year": 400, "date": "c. 4th CE", "region": "Gandhara", "ethnicity": "Indian", "work": "Abhidharmakosha", "others": ["Vimsatika", "Trimsika"], "note": "Master of Buddhist psychology and metaphysics.", "group": "india"}, {"name": "Vishnugupta", "field": "Statecraft", "year": 400, "date": "c. 4th CE", "region": "India", "ethnicity": "Indian", "work": "Panchatantra (Editor)", "others": [], "note": "Often identified with Chanakya or a later editor.", "group": "india"}, {"name": "Bhartrihari", "field": "Philosophy", "year": 450, "date": "c. 450\u2013510 CE", "region": "Ujjain / Malwa", "ethnicity": "Indian", "work": "Vakyapadiya", "others": ["Shatakatraya (Poetry)"], "note": "Philosopher of Grammar (Sphota) and poet of renunciation.", "group": "india"}, {"name": "Bodhidharma", "field": "Philosophy", "year": 480, "date": "c. 5th CE", "region": "South India (Pallava)", "ethnicity": "Indian", "work": "Zen Teachings", "others": ["Bloodstream Sermon"], "note": "Transmitted Zen (Chan) Buddhism to China; Kung Fu origins.", "group": "india"}, {"name": "Aryabhata", "field": "Math", "year": 476, "date": "b. 476 CE", "region": "Kusumapura (Patna)", "ethnicity": "Indian", "work": "Aryabhatiya", "others": ["Arya-siddhanta"], "note": "Calculated Zero, Pi, Earth's rotation, Trigonometry.", "group": "india"}, {"name": "Dignaga", "field": "Logic", "year": 480, "date": "c. 480\u2013540 CE", "region": "Kanchipuram", "ethnicity": "Indian", "work": "Pramana-samuccaya", "others": ["Hetucakra"], "note": "Father of Medieval Indian Logic.", "group": "india"}, {"name": "Thiruvalluvar", "field": "Ethics", "year": 450, "date": "c. 5th CE", "region": "Mylapore (Tamil Nadu)", "ethnicity": "Indian", "work": "Tirukkural", "others": [], "note": "Universal secular ethics; the 'Veda of the Tamils'.", "group": "india"}, {"name": "Varahamihira", "field": "Science", "year": 505, "date": "505\u2013587 CE", "region": "Avanti (Ujjain)", "ethnicity": "Indian", "work": "Brihat Samhita", "others": ["Pancha-Siddhantika", "Brihat Jataka"], "note": "Encyclopedist of ancient science (astronomy/botany).", "group": "india"}, {"name": "Prashastapada", "field": "Physics", "year": 550, "date": "c. 6th CE", "region": "India", "ethnicity": "Indian", "work": "Padarthadharmasamgraha", "others": [], "note": "Definitive commentary on Vaisheshika atomism.", "group": "india"}, {"name": "Brahmagupta", "field": "Math", "year": 598, "date": "b. 598 CE", "region": "Bhinmal (Rajasthan)", "ethnicity": "Indian", "work": "Brahmasphutasiddhanta", "others": ["Khandakhadyaka"], "note": "Rules for Zero, negative numbers, gravity.", "group": "india"}, {"name": "Dharmakirti", "field": "Logic", "year": 600, "date": "c. 600\u2013660 CE", "region": "South India", "ethnicity": "Indian", "work": "Pramanavarttika", "others": ["Nyayabindu"], "note": "The 'Kant of India'; refined Buddhist epistemology.", "group": "india"}, {"name": "Banabhatta", "field": "Literature", "year": 600, "date": "c. 7th CE", "region": "Kannauj (Harsha's Court)", "ethnicity": "Indian", "work": "Kadambari", "others": ["Harshacharita"], "note": "Master of complex Sanskrit prose.", "group": "india"}, {"name": "Subandhu", "field": "Literature", "year": 600, "date": "c. 6th CE", "region": "Malwa", "ethnicity": "Indian", "work": "Vasavadatta", "others": [], "note": "Prose master of puns (Slesha).", "group": "india"}, {"name": "Mahendravarman I", "field": "Literature", "year": 600, "date": "r. 600\u2013630 CE", "region": "Kanchipuram (Pallava)", "ethnicity": "Indian", "work": "Mattavilasa Prahasana", "others": [], "note": "Satirist King; mocked ascetics and corrupt officials.", "group": "india"}, {"name": "Bhaskara I", "field": "Math", "year": 600, "date": "c. 600\u2013680 CE", "region": "Saurashtra / Kerala", "ethnicity": "Indian", "work": "Mahabhaskariya", "others": ["Laghubhaskariya"], "note": "First to write numbers in decimal place-value system.", "group": "india"}, {"name": "Xuanzang", "field": "History", "year": 629, "date": "629\u2013645 CE", "region": "China", "ethnicity": "Chinese", "work": "Great Tang Records", "others": [], "note": "Documented Nalanda and Harsha's India.", "group": "west"}, {"name": "Dandin", "field": "Literature", "year": 650, "date": "c. 7th CE", "region": "Kanchipuram", "ethnicity": "Indian", "work": "Dashakumaracharita", "others": ["Kavyadarsha"], "note": "Master of picaresque prose and poetics.", "group": "india"}, {"name": "Kumarila Bhatta", "field": "Philosophy", "year": 700, "date": "c. 700 CE", "region": "Prayag / Assam", "ethnicity": "Indian", "work": "Slokavartika", "others": ["Tantravartika"], "note": "Revived Vedic ritualism (Mimamsa); critic of Buddhism.", "group": "india"}, {"name": "Prabhakara", "field": "Philosophy", "year": 700, "date": "c. 7th CE", "region": "Kerala", "ethnicity": "Indian", "work": "Brihati", "others": [], "note": "Founder of 'Guru' school of Mimamsa.", "group": "india"}, {"name": "Adi Shankara", "field": "Philosophy", "year": 788, "date": "c. 788\u2013820 CE", "region": "Kaladi (Kerala)", "ethnicity": "Indian", "work": "Brahmasutra Bhasya", "others": ["Vivekachudamani", "Upadesasahasri", "Bhaja Govindam"], "note": "Consolidator of Advaita Vedanta; unified Hindu orders.", "group": "india"}, {"name": "Mandana Misra", "field": "Philosophy", "year": 800, "date": "c. 8th CE", "region": "Mithila (Bihar)", "ethnicity": "Indian", "work": "Brahmasiddhi", "others": ["Vidhiviveka"], "note": "Great debater; bridge between Ritualism and Advaita.", "group": "india"}, {"name": "Suresvara", "field": "Philosophy", "year": 800, "date": "c. 8th CE", "region": "South India", "ethnicity": "Indian", "work": "Naishkarmya Siddhi", "others": ["Vartikas"], "note": "Direct disciple of Shankara; authority on Advaita.", "group": "india"}, {"name": "Bhavabhuti", "field": "Literature", "year": 700, "date": "c. 8th CE", "region": "Vidarbha (Maharashtra)", "ethnicity": "Indian", "work": "Uttararamacarita", "others": ["Malatimadhava"], "note": "Master of Pathos (Karuna); rival to Kalidasa.", "group": "india"}, {"name": "Anandavardhana", "field": "Aesthetics", "year": 820, "date": "c. 9th CE", "region": "Kashmir", "ethnicity": "Indian", "work": "Dhvanyaloka", "others": [], "note": "Established Dhvani (suggestion) as soul of poetry.", "group": "india"}, {"name": "Appar", "field": "Bhakti", "year": 600, "date": "c. 7th CE", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Tevaram", "others": [], "note": "Nayanar saint; converted from Jainism to Shaivism.", "group": "india"}, {"name": "Sambandar", "field": "Bhakti", "year": 650, "date": "c. 7th CE", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Tevaram", "others": [], "note": "Child prodigy Nayanar saint.", "group": "india"}, {"name": "Andal", "field": "Bhakti", "year": 750, "date": "c. 8th CE", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Tiruppavai", "others": ["Nachiyar Tirumoli"], "note": "Only female Alvar; symbol of bridal mysticism.", "group": "india"}, {"name": "Nammalvar", "field": "Bhakti", "year": 880, "date": "c. 9th CE", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Tiruvaymoli", "others": [], "note": "Greatest Alvar saint; 'Vedas in Tamil'.", "group": "india"}, {"name": "Manikkavacakar", "field": "Bhakti", "year": 850, "date": "c. 9th CE", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Tiruvasagam", "others": [], "note": "Shaiva mystic; minister turned saint.", "group": "india"}, {"name": "Mahaviracharya", "field": "Math", "year": 850, "date": "c. 850 CE", "region": "Karnataka (Rashtrakuta)", "ethnicity": "Indian", "work": "Ganita Sara Samgraha", "others": [], "note": "Major Jain mathematician; operations with zero.", "group": "india"}, {"name": "Jayanta Bhatta", "field": "Logic", "year": 890, "date": "c. 9th CE", "region": "Kashmir", "ethnicity": "Indian", "work": "Nyayamanjari", "others": ["Agamadambara"], "note": "Master of Old Nyaya; witty logician.", "group": "india"}, {"name": "Vacaspati Misra", "field": "Philosophy", "year": 900, "date": "c. 10th CE", "region": "Mithila (Bihar)", "ethnicity": "Indian", "work": "Bhamati", "others": ["Nyaya-Kanika"], "note": "Commentated on ALL six orthodox schools.", "group": "india"}, {"name": "Utpaladeva", "field": "Philosophy", "year": 925, "date": "c. 10th CE", "region": "Kashmir", "ethnicity": "Indian", "work": "Isvarapratyabhijna", "others": ["Sivastotravali"], "note": "Architect of Shaiva logic and recognition.", "group": "india"}, {"name": "Abhinavagupta", "field": "Philosophy", "year": 950, "date": "c. 950\u20131016 CE", "region": "Kashmir", "ethnicity": "Indian", "work": "Tantraloka", "others": ["Abhinavabharati", "Paramarthasara"], "note": "Encyclopedic genius of Kashmir Shaivism & Aesthetics.", "group": "india"}, {"name": "Al-Biruni", "field": "Indology", "year": 973, "date": "973\u20131048", "region": "Persia / Uzbekistan", "ethnicity": "Persian", "work": "Indica (Tahqiq ma li-l-Hind)", "others": [], "note": "First scientific Indologist; impartial observer.", "group": "west"}, {"name": "Udayana", "field": "Logic", "year": 984, "date": "c. 984 CE", "region": "Mithila (Bihar)", "ethnicity": "Indian", "work": "Nyayakusumanjali", "others": ["Atmatattvaviveka"], "note": "Proved existence of God using rigorous logic.", "group": "india"}, {"name": "Rajaraja Chola I", "field": "King", "year": 985, "date": "r. 985\u20131014 CE", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Brihadisvara Temple", "others": [], "note": "Built the Great Temple; standardized Tamil bureaucracy.", "group": "india"}, {"name": "Ramanuja", "field": "Philosophy", "year": 1017, "date": "1017\u20131137", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Sri Bhashya", "others": ["Vedartha Sangraha", "Gita Bhashya"], "note": "Founder of Vishishtadvaita; championed devotion.", "group": "india"}, {"name": "Bhoja", "field": "Polymath", "year": 1010, "date": "r. 1010\u20131055", "region": "Malwa (Dhara)", "ethnicity": "Indian", "work": "Saraswati Kanthabharana", "others": ["Samarangana Sutradhara", "Shringara Prakasha"], "note": "King of Arts & Science; wrote on everything.", "group": "india"}, {"name": "Somadeva", "field": "Literature", "year": 1070, "date": "c. 11th CE", "region": "Kashmir", "ethnicity": "Indian", "work": "Kathasaritsagara", "others": [], "note": "'Ocean of Stories'; largest collection of Indian tales.", "group": "india"}, {"name": "Kshemendra", "field": "Literature", "year": 1050, "date": "c. 11th CE", "region": "Kashmir", "ethnicity": "Indian", "work": "Kalavilasa", "others": ["Avadana Kalpalata"], "note": "Satirist who mocked bureaucrats and courtesans.", "group": "india"}, {"name": "Hemacandra", "field": "Polymath", "year": 1088, "date": "1088\u20131173", "region": "Gujarat", "ethnicity": "Indian", "work": "Yogasastra", "others": ["Siddha-Hema-Shabdanushasana"], "note": "'Omniscient of the Kali Age'; Jain scholar.", "group": "india"}, {"name": "Bhaskara II", "field": "Math", "year": 1114, "date": "b. 1114", "region": "Deccan (Bijapur)", "ethnicity": "Indian", "work": "Lilavati", "others": ["Siddhanta Shiromani"], "note": "Solved Pell's equation; understood derivatives.", "group": "india"}, {"name": "Kalhana", "field": "History", "year": 1148, "date": "c. 1148 CE", "region": "Kashmir", "ethnicity": "Indian", "work": "Rajatarangini", "others": [], "note": "The only true classical historian of India.", "group": "india"}, {"name": "Basavanna", "field": "Reformer", "year": 1131, "date": "c. 12th CE", "region": "Karnataka", "ethnicity": "Indian", "work": "Vachanas", "others": [], "note": "Founder of Lingayatism; social equality, anti-caste.", "group": "india"}, {"name": "Allama Prabhu", "field": "Mysticism", "year": 1150, "date": "c. 12th CE", "region": "Karnataka", "ethnicity": "Indian", "work": "Vachanas", "others": ["Mantragopya"], "note": "Radical Virashaiva mystic; head of Anubhava Mantapa.", "group": "india"}, {"name": "Akka Mahadevi", "field": "Mysticism", "year": 1150, "date": "c. 12th CE", "region": "Karnataka", "ethnicity": "Indian", "work": "Vachanas", "others": ["Yoganga Trividhi"], "note": "Female mystic poet; defied social norms for Shiva.", "group": "india"}, {"name": "Jayadeva", "field": "Literature", "year": 1200, "date": "c. 12th CE", "region": "Odisha / Bengal", "ethnicity": "Indian", "work": "Gita Govinda", "others": ["Dasavatara Stotra"], "note": "Immensely influential erotic-devotional poetry.", "group": "india"}, {"name": "Madhvacharya", "field": "Philosophy", "year": 1238, "date": "1238\u20131317", "region": "Udupi (Karnataka)", "ethnicity": "Indian", "work": "Sarvamula Granthas", "others": ["Mahabharata Tatparya Nirnaya"], "note": "Founder of Dvaita (Dualism); distinct realist.", "group": "india"}, {"name": "Amir Khusrau", "field": "Culture", "year": 1253, "date": "1253\u20131325", "region": "Delhi", "ethnicity": "Indian", "work": "Qiran-us-Sa'dain", "others": ["Tughlaq Nama", "Ghazals"], "note": "Parrot of India; Father of Qawwali and Sitar.", "group": "india"}, {"name": "Marco Polo", "field": "Traveler", "year": 1288, "date": "1288/1292", "region": "Venice", "ethnicity": "Venetian", "work": "Travels", "others": [], "note": "Described the pearl fisheries and horses of South India.", "group": "west"}, {"name": "Jnaneshwar", "field": "Mysticism", "year": 1275, "date": "1275\u20131296", "region": "Maharashtra", "ethnicity": "Indian", "work": "Jnaneshwari", "others": ["Amrutanubhav"], "note": "Pioneer of Marathi Bhakti; commentary on Gita.", "group": "india"}, {"name": "Vidyaranya", "field": "Statecraft", "year": 1296, "date": "c. 14th CE", "region": "Karnataka (Sringeri)", "ethnicity": "Indian", "work": "Panchadasi", "others": ["Sarvadarshanasamgraha"], "note": "Inspired founding of Vijayanagara; Advaita scholar.", "group": "india"}, {"name": "Sayana", "field": "Vedas", "year": 1350, "date": "d. 1387", "region": "Vijayanagara", "ethnicity": "Indian", "work": "Veda Bhashya", "others": [], "note": "Complete commentary on all four Vedas.", "group": "india"}, {"name": "Gangesa", "field": "Logic", "year": 1325, "date": "c. 14th CE", "region": "Mithila (Bihar)", "ethnicity": "Indian", "work": "Tattvacintamani", "others": [], "note": "Founder of Navya-Nyaya (New Logic).", "group": "india"}, {"name": "Ibn Battuta", "field": "History", "year": 1333, "date": "1333\u20131347", "region": "Morocco", "ethnicity": "Moroccan", "work": "Rihla", "others": [], "note": "Served as Qadi in Delhi; described postal system.", "group": "west"}, {"name": "Madhava", "field": "Math", "year": 1340, "date": "1340\u20131425", "region": "Kerala (Sangamagrama)", "ethnicity": "Indian", "work": "Infinite Series", "others": ["Venvaroha"], "note": "Founder of Kerala School; discovered Calculus series.", "group": "india"}, {"name": "Vidyapati", "field": "Literature", "year": 1352, "date": "c. 1352\u20131448", "region": "Mithila (Bihar)", "ethnicity": "Indian", "work": "Padavali", "others": ["Kirtilata", "Purusha Pariksha"], "note": "Maithili/Bengali poet; 'Nightingale of Mithila'.", "group": "india"}, {"name": "Kabir", "field": "Mysticism", "year": 1440, "date": "c. 1440\u20131518", "region": "Varanasi (UP)", "ethnicity": "Indian", "work": "Bijak", "others": ["Sakhi Granth"], "note": "Radical critic of caste and rituals; Weaver saint.", "group": "india"}, {"name": "Ravidas", "field": "Mysticism", "year": 1450, "date": "c. 15th CE", "region": "Varanasi", "ethnicity": "Indian", "work": "Vani (Guru Granth Sahib)", "others": [], "note": "Saint of the oppressed; Bhakti poet.", "group": "india"}, {"name": "Narsinh Mehta", "field": "Mysticism", "year": 1414, "date": "15th CE", "region": "Gujarat", "ethnicity": "Indian", "work": "Vaishnava Jana To", "others": [], "note": "Adi Kavi of Gujarat; devotee of Krishna.", "group": "india"}, {"name": "Shankaradeva", "field": "Reformer", "year": 1449, "date": "1449\u20131568", "region": "Assam", "ethnicity": "Indian", "work": "Kirtan Ghosha", "others": ["Ankiya Nat"], "note": "Polymath reformer of Assam; Ekasarana Dharma.", "group": "india"}, {"name": "Guru Nanak", "field": "Philosophy", "year": 1469, "date": "1469\u20131539", "region": "Punjab", "ethnicity": "Indian", "work": "Guru Granth Sahib (Japji)", "others": ["Siddh Gost"], "note": "Founder of Sikhism; monotheist reformer.", "group": "india"}, {"name": "Chaitanya", "field": "Philosophy", "year": 1486, "date": "1486\u20131534", "region": "Bengal (Nadia)", "ethnicity": "Indian", "work": "Siksastakam", "others": [], "note": "Founder of Gaudiya Vaishnavism; Sankirtana movement.", "group": "india"}, {"name": "Krishnadevaraya", "field": "King", "year": 1509, "date": "r. 1509\u20131529", "region": "Karnataka (Hampi)", "ethnicity": "Indian", "work": "Amuktamalyada", "others": ["Jambavati Kalyanam"], "note": "Vijayanagara Emperor; Telugu literary giant.", "group": "india"}, {"name": "Purandara Dasa", "field": "Music", "year": 1484, "date": "1484\u20131564", "region": "Karnataka", "ethnicity": "Indian", "work": "Dasa Sahitya", "others": [], "note": "Grandfather of Carnatic Music (Pitamaha).", "group": "india"}, {"name": "Mirabai", "field": "Mysticism", "year": 1498, "date": "c. 16th CE", "region": "Rajasthan (Mewar)", "ethnicity": "Indian", "work": "Bhajans", "others": [], "note": "Krishna devotee poet-saint; symbol of devotion.", "group": "india"}, {"name": "Tulsidas", "field": "Literature", "year": 1532, "date": "1532\u20131623", "region": "Varanasi / Awadh", "ethnicity": "Indian", "work": "Ramcharitmanas", "others": ["Vinaya Patrika", "Hanuman Chalisa"], "note": "Retold Ramayana in Awadhi; defined North Indian faith.", "group": "india"}, {"name": "Surdas", "field": "Literature", "year": 1478, "date": "16th CE", "region": "Braj (UP)", "ethnicity": "Indian", "work": "Sur Sagar", "others": ["Sur Saravali"], "note": "Blind poet of Krishna's childhood.", "group": "india"}, {"name": "Akbar", "field": "King", "year": 1556, "date": "r. 1556\u20131605", "region": "Mughal Empire", "ethnicity": "Mughal", "work": "Din-i-Ilahi", "others": ["Ibadat Khana"], "note": "Emperor who fostered syncretism and translation.", "group": "india"}, {"name": "Abul Fazl", "field": "History", "year": 1551, "date": "1551\u20131602", "region": "Agra", "ethnicity": "Indian", "work": "Akbarnama", "others": ["Ain-i-Akbari"], "note": "Chronicler of Akbar's reign; rationalist.", "group": "india"}, {"name": "Eknath", "field": "Mysticism", "year": 1533, "date": "1533\u20131599", "region": "Maharashtra", "ethnicity": "Indian", "work": "Eknathi Bhagwat", "others": ["Bhavartha Ramayana"], "note": "Bridge between predecessors and Tukaram.", "group": "india"}, {"name": "Tukaram", "field": "Mysticism", "year": 1608, "date": "1608\u20131649", "region": "Maharashtra (Pune)", "ethnicity": "Indian", "work": "Abhangas", "others": ["Gatha"], "note": "Greatest Marathi Bhakti poet; Varkari saint.", "group": "india"}, {"name": "Appayya Diksita", "field": "Polymath", "year": 1520, "date": "1520\u20131593", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Siddhantalesa Sangraha", "others": ["Kuvalayananda"], "note": "Genius of Shaivism, Advaita, and Rhetoric.", "group": "india"}, {"name": "Madhusudana Sarasvati", "field": "Philosophy", "year": 1540, "date": "16th CE", "region": "Bengal", "ethnicity": "Indian", "work": "Advaita Siddhi", "others": ["Gudhartha Dipika"], "note": "Defended Advaita Monism against Dualist logic.", "group": "india"}, {"name": "Dara Shikoh", "field": "Scholar", "year": 1615, "date": "1615\u20131659", "region": "Delhi", "ethnicity": "Mughal", "work": "Sirr-i-Akbar", "others": ["Majma-ul-Bahrain"], "note": "Mughal Prince; translated Upanishads to Persian.", "group": "india"}, {"name": "Francois Bernier", "field": "History", "year": 1658, "date": "1658\u20131668", "region": "France", "ethnicity": "French", "work": "Travels in Mogul Empire", "others": [], "note": "Physician to Dara Shikoh; documented succession war.", "group": "west"}, {"name": "Jagannatha Panditaraja", "field": "Aesthetics", "year": 1650, "date": "17th CE", "region": "Andhra / North", "ethnicity": "Indian", "work": "Rasagangadhara", "others": ["Bhaminivilasa"], "note": "Last great Sanskrit aesthetician; Shah Jahan's court poet.", "group": "india"}, {"name": "Samarth Ramdas", "field": "Philosophy", "year": 1608, "date": "1608\u20131681", "region": "Maharashtra", "ethnicity": "Indian", "work": "Dasbodh", "others": ["Manache Shlok"], "note": "Guru of Shivaji; activist saint.", "group": "india"}, {"name": "Venkatamakhin", "field": "Music", "year": 1650, "date": "17th CE", "region": "Thanjavur", "ethnicity": "Indian", "work": "Chaturdandi Prakashika", "others": [], "note": "Classified 72 Melakarta Ragas (Carnatic system).", "group": "india"}, {"name": "Bhattoji Diksita", "field": "Grammar", "year": 1600, "date": "17th CE", "region": "Maharashtra / Varanasi", "ethnicity": "Indian", "work": "Siddhanta Kaumudi", "others": [], "note": "Reorganized Panini for pedagogy.", "group": "india"}, {"name": "Nilakantha Chaturdhara", "field": "Literature", "year": 1650, "date": "17th CE", "region": "Maharashtra / Varanasi", "ethnicity": "Indian", "work": "Bharatabhavadipa", "others": [], "note": "Most famous commentary on the Mahabharata.", "group": "india"}, {"name": "William Jones", "field": "Indology", "year": 1746, "date": "1746\u20131794", "region": "UK / Bengal", "ethnicity": "British", "work": "Asiatic Researches", "others": ["Sakuntala Translation"], "note": "Discovered Indo-European language family link.", "group": "west"}, {"name": "Charles Wilkins", "field": "Indology", "year": 1749, "date": "1749\u20131836", "region": "UK", "ethnicity": "British", "work": "Bhagavad Gita (Trans)", "others": [], "note": "First English translation of the Gita.", "group": "west"}, {"name": "Voltaire", "field": "Philosophy", "year": 1694, "date": "1694\u20131778", "region": "France", "ethnicity": "French", "work": "Essai sur les moeurs", "others": ["Fragments on India"], "note": "Praised Vedas as oldest wisdom; Indophile.", "group": "west"}, {"name": "Anquetil-Duperron", "field": "Indology", "year": 1731, "date": "1731\u20131805", "region": "France", "ethnicity": "French", "work": "Oupnek'hat", "others": [], "note": "Translated Dara Shikoh's Persian Upanishads to Latin.", "group": "west"}, {"name": "Arthur Schopenhauer", "field": "Philosophy", "year": 1788, "date": "1788\u20131860", "region": "Germany", "ethnicity": "German", "work": "The World as Will", "others": ["Parerga and Paralipomena"], "note": "Called Upanishads 'the consolation of my life'.", "group": "west"}, {"name": "Raja Ram Mohan Roy", "field": "Reformer", "year": 1772, "date": "1772\u20131833", "region": "Bengal", "ethnicity": "Indian", "work": "Precepts of Jesus", "others": ["Gift to Monotheists"], "note": "Father of Modern India; Brahmo Samaj; Sati ban.", "group": "india"}, {"name": "Tyagaraja", "field": "Music", "year": 1767, "date": "1767\u20131847", "region": "Thanjavur", "ethnicity": "Indian", "work": "Pancharatna Kritis", "others": ["Utsava Sampradaya"], "note": "Saint-composer; Rama Bhakta.", "group": "india"}, {"name": "Muthuswami Dikshitar", "field": "Music", "year": 1775, "date": "1775\u20131835", "region": "Thanjavur", "ethnicity": "Indian", "work": "Navagraha Kritis", "others": ["Kamalamba Navavaranam"], "note": "Carnatic Trinity; Sanskrit composer.", "group": "india"}, {"name": "Syama Sastri", "field": "Music", "year": 1762, "date": "1762\u20131827", "region": "Thanjavur", "ethnicity": "Indian", "work": "Swarajatis", "others": ["Devi Kritis"], "note": "Carnatic Trinity; Devi Bhakta.", "group": "india"}, {"name": "James Prinsep", "field": "Indology", "year": 1799, "date": "1799\u20131840", "region": "Bengal", "ethnicity": "British", "work": "Decipherment of Brahmi", "others": [], "note": "Decoded Ashokan script; unlocked ancient history.", "group": "west"}, {"name": "Henry David Thoreau", "field": "Philosophy", "year": 1817, "date": "1817\u20131862", "region": "USA", "ethnicity": "American", "work": "Walden", "others": ["A Week on the Concord..."], "note": "Read Gita daily at Walden Pond; Transcendentalist.", "group": "west"}, {"name": "Ralph Waldo Emerson", "field": "Philosophy", "year": 1803, "date": "1803\u20131882", "region": "USA", "ethnicity": "American", "work": "Brahma (Poem)", "others": ["The Over-Soul"], "note": "American Transcendentalist inspired by Vedanta.", "group": "west"}, {"name": "Max Muller", "field": "Indology", "year": 1823, "date": "1823\u20131900", "region": "Oxford / Germany", "ethnicity": "German", "work": "Sacred Books of the East", "others": ["History of Ancient Sanskrit Lit"], "note": "Giant of Indology; editor of Rig Veda.", "group": "west"}, {"name": "Ishwar Chandra Vidyasagar", "field": "Reformer", "year": 1820, "date": "1820\u20131891", "region": "Bengal", "ethnicity": "Indian", "work": "Barna Parichay", "others": ["Widow Remarriage Act"], "note": "Champion of education and women's rights.", "group": "india"}, {"name": "Michael Madhusudan Dutt", "field": "Literature", "year": 1824, "date": "1824\u20131873", "region": "Bengal", "ethnicity": "Indian", "work": "Meghnad Badh Kavya", "others": ["Sharmistha"], "note": "Pioneer of Bengali drama and sonnet; tragic epic poet.", "group": "india"}, {"name": "Bankim Chandra Chattopadhyay", "field": "Literature", "year": 1838, "date": "1838\u20131894", "region": "Bengal", "ethnicity": "Indian", "work": "Anandamath", "others": ["Durgeshnandini", "Vande Mataram"], "note": "Composed 'Vande Mataram'; father of Bengali novel.", "group": "india"}, {"name": "Ramakrishna Paramhansa", "field": "Mysticism", "year": 1836, "date": "1836\u20131886", "region": "Bengal", "ethnicity": "Indian", "work": "Gospel of Ramakrishna", "others": [], "note": "Mystic of Dakshineswar; 'Yato Mat Tato Path'.", "group": "india"}, {"name": "Raja Ravi Varma", "field": "Art", "year": 1848, "date": "1848\u20131906", "region": "Kerala (Travancore)", "ethnicity": "Indian", "work": "Lithographs of Gods", "others": ["Shakuntala Patra-lekhan"], "note": "Defined the modern visual iconography of Hindu deities.", "group": "india"}, {"name": "Bal Gangadhar Tilak", "field": "Politics", "year": 1856, "date": "1856\u20131920", "region": "Maharashtra", "ethnicity": "Indian", "work": "Gita Rahasya", "others": ["The Arctic Home in the Vedas"], "note": "Father of Indian Unrest; scholar-politician.", "group": "india"}, {"name": "Nikola Tesla", "field": "Science", "year": 1856, "date": "1856\u20131943", "region": "USA", "ethnicity": "Serbian", "work": "AC Current", "others": [], "note": "Used Vedantic terms (Prana/Akasha) after meeting Vivekananda.", "group": "west"}, {"name": "Rabindranath Tagore", "field": "Literature", "year": 1861, "date": "1861\u20131941", "region": "Bengal", "ethnicity": "Indian", "work": "Gitanjali", "others": ["Gora", "Ghare-Baire", "Jana Gana Mana"], "note": "Nobel Laureate; modernized Indian art/thought.", "group": "india"}, {"name": "Swami Vivekananda", "field": "Philosophy", "year": 1863, "date": "1863\u20131902", "region": "Bengal", "ethnicity": "Indian", "work": "Raja Yoga", "others": ["Karma Yoga", "Chicago Address"], "note": "Introduced Vedanta and Yoga to the West.", "group": "india"}, {"name": "Sister Nivedita", "field": "Reformer", "year": 1867, "date": "1867\u20131911", "region": "Ireland / India", "ethnicity": "Irish", "work": "The Master as I Saw Him", "others": ["Kali the Mother"], "note": "Disciple of Vivekananda; champion of Indian art/freedom.", "group": "india"}, {"name": "Mahatma Gandhi", "field": "Politics", "year": 1869, "date": "1869\u20131948", "region": "Gujarat", "ethnicity": "Indian", "work": "My Experiments with Truth", "others": ["Hind Swaraj"], "note": "Father of Nation; Ahimsa and Satyagraha.", "group": "india"}, {"name": "Sri Aurobindo", "field": "Philosophy", "year": 1872, "date": "1872\u20131950", "region": "Bengal / Pondicherry", "ethnicity": "Indian", "work": "The Life Divine", "others": ["Savitri", "Synthesis of Yoga"], "note": "Revolutionary turned mystic; Integral Yoga.", "group": "india"}, {"name": "Sarat Chandra Chattopadhyay", "field": "Literature", "year": 1876, "date": "1876\u20131938", "region": "Bengal", "ethnicity": "Indian", "work": "Devdas", "others": ["Parineeta", "Srikanta"], "note": "Master storyteller of Bengal; social realism.", "group": "india"}, {"name": "Ramana Maharshi", "field": "Mysticism", "year": 1879, "date": "1879\u20131950", "region": "Tamil Nadu (Arunachala)", "ethnicity": "Indian", "work": "Who Am I?", "others": ["Upadesa Saram"], "note": "Sage of Arunachala; path of Self-Enquiry.", "group": "india"}, {"name": "Subramania Bharati", "field": "Literature", "year": 1882, "date": "1882\u20131921", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Panchali Sapatham", "others": ["Kuyil Pattu"], "note": "Mahakavi; fiery Tamil nationalist poet.", "group": "india"}, {"name": "Srinivasa Ramanujan", "field": "Math", "year": 1887, "date": "1887\u20131920", "region": "Tamil Nadu", "ethnicity": "Indian", "work": "Notebooks", "others": ["Mock Theta Functions"], "note": "Self-taught genius of number theory.", "group": "india"}, {"name": "Erwin Schrodinger", "field": "Science", "year": 1887, "date": "1887\u20131961", "region": "Austria", "ethnicity": "Austrian", "work": "Wave Equation", "others": ["What is Life?"], "note": "Quantum physicist inspired by Upanishadic unity.", "group": "west"}, {"name": "S. Radhakrishnan", "field": "Philosophy", "year": 1888, "date": "1888\u20131975", "region": "Andhra / Tamil Nadu", "ethnicity": "Indian", "work": "Indian Philosophy", "others": ["The Hindu View of Life"], "note": "President of India; bridged Eastern/Western thought.", "group": "india"}, {"name": "T.S. Eliot", "field": "Literature", "year": 1888, "date": "1888\u20131965", "region": "UK / USA", "ethnicity": "American", "work": "The Waste Land", "others": ["Four Quartets"], "note": "Ends masterpiece with 'Shantih Shantih Shantih'.", "group": "west"}, {"name": "B.R. Ambedkar", "field": "Law", "year": 1891, "date": "1891\u20131956", "region": "Maharashtra", "ethnicity": "Indian", "work": "The Buddha and His Dhamma", "others": ["Annihilation of Caste"], "note": "Architect of Constitution; revived Buddhism.", "group": "india"}, {"name": "Paramahansa Yogananda", "field": "Yoga", "year": 1893, "date": "1893\u20131952", "region": "Bengal / USA", "ethnicity": "Indian", "work": "Autobiography of a Yogi", "others": [], "note": "Popularized Kriya Yoga in the West.", "group": "india"}, {"name": "Satyendranath Bose", "field": "Science", "year": 1894, "date": "1894\u20131974", "region": "Bengal", "ethnicity": "Indian", "work": "Bose-Einstein Statistics", "others": [], "note": "Physicist; Boson particle named after him.", "group": "india"}, {"name": "Kazi Nazrul Islam", "field": "Literature", "year": 1899, "date": "1899\u20131976", "region": "Bengal", "ethnicity": "Indian", "work": "Bidrohi (The Rebel)", "others": ["Agnibina"], "note": "Rebel Poet of Bengal; National Poet of Bangladesh.", "group": "india"}, {"name": "J. Robert Oppenheimer", "field": "Science", "year": 1904, "date": "1904\u20131967", "region": "USA", "ethnicity": "American", "work": "Manhattan Project", "others": [], "note": "Learned Sanskrit; quoted Gita at Trinity Test.", "group": "west"}, {"name": "George Harrison", "field": "Music", "year": 1943, "date": "1943\u20132001", "region": "UK", "ethnicity": "British", "work": "Within You Without You", "others": ["Concert for Bangladesh"], "note": "Beatles member; popularized Sitar/Hinduism globally.", "group": "west"}, {"name": "Romila Thapar", "field": "History", "year": 1931, "date": "1931\u2013Present", "region": "India", "ethnicity": "Indian", "work": "History of India", "others": ["Ashoka and the Decline of Mauryas"], "note": "Leading scholar of ancient India (Social history).", "group": "india"}, {"name": "Wendy Doniger", "field": "Indology", "year": 1940, "date": "1940\u2013Present", "region": "USA", "ethnicity": "American", "work": "The Hindus: An Alternative History", "others": ["Siva: The Erotic Ascetic"], "note": "Scholar of mythology and gender.", "group": "west"}, {"name": "Sheldon Pollock", "field": "Indology", "year": 1948, "date": "1948\u2013Present", "region": "USA", "ethnicity": "American", "work": "Language of the Gods", "others": ["A Rasa Reader"], "note": "Scholar of Sanskrit literary history and power.", "group": "west"}, {"name": "David Shulman", "field": "Indology", "year": 1949, "date": "1949\u2013Present", "region": "Israel", "ethnicity": "Israeli", "work": "Tamil Temple Myths", "others": ["More than Real"], "note": "Cultural historian of South India.", "group": "west"}]
+// --- 1. DATA WITH IAST & LINEAGE (The Intellectual Core) ---
+const rawData = [
+    // --- VEDIC & ANCIENT ---
+    {id: "Dhanvantari", label: "Dhanvantari", iast: "Dhanvantari", year: -3000, school: "Ayurveda", region: "Vedic", work: "Ayurveda (Source)", note: "Primordial deity of medicine."},
+    {id: "Vyasa", label: "Vyāsa", iast: "Kṛṣṇa Dvaipāyana Vyāsa", year: -1500, school: "Vedas", region: "Kuru", work: "Mahābhārata", note: "Compiler of the Vedas and Brahma Sūtras."},
+    {id: "Yajnavalkya", label: "Yājñavalkya", iast: "Yājñavalkya", year: -850, school: "Upanishads", region: "Mithila", work: "Bṛhadāraṇyaka Upaniṣad", note: "Greatest sage of Shukla Yajurveda; 'Neti Neti'."},
+    {id: "Kapila", label: "Kapila", iast: "Kapila Muni", year: -600, school: "Samkhya", region: "Vedic", work: "Sāṃkhya Sūtras", note: "Founder of Dualism (Puruṣa/Prakṛti)."},
+    {id: "Gautama Buddha", label: "Buddha", iast: "Siddhārtha Gautama", year: -563, school: "buddhism", region: "Magadha", work: "Pali Canon", note: "The Awakened One; Anātman and Nirvāṇa."},
+    {id: "Panini", label: "Pāṇini", iast: "Pāṇini", year: -500, school: "grammar", region: "Gandhara", work: "Aṣṭādhyāyī", note: "Father of Linguistics; algorithmic grammar."},
+    {id: "Kanada", label: "Kaṇāda", iast: "Kaṇāda", year: -200, school: "nyaya", region: "Gujarat", work: "Vaiśeṣika Sūtra", note: "First Atomic Theorist (Aṇu)."},
+    {id: "Patanjali", label: "Patañjali", iast: "Patañjali", year: -150, school: "yoga", region: "Gonarda", work: "Yoga Sūtras", note: "Codified the 8 limbs of Yoga."},
+    
+    // --- CLASSICAL ---
+    {id: "Nagarjuna", label: "Nāgārjuna", iast: "Nāgārjuna", year: 150, school: "buddhism", region: "Andhra", work: "Mūlamadhyamakakārikā", note: "Founder of Śūnyatā (Emptiness)."},
+    {id: "Kalidasa", label: "Kālidāsa", iast: "Kālidāsa", year: 400, school: "Literature", region: "Ujjain", work: "Abhijñānaśākuntalam", note: "Supreme Poet (Mahākavi) of Sanskrit."},
+    {id: "Aryabhata", label: "Āryabhaṭa", iast: "Āryabhaṭa", year: 476, school: "Science", region: "Patna", work: "Āryabhaṭīya", note: "Calculated Zero, Pi, and Heliocentrism."},
+    {id: "Dignaga", label: "Dignāga", iast: "Dignāga", year: 480, school: "buddhism", region: "Kanchipuram", work: "Pramāṇa-samuccaya", note: "Father of Buddhist Logic."},
+    {id: "Bhartrihari", label: "Bhartṛhari", iast: "Bhartṛhari", year: 450, school: "grammar", region: "Ujjain", work: "Vākyapadīya", note: "Philosopher of Language (Sphota)."},
+    
+    // --- ADVAITA LINEAGE ---
+    {id: "Gaudapada", label: "Gauḍapāda", iast: "Gauḍapāda", year: 600, school: "advaita", region: "Kurukshetra", work: "Māṇḍūkya Kārikā", note: "Grand-guru of Shankara; Ajātivāda theory."},
+    {id: "Adi Shankara", label: "Śaṅkara", iast: "Ādi Śaṅkarācārya", year: 788, school: "advaita", region: "Kerala", work: "Brahmasūtra Bhāṣya", note: "Consolidator of Advaita Vedānta."},
+    {id: "Suresvara", label: "Sureśvara", iast: "Sureśvara", year: 800, school: "advaita", region: "South", work: "Naiṣkarmya Siddhi", note: "Direct disciple of Shankara."},
+    {id: "Padmapada", label: "Padmapāda", iast: "Padmapāda", year: 800, school: "advaita", region: "South", work: "Pañcapādikā", note: "First disciple of Shankara."},
+    {id: "Vacaspati Misra", label: "Vācaspati", iast: "Vācaspati Miśra", year: 900, school: "advaita", region: "Mithila", work: "Bhāmatī", note: "Polymath who wrote on all 6 Darśanas."},
+    {id: "Vidyaranya", label: "Vidyāraṇya", iast: "Vidyāraṇya Mādhavācārya", year: 1296, school: "advaita", region: "Sringeri", work: "Pañcadaśī", note: "Patron saint of Vijayanagara Empire."},
+    {id: "Madhusudana", label: "Madhusūdana", iast: "Madhusūdana Sarasvatī", year: 1540, school: "advaita", region: "Bengal", work: "Advaita Siddhi", note: "Defended Monism against Logic."},
 
-// --- 2. CONFIG ---
-const nodes = []; const edges = []; const fields = {};
+    // --- NYAYA & KASHMIR SHAIVISM ---
+    {id: "Udayana", label: "Udayana", iast: "Udayanācārya", year: 984, school: "nyaya", region: "Mithila", work: "Nyāyakusumāñjali", note: "Proved God through Logic."},
+    {id: "Gangesa", label: "Gaṅgeśa", iast: "Gaṅgeśa Upādhyāya", year: 1325, school: "nyaya", region: "Mithila", work: "Tattvacintāmaṇi", note: "Founder of Navya-Nyāya (New Logic)."},
+    {id: "Abhinavagupta", label: "Abhinavagupta", iast: "Abhinavagupta", year: 950, school: "kashmir", region: "Kashmir", work: "Tantrāloka", note: "Greatest genius of Shaiva Tantra & Aesthetics."},
+    {id: "Utpaladeva", label: "Utpaladeva", iast: "Utpaladeva", year: 925, school: "kashmir", region: "Kashmir", work: "Īśvarapratyabhijñā", note: "Architect of Recognition philosophy."},
 
-// Generate Nodes
+    // --- VEDANTA SCHOOLS ---
+    {id: "Ramanuja", label: "Rāmānuja", iast: "Rāmānuja", year: 1017, school: "bhakti", region: "Tamil Nadu", work: "Śrī Bhāṣya", note: "Founder of Viśiṣṭādvaita (Qualified Non-Dualism)."},
+    {id: "Madhvacharya", label: "Madhva", iast: "Madhvācārya", year: 1238, school: "bhakti", region: "Udupi", work: "Sarvamūla", note: "Founder of Dvaita (Dualism)."},
+    {id: "Chaitanya", label: "Caitanya", iast: "Śrī Caitanya Mahāprabhu", year: 1486, school: "bhakti", region: "Bengal", work: "Śikṣāṣṭakam", note: "Acintya Bhedābheda; Sankirtana movement."},
+    
+    // --- LITERATURE & ARTS ---
+    {id: "Vidyapati", label: "Vidyāpati", iast: "Vidyāpati", year: 1352, school: "Literature", region: "Mithila", work: "Padāvalī", note: "The Nightingale of Mithila; Maithili/Bengali poet."},
+    {id: "Jayadeva", label: "Jayadeva", iast: "Jayadeva", year: 1200, school: "Literature", region: "Odisha", work: "Gīta Govinda", note: "Master of erotic-devotional poetry."},
+    {id: "Amir Khusrau", label: "Amir Khusrau", iast: "Amīr Khusrau", year: 1253, school: "Literature", region: "Delhi", work: "Qiran-us-Sa'dain", note: "Parrot of India; Father of Qawwali."},
+    
+    // --- MODERN ERA (BENGAL RENAISSANCE & OTHERS) ---
+    {id: "Ram Mohan Roy", label: "Ram Mohan", iast: "Raja Ram Mohan Roy", year: 1772, school: "Reformer", region: "Bengal", work: "Brahmo Samaj", note: "Father of Modern India."},
+    {id: "Bankim Chandra", label: "Bankim", iast: "Baṅkim Candra Caṭṭopādhyāya", year: 1838, school: "Literature", region: "Bengal", work: "Ānandamaṭh", note: "Composer of Vande Mataram."},
+    {id: "Michael Madhusudan", label: "Madhusudan", iast: "Michael Madhusudan Dutt", year: 1824, school: "Literature", region: "Bengal", work: "Meghnād Badh Kāvya", note: "Tragic epic poet; introduced Sonnet."},
+    {id: "Sarat Chandra", label: "Sarat", iast: "Sarat Chandra Chattopadhyay", year: 1876, school: "Literature", region: "Bengal", work: "Devdas", note: "Master storyteller of human psychology."},
+    {id: "Nazrul", label: "Nazrul", iast: "Kazi Nazrul Islam", year: 1899, school: "Literature", region: "Bengal", work: "Bidrohi", note: "The Rebel Poet; fierce anti-colonial voice."},
+    {id: "Tagore", label: "Tagore", iast: "Rabindranath Tagore", year: 1861, school: "Literature", region: "Bengal", work: "Gītāñjali", note: "Visva-Kavi; Nobel Laureate."},
+    {id: "Vivekananda", label: "Vivekānanda", iast: "Swāmī Vivekānanda", year: 1863, school: "advaita", region: "Bengal", work: "Rāja Yoga", note: "Brought Vedānta to the global stage."},
+    {id: "Aurobindo", label: "Aurobindo", iast: "Sri Aurobindo", year: 1872, school: "yoga", region: "Pondicherry", work: "The Life Divine", note: "Integral Yoga; Supermind."},
+    
+    // --- INDOPHILES ---
+    {id: "Voltaire", label: "Voltaire", iast: "Voltaire", year: 1694, school: "west", region: "France", work: "Essai sur les mœurs", note: "Praised Vedas as oldest wisdom."},
+    {id: "Schopenhauer", label: "Schopenhauer", iast: "Arthur Schopenhauer", year: 1788, school: "west", region: "Germany", work: "The World as Will", note: "Upanishads were his 'consolation in death'."},
+    {id: "Max Muller", label: "Max Müller", iast: "Friedrich Max Müller", year: 1823, school: "west", region: "Germany", work: "Sacred Books of the East", note: "Giant of Philology and Indology."},
+    {id: "Tesla", label: "Tesla", iast: "Nikola Tesla", year: 1856, school: "west", region: "USA", work: "AC Current", note: "Used 'Akasha' and 'Prana' after meeting Vivekananda."},
+    {id: "Oppenheimer", label: "Oppenheimer", iast: "J. Robert Oppenheimer", year: 1904, school: "west", region: "USA", work: "Manhattan Project", note: "Quoted Gita at Trinity: 'I am become Death'."},
+    {id: "Eliot", label: "T.S. Eliot", iast: "T.S. Eliot", year: 1888, school: "west", region: "UK", work: "The Waste Land", note: "Ended his masterpiece with 'Shantih Shantih Shantih'."}
+];
+
+// --- 2. GURU-SHISHYA LINEAGES (The Nodes that connect) ---
+const lineages = [
+    // Advaita Lineage
+    {s: "Gaudapada", t: "Adi Shankara", type: "guru"},
+    {s: "Adi Shankara", t: "Suresvara", type: "guru"},
+    {s: "Adi Shankara", t: "Padmapada", type: "guru"},
+    {s: "Adi Shankara", t: "Vacaspati Misra", type: "influence"}, // Later influence
+    {s: "Adi Shankara", t: "Vidyaranya", type: "influence"},
+    {s: "Adi Shankara", t: "Madhusudana", type: "influence"},
+    {s: "Adi Shankara", t: "Vivekananda", type: "lineage"},
+    
+    // Kashmir Shaivism
+    {s: "Utpaladeva", t: "Abhinavagupta", type: "guru"}, // Grand-guru relation
+    
+    // Nyaya
+    {s: "Gautama Buddha", t: "Nagarjuna", type: "influence"},
+    {s: "Nagarjuna", t: "Dignaga", type: "influence"},
+    {s: "Dignaga", t: "Udayana", type: "debate"}, // Udayana refuted Dignaga
+    {s: "Udayana", t: "Gangesa", type: "influence"},
+    
+    // Bhakti
+    {s: "Ramanuja", t: "Madhvacharya", type: "influence"}, // Reactionary influence
+    {s: "Jayadeva", t: "Chaitanya", type: "influence"},
+    {s: "Chaitanya", t: "Tagore", type: "influence"}, // Cultural influence
+    
+    // Indophiles
+    {s: "Panini", t: "Voltaire", type: "influence"},
+    {s: "Vyasa", t: "Oppenheimer", type: "influence"}, // Gita
+    {s: "Yajnavalkya", t: "Schopenhauer", type: "influence"}, // Upanishads
+    {s: "Yajnavalkya", t: "Schrodinger", type: "influence"},
+    {s: "Vivekananda", t: "Tesla", type: "meeting"},
+    {s: "Patanjali", t: "Vivekananda", type: "influence"}
+];
+
+// --- 3. BUILD THE GRAPH ---
+let nodes = new vis.DataSet();
+let edges = new vis.DataSet();
+let allNodes = [];
+
+// Icons/Shapes Mapping
+const shapeMap = {
+    "advaita": "dot", "nyaya": "triangle", "kashmir": "diamond",
+    "buddhism": "dot", "west": "star", "Literature": "square"
+};
+
+const colorMap = {
+    "advaita": "#ff9800", "nyaya": "#00bcd4", "kashmir": "#9c27b0",
+    "buddhism": "#e91e63", "west": "#a5a5a5", "Literature": "#4caf50",
+    "bhakti": "#ffeb3b", "grammar": "#795548", "Science": "#607d8b"
+};
+
+// Initialize
 rawData.forEach(p => {
-    if (!fields[p.field]) {
-        fields[p.field] = true;
-        nodes.push({ id: `f_${p.field}`, label: p.field, group: 'field', shape: 'diamond', size: 5 });
-    }
-    nodes.push({
-        id: p.name, label: p.name, group: p.group, value: 20,
-        data: p // Store full object
+    allNodes.push({
+        id: p.id,
+        label: p.label,
+        group: p.school,
+        value: 20,
+        color: colorMap[p.school] || "#ddd",
+        shape: shapeMap[p.school] || "dot",
+        font: { face: 'Noto Serif', color: '#ccc', size: 14 },
+        data: p // Store full data
     });
-    edges.push({ from: p.name, to: `f_${p.field}`, color: { color: '#333', opacity: 0.1 } });
 });
 
-// Render
+// Create Edges
+lineages.forEach(l => {
+    let color = "#333";
+    let dashes = true;
+    if(l.type === "guru") { color = "#d4af37"; dashes = false; } // Gold solid line for Guru
+    if(l.type === "meeting") { color = "#fff"; }
+    
+    edges.add({ from: l.s, to: l.t, color:{color:color, opacity:0.5}, dashes: dashes, arrows: 'to' });
+});
+
+nodes.add(allNodes);
+
+// --- 4. RENDERER ---
 const container = document.getElementById('mynetwork');
-const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+const data = { nodes: nodes, edges: edges };
 const options = {
-    nodes: { shape: 'dot', font: { face: 'Lato', color: '#ccc' }, borderWidth: 1 },
-    groups: {
-        india: { color: { background: '#c5a059', border: '#e6b85c' }, font: { color: '#e6b85c' } },
-        west: { color: { background: '#a0aab5', border: '#b0bac5' }, font: { color: '#b0bac5' } },
-        field: { color: { background: '#222', border: '#333' }, font:{ size: 10, color:'#444'} }
+    nodes: { borderWidth: 1, shadow:true },
+    physics: {
+        stabilization: false,
+        barnesHut: { gravitationalConstant: -3000, springLength: 150, springConstant: 0.02 }
     },
-    physics: { stabilization: false, barnesHut: { gravitationalConstant: -5000, springLength: 200 } },
-    interaction: { hover: true }
+    interaction: { hover: true, tooltipDelay: 50 }
 };
 const network = new vis.Network(container, data, options);
 
-// Timeline
+// --- 5. TIMELINE ---
 const timelineData = new vis.DataSet(rawData.map((t, i) => ({
-    id: i, content: t.name, start: new Date(0).setFullYear(t.year), 
-    group: t.group === 'india' ? 1 : 2, className: t.group, nodeId: t.name
+    id: i, content: t.label, start: new Date(0).setFullYear(t.year), 
+    className: t.school, nodeId: t.id
 })));
 
-const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, [
-    {id: 1, content: "INDIA", style: "color:#c5a059"}, {id: 2, content: "GLOBAL", style: "color:#a0aab5"}
-], {
-    height: '100%', stack: true, style: 'background:rgba(20,21,24,0.95); border:none; color:#777',
-    start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000),
-    zoomMin: 1000 * 60 * 60 * 24 * 365 * 10, zoomMax: 1000 * 60 * 60 * 24 * 365 * 5000
+const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
+    height: '100%', stack: true, 
+    style: 'background:rgba(17,18,20,0.95); border:none; color:#777',
+    start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000)
 });
 
-// Interactions
+// --- 6. LOGIC: FILTERING & INTERACTIONS ---
+
+// Filter Function
+window.filterNetwork = function() {
+    const type = document.getElementById('schoolFilter').value;
+    
+    if (type === 'all') {
+        nodes.clear();
+        nodes.add(allNodes);
+    } else {
+        const filtered = allNodes.filter(n => n.group === type || n.group === 'west'); // Always keep West for context? Or just specific
+        // Actually, let's just show the specific school + connections
+        const schoolNodes = allNodes.filter(n => n.group === type);
+        nodes.clear();
+        nodes.add(schoolNodes);
+    }
+}
+
+// Click Interaction
 network.on("click", function(params) {
     if (params.nodes.length > 0) {
         const nodeId = params.nodes[0];
-        const node = nodes.find(n => n.id === nodeId);
+        const node = nodes.get(nodeId);
         
-        if (node && node.group !== 'field') {
+        if (node) {
             const d = node.data;
-            document.getElementById('p-name').innerText = d.name;
+            document.getElementById('p-name').innerText = d.iast; // Use IAST name
             document.getElementById('p-dates').innerText = d.date || d.year;
-            
-            // Ethnicity Rendering
-            const ethHTML = `<span class="eth-main">${d.ethnicity}</span><span class="eth-sub">${d.region}</span>`;
-            document.getElementById('p-ethnicity-container').innerHTML = ethHTML;
-            
-            // Render Tags
-            const tagContainer = document.getElementById('p-tags');
-            tagContainer.innerHTML = `<span class='tag'>${d.field}</span>`;
-
+            document.getElementById('p-school').innerText = d.school.toUpperCase();
             document.getElementById('p-work').innerText = d.work;
             document.getElementById('p-note').innerText = d.note;
-
-            // Render Other Works
-            const worksContainer = document.getElementById('p-other-works');
-            worksContainer.innerHTML = '';
-            if (d.others && d.others.length > 0) {
-                d.others.forEach(w => { worksContainer.innerHTML += `<li>${w}</li>`; });
-            } else {
-                worksContainer.innerHTML = `<li style="color:#555">No other major records listed.</li>`;
-            }
+            document.getElementById('p-region').innerText = d.region + " / " + d.ethnicity;
             
+            // Determine Lineage Text
+            let linText = "Independent Thinker";
+            if (d.school === 'advaita') linText = "Paramparā: Śaṅkara Lineage";
+            if (d.school === 'nyaya') linText = "Paramparā: Mithilā School";
+            document.getElementById('p-lineage').innerText = linText;
+
+            // Open Panel
             document.getElementById('side-panel').style.width = "400px";
             document.getElementById('panel-content').style.opacity = "1";
             
@@ -207,16 +351,23 @@ network.on("click", function(params) {
     }
 });
 
+// Search
 window.searchNode = function() {
     let q = document.getElementById('search').value.toLowerCase();
     if (!q) return;
-    let found = rawData.find(p => p.name.toLowerCase().includes(q));
+    let found = allNodes.find(p => p.label.toLowerCase().includes(q) || p.data.iast.toLowerCase().includes(q));
     if (found) {
-        network.selectNodes([found.name]);
-        network.focus(found.name, { scale: 1.5, animation: true });
-        network.emit("click", { nodes: [found.name] });
+        // If filtered out, reset filter
+        if (!nodes.get(found.id)) {
+            document.getElementById('schoolFilter').value = 'all';
+            filterNetwork();
+        }
+        network.selectNodes([found.id]);
+        network.focus(found.id, { scale: 1.5, animation: true });
+        network.emit("click", { nodes: [found.id] });
     }
 }
+
 </script>
 </body>
 </html>
