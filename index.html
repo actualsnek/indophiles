@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indosphere: The Grand Archive</title>
     
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -12,43 +14,40 @@
     <script src="data.js"></script>
 
     <style>
-        /* CSS STYLES */
-        :root { --bg: #050505; --panel: #0f0f0f; --gold: #d4af37; --silver: #a5a5a5; --border: #222; }
+        :root { --bg: #050505; --panel: #0f0f0f; --gold: #d4af37; --silver: #a5a5a5; --border: #333; }
         body { background: var(--bg); color: #e0e0e0; margin: 0; font-family: 'Noto Serif', serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* HEADER */
-        header { height: 70px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; z-index: 20; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
+        header { height: 60px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 25px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
         .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); }
         
-        /* CONTROLS */
-        .controls { display: flex; gap: 10px; align-items: center; }
-        select, input { background: #1a1a1a; color: #ddd; border: 1px solid #333; padding: 8px 12px; font-family: 'Cinzel', serif; font-size: 0.8rem; border-radius: 4px; outline: none; transition: 0.3s; }
+        .controls { display: flex; gap: 10px; }
+        select, input { background: #1a1a1a; color: #ddd; border: 1px solid #444; padding: 6px 10px; font-family: 'Cinzel', serif; font-size: 0.8rem; border-radius: 3px; outline: none; }
         select:hover, input:focus { border-color: var(--gold); }
+
+        .main-container { flex: 1; position: relative; display: flex; }
         
-        /* MAIN AREA & MAP BACKGROUND */
-        .main-container { display: flex; flex: 1; position: relative; height: calc(100vh - 70px); }
+        /* MAP AREA */
+        #map { flex-grow: 1; background: #000; z-index: 1; }
         
-        #mynetwork { 
-            flex-grow: 1; 
-            /* Subtle World Map Background */
-            background: #050505 url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/World_map_blank_without_borders.svg/2000px-World_map_blank_without_borders.svg.png') no-repeat center center;
-            background-size: cover;
-            opacity: 0.9;
-        }
+        /* TIMELINE */
+        #mytimeline { height: 120px; background: rgba(10,10,10,0.95); border-top: 1px solid var(--border); z-index: 20; position: relative; }
 
         /* SIDE PANEL */
-        #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1); overflow-y: auto; display: flex; flex-direction: column; z-index: 15; box-shadow: -10px 0 40px rgba(0,0,0,0.9); }
-        .panel-content { padding: 40px; min-width: 350px; opacity: 0; transition: opacity 0.3s 0.2s; }
-        .p-title { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 5px; line-height: 1.1; }
-        .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 1px; margin-top: 25px; display: block; font-weight: 600; }
-        .p-value { font-size: 1.05rem; color: #ddd; line-height: 1.6; margin-top: 5px; font-weight: 300; }
-        .region-tag { color: var(--gold); font-style: italic; margin-left: 5px; }
-
-        /* TIMELINE */
-        #mytimeline { position: absolute; bottom: 0; left: 0; width: 100%; height: 140px; background: rgba(10,10,10,0.95); border-top: 1px solid var(--border); z-index: 10; }
-        
-        .legend { position: absolute; bottom: 150px; left: 20px; font-size: 0.7rem; color: #555; pointer-events: none; }
+        #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.4s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; box-shadow: -5px 0 30px rgba(0,0,0,0.9); }
+        .panel-content { padding: 30px; opacity: 0; transition: opacity 0.3s 0.2s; min-width: 300px; }
+        .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
+        .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; margin-top: 20px; display: block; }
+        .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; }
         .iast { font-style: italic; color: #e6c673; }
+
+        /* CUSTOM MARKER STYLES */
+        .custom-icon { border-radius: 50%; border: 2px solid #fff; transition: all 0.3s; }
+        .gold-node { background: var(--gold); border-color: #fff; box-shadow: 0 0 10px var(--gold); }
+        .silver-node { background: var(--silver); border-color: #fff; }
+        .star-node { background: transparent; border: none; font-size: 24px; color: var(--gold); text-shadow: 0 0 10px var(--gold); text-align: center; }
+        
+        /* LEGEND */
+        .legend { position: absolute; bottom: 140px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -56,34 +55,24 @@
 <header>
     <div class="brand">Indosphere</div>
     <div class="controls">
-        <select id="schoolFilter" onchange="filterGraph()">
+        <select id="schoolFilter" onchange="updateMap()">
             <option value="all">All Schools</option>
-            <option value="advaita">Advaita</option>
-            <option value="nyaya">Nyaya</option>
-            <option value="kashmir">Kashmir Shaivism</option>
-            <option value="bhakti">Bhakti</option>
-            <option value="buddhism">Buddhism</option>
-            <option value="jainism">Jainism</option>
-            <option value="west">Western</option>
+            <option value="Advaita">Advaita</option>
+            <option value="Dvaita">Dvaita</option>
+            <option value="Nyaya">Nyaya</option>
+            <option value="Kashmir Shaivism">Kashmir Shaivism</option>
+            <option value="Buddhism">Buddhism</option>
+            <option value="Jainism">Jainism</option>
+            <option value="Bhakti">Bhakti</option>
+            <option value="Modern">Modern</option>
         </select>
-        
-        <select id="regionFilter" onchange="filterGraph()">
-            <option value="all">All Regions</option>
-            <option value="North">North India</option>
-            <option value="South">South India</option>
-            <option value="East">East (Bengal/Bihar)</option>
-            <option value="West">West (Gujarat/Maha)</option>
-            <option value="China">China/Japan</option>
-            <option value="Global">Global</option>
-        </select>
-
-        <input type="text" id="search" placeholder="Search..." onkeyup="searchNode()">
+        <input type="text" id="search" placeholder="Search Name..." onkeyup="searchNode(event)">
     </div>
 </header>
 
 <div class="main-container">
-    <div id="mynetwork"></div>
-    <div class="legend">★ Deity | ● Thinker | ▲ Logician</div>
+    <div id="map"></div>
+    <div class="legend">★ Deity | ● Guru | ● Thinker</div>
     
     <div id="side-panel"><div class="panel-content" id="panel-content">
         <div id="p-name" class="p-title"></div>
@@ -99,147 +88,146 @@
 <div id="mytimeline"></div>
 
 <script type="text/javascript">
-    let nodes = new vis.DataSet();
-    let edges = new vis.DataSet();
-    let allNodes = [];
+    // --- MAP SETUP (Leaflet) ---
+    const map = L.map('map', {
+        center: [20.5937, 78.9629], // India Center
+        zoom: 5,
+        zoomControl: false,
+        attributionControl: false
+    });
 
-    // GEOSPATIAL MAPPING (Approximate X/Y on Map)
-    const geo = {
-        "Vedic": {x: 0, y: -600}, // Top Center (Ethereal)
-        "North": {x: 0, y: -300}, // Kashmir/Himalayas
-        "North West": {x: -200, y: -350}, // Gandhara
-        "East": {x: 300, y: -100}, // Bihar/Bengal
-        "West": {x: -300, y: 0}, // Gujarat/Maharashtra
-        "Central": {x: 0, y: 0}, // MP
-        "South": {x: 50, y: 400}, // Tamil/Kerala
-        "Global": {x: -800, y: -400}, // Europe/USA
-        "China": {x: 600, y: -300}, // China
-        "Tibet": {x: 200, y: -500} // Tibet
+    // Dark Matter Map Theme
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    // Coordinate Mapping (Approximate)
+    const locs = {
+        "Vedic": [31.0, 81.0], "North": [34.0, 76.0], "North West": [33.0, 73.0],
+        "East": [25.0, 85.0], "West": [22.0, 71.0], "Central": [23.0, 77.0],
+        "South": [11.0, 78.0], "Global": [48.0, 10.0], "China": [35.0, 105.0],
+        "Tibet": [30.0, 91.0], "Sri Lanka": [7.0, 81.0]
     };
 
-    const colorMap = {
-        "Advaita": "#ff9800", "Nyaya": "#00bcd4", "Kashmir Shaivism": "#9c27b0", 
-        "Bhakti": "#ffeb3b", "Buddhism": "#e91e63", "Jainism": "#4caf50", "West": "#a5a5a5", "Deity": "#ffd700"
-    };
+    let markers = [];
+    let lines = [];
 
-    // INIT
-    if(typeof rawData !== 'undefined') {
-        rawData.forEach(p => {
-            let grp = p.school || p.group;
-            let zone = p.zone || "Central";
-            let base = geo[zone] || {x:0, y:0};
-            
-            // Jitter to prevent stacking
-            let x = base.x + Math.random() * 120 - 60;
-            let y = base.y + Math.random() * 120 - 60;
+    // --- VISUALIZATION LOGIC ---
+    function updateMap() {
+        // Clear old
+        markers.forEach(m => map.removeLayer(m));
+        lines.forEach(l => map.removeLayer(l));
+        markers = []; lines = [];
 
-            allNodes.push({
-                id: p.id, label: p.isDeity ? "★ " + p.label : p.label,
-                group: grp, 
-                value: p.isDeity ? 40 : 20,
-                color: colorMap[grp] || "#ddd",
-                shape: p.isDeity ? "star" : "dot",
-                font: { face: 'Noto Serif', color: '#ccc', size: 14 },
-                x: x, y: y, // Geo Position
-                data: p
-            });
-        });
+        const filter = document.getElementById('schoolFilter').value;
 
+        // Draw Lineages (Lines)
         lineages.forEach(l => {
-            let s = rawData.find(x => x.id === l.s);
-            let t = rawData.find(x => x.id === l.t);
-            if(s && t) {
-                let color = l.type.includes("Guru") ? "#d4af37" : "#444";
-                let dashes = !l.type.includes("Guru");
-                edges.add({ from: l.s, to: l.t, arrows: "to", color:{color:color}, dashes:dashes, label: l.type, font:{size:9, color:'#777', strokeWidth:0} });
+            const s = rawData.find(x => x.id === l.s);
+            const t = rawData.find(x => x.id === l.t);
+            
+            if (s && t) {
+                // Check filter visibility
+                if (filter !== 'all' && s.school !== filter && t.school !== filter) return;
+
+                const latlngs = [
+                    [getLat(s), getLng(s)],
+                    [getLat(t), getLng(t)]
+                ];
+                
+                const color = l.type.includes("Guru") ? "#d4af37" : "#555";
+                const weight = l.type.includes("Guru") ? 2 : 1;
+                const polyline = L.polyline(latlngs, {color: color, weight: weight, opacity: 0.6}).addTo(map);
+                lines.push(polyline);
             }
         });
-        
-        nodes.add(allNodes);
+
+        // Draw Nodes (Markers)
+        rawData.forEach(p => {
+            if (filter !== 'all' && p.school !== filter && p.group !== filter) return;
+
+            const lat = getLat(p);
+            const lng = getLng(p);
+            
+            // Jitter to prevent overlap
+            const jLat = lat + (Math.random() * 0.5 - 0.25);
+            const jLng = lng + (Math.random() * 0.5 - 0.25);
+
+            let iconHtml = `<div style="width:10px; height:10px; background:${getColor(p.school)}; border-radius:50%; border:1px solid #fff;"></div>`;
+            if (p.isDeity) iconHtml = `<div style="font-size:20px; color:#ffd700;">★</div>`;
+            
+            const icon = L.divIcon({ className: 'custom-marker', html: iconHtml, iconSize: [12, 12] });
+            
+            const marker = L.marker([jLat, jLng], {icon: icon}).addTo(map);
+            marker.personId = p.id;
+            
+            marker.on('click', () => openPanel(p));
+            markers.push(marker);
+        });
     }
 
-    const container = document.getElementById('mynetwork');
-    const data = { nodes: nodes, edges: edges };
-    const options = {
-        nodes: { borderWidth: 1, shadow: true },
-        physics: { enabled: false }, // DISABLE PHYSICS so nodes stay on map
-        interaction: { hover: true, dragNodes: true }
-    };
-    const network = new vis.Network(container, data, options);
+    function getLat(p) { return locs[p.zone] ? locs[p.zone][0] : 20.0; }
+    function getLng(p) { return locs[p.zone] ? locs[p.zone][1] : 78.0; }
+    
+    function getColor(school) {
+        if(school === 'Advaita') return '#ff9800';
+        if(school === 'Nyaya') return '#00bcd4';
+        if(school === 'Bhakti') return '#ffeb3b';
+        if(school === 'Buddhism') return '#e91e63';
+        if(school === 'Jainism') return '#4caf50';
+        return '#ddd';
+    }
 
-    // TIMELINE
+    // --- TIMELINE ---
     const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
-        id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, nodeId: t.id
+        id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
     })));
+    
     const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
         height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
-        start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000)
+        start: new Date(0).setFullYear(1000), end: new Date(0).setFullYear(2000)
     });
 
-    // FILTER LOGIC
-    window.filterGraph = function() {
-        const school = document.getElementById('schoolFilter').value;
-        const region = document.getElementById('regionFilter').value;
-        
-        const filtered = allNodes.filter(n => {
-            const d = n.data;
-            // Case insensitive check
-            const sMatch = (school === 'all') || (d.school && d.school.toLowerCase().includes(school));
-            const rMatch = (region === 'all') || (d.zone === region);
-            return sMatch && rMatch;
-        });
-        
-        nodes.clear();
-        nodes.add(filtered);
-    }
-
-    // CLICK HANDLER
-    network.on("click", function(params) {
-        if (params.nodes.length > 0) {
-            const node = nodes.get(params.nodes[0]);
-            if (node) {
-                const d = node.data;
-                document.getElementById('p-name').innerText = d.iast || d.label;
-                document.getElementById('p-dates').innerText = d.isDeity ? "Divine" : d.year;
-                document.getElementById('p-school').innerText = d.school ? d.school.toUpperCase() : "";
-                document.getElementById('p-region').innerHTML = `<span style="color:#fff">${d.region}</span> <span class="region-tag">${d.zone}</span>`;
-                document.getElementById('p-work').innerText = d.work || "N/A";
-                document.getElementById('p-note').innerText = d.note;
-                
-                let lin = "nie";
-                let parent = lineages.find(l => l.t === d.id && l.type.includes("Guru"));
-                if (parent) lin = `Shishya of ${parent.s}`;
-                document.getElementById('p-lineage').innerText = lin;
-
-                document.getElementById('side-panel').style.width = "400px";
-                document.getElementById('panel-content').style.opacity = "1";
-                
-                if(!d.isDeity) {
-                    const tItem = timelineData.get({ filter: i => i.nodeId === d.id });
-                    if(tItem.length) timeline.moveTo(tItem[0].start);
-                }
-            }
-        } else {
-            document.getElementById('side-panel').style.width = "0";
-            document.getElementById('panel-content').style.opacity = "0";
+    timeline.on('select', (props) => {
+        if(props.items.length) {
+            const item = timelineData.get(props.items[0]);
+            const person = rawData.find(p => p.id === item.personId);
+            if(person) openPanel(person);
         }
     });
 
-    window.searchNode = function() {
-        let q = document.getElementById('search').value.toLowerCase();
-        let found = allNodes.find(p => p.label.toLowerCase().includes(q));
-        if (found) {
-            // Reset filters to find hidden nodes
-            if (!nodes.get(found.id)) { 
-                document.getElementById('schoolFilter').value = 'all'; 
-                document.getElementById('regionFilter').value = 'all'; 
-                filterGraph(); 
-            }
-            network.selectNodes([found.id]);
-            network.focus(found.id, { scale: 1.5, animation: true });
-            network.emit("click", { nodes: [found.id] });
+    // --- PANEL LOGIC ---
+    function openPanel(d) {
+        document.getElementById('p-name').innerText = d.iast || d.label;
+        document.getElementById('p-dates').innerText = d.isDeity ? "Divine" : d.year;
+        document.getElementById('p-school').innerText = d.school || "";
+        document.getElementById('p-region').innerText = `${d.region} (${d.zone})`;
+        document.getElementById('p-work').innerText = d.work || "";
+        document.getElementById('p-note').innerText = d.note || "";
+        
+        // Find Lineage
+        let parent = lineages.find(l => l.t === d.id && l.type.includes("Guru"));
+        document.getElementById('p-lineage').innerText = parent ? `Shishya of ${parent.s}` : "Independent / Source";
+
+        document.getElementById('side-panel').style.width = "400px";
+        document.getElementById('panel-content').style.opacity = "1";
+    }
+
+    function searchNode() {
+        const q = document.getElementById('search').value.toLowerCase();
+        const found = rawData.find(p => p.label.toLowerCase().includes(q));
+        if(found) {
+            map.flyTo([getLat(found), getLng(found)], 7);
+            openPanel(found);
         }
     }
+
+    // Initial Draw
+    updateMap();
+
 </script>
 </body>
 </html>
