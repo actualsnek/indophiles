@@ -120,15 +120,11 @@
         return "#ddd";
     }
 
-    // --- 3. INITIALIZATION FUNCTION ---
-    // We run this immediately to ensure data appears on load
+    // --- 3. INITIALIZATION ---
     function init() {
-        if (typeof rawData === 'undefined') {
-            console.error("Data.js not loaded!");
-            return;
-        }
-
         // A. Process Nodes
+        if (typeof rawData === 'undefined') { alert("Data.js not loaded!"); return; }
+
         rawData.forEach(p => {
             allNodes.push({
                 id: p.id,
@@ -137,11 +133,11 @@
                 value: p.isDeity ? 30 : 15,
                 color: p.isDeity ? "#ffd700" : getColor(p.school),
                 shape: p.isDeity ? "star" : "dot",
-                data: p // Store full object for panel
+                data: p
             });
         });
 
-        // B. Process Edges (Lineages)
+        // B. Process Edges
         lineages.forEach(l => {
             let s = rawData.find(x => x.id === l.s);
             let t = rawData.find(x => x.id === l.t);
@@ -157,7 +153,7 @@
             }
         });
 
-        // Add everything to the active datasets immediately
+        // Populate DataSets
         nodes.add(allNodes);
         edges.add(allEdges);
 
@@ -165,14 +161,14 @@
         const container = document.getElementById('network');
         const data = { nodes: nodes, edges: edges };
         
-        // PHYSICS FIX: Stabilize once, then stop. Prevents "floating away".
+        // --- STABILITY FIX ---
         const options = {
             nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
             edges: { smooth: { type: "continuous" } },
             physics: { 
                 stabilization: { 
                     enabled: true, 
-                    iterations: 1500, // Pre-calculate layout hiddenly
+                    iterations: 2000, // Pre-calculate 2000 steps before showing
                     updateInterval: 50
                 },
                 barnesHut: { gravitationalConstant: -4000, springConstant: 0.04, springLength: 95 } 
@@ -182,10 +178,10 @@
         
         network = new vis.Network(container, data, options);
 
-        // FREEZE GRAPH AFTER LOAD to prevent lag/moving
+        // --- FREEZE GRAPH AFTER LOAD (Stops Lag/Moving) ---
         network.on("stabilizationIterationsDone", function () {
             network.setOptions( { physics: false } );
-            network.fit(); // Zoom to fit everything
+            network.fit(); 
         });
 
         // Click Handler
@@ -202,7 +198,8 @@
                     }
                 }
             } else {
-                closePanel();
+                document.getElementById('side-panel').style.width = "0";
+                document.getElementById('panel-content').style.opacity = "0";
             }
         });
 
@@ -212,7 +209,6 @@
             id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
         }));
         
-        // Define timelineData globally so we can search it later
         window.timelineData = new vis.DataSet(tItems);
         
         timeline = new vis.Timeline(timelineContainer, window.timelineData, {
@@ -231,7 +227,7 @@
 
     // --- 4. PANEL LOGIC ---
     function openPanel(d) {
-        document.getElementById('p-name').innerText = d.label; // Using label as fallback
+        document.getElementById('p-name').innerText = d.label || d.id; 
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
         document.getElementById('p-school').innerText = d.school || "";
         document.getElementById('p-region').innerText = d.region || "";
@@ -250,11 +246,6 @@
         document.getElementById('panel-content').style.opacity = "1";
     }
 
-    function closePanel() {
-        document.getElementById('side-panel').style.width = "0";
-        document.getElementById('panel-content').style.opacity = "0";
-    }
-
     // --- 5. FILTER LOGIC ---
     function updateGraph() {
         const sFilter = document.getElementById('schoolFilter').value;
@@ -265,7 +256,7 @@
             let show = true;
             if (sFilter !== 'all' && p.school !== sFilter && p.group !== sFilter) show = false;
             if (rFilter !== 'all' && p.region !== rFilter) show = false;
-            // Always show deities unless we are filtering strictly
+            // Ensure Deities show if ALL is selected
             if (p.isDeity && sFilter === 'all' && rFilter === 'all') show = true;
             return show;
         });
@@ -278,7 +269,6 @@
         const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
         edges.add(filteredEdges);
         
-        // Important: Re-center after filtering
         network.fit();
     }
 
@@ -301,8 +291,8 @@
         }
     }
 
-    // START APPLICATION
-    init();
+    // START
+    window.onload = init; // Ensures HTML is ready before JS runs
 
 </script>
 </body>
