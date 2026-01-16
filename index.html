@@ -32,14 +32,14 @@
         #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.4s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; box-shadow: -5px 0 30px rgba(0,0,0,0.9); }
         .panel-content { padding: 30px; opacity: 0; transition: opacity 0.3s 0.2s; min-width: 300px; }
         .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
-        .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; margin-top: 20px; display: block; }
+        .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 600; }
         .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; }
+        .region-tag { color: var(--gold); font-style: italic; margin-left: 5px; }
         .iast { font-style: italic; color: #e6c673; }
 
         /* MARKERS */
         .leaflet-div-icon { background: transparent; border: none; }
-        .custom-marker { border-radius: 50%; border: 1px solid #fff; box-shadow: 0 0 5px #000; transition: transform 0.2s; }
-        .custom-marker:hover { transform: scale(1.5); }
+        .legend { position: absolute; bottom: 140px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -49,39 +49,25 @@
     <div class="controls">
         <select id="schoolFilter" onchange="updateMap()">
             <option value="all">All Schools</option>
-            <option disabled>--- VEDANTA ---</option>
-            <option value="Advaita">Advaita</option>
-            <option value="Dvaita">Dvaita</option>
-            <option value="Vishishtadvaita">Vishishtadvaita</option>
-            <option value="Dvaitadvaita">Dvaitadvaita</option>
-            <option value="Shuddhadvaita">Shuddhadvaita</option>
-            <option disabled>--- PHILOSOPHY ---</option>
-            <option value="Nyaya">Nyaya</option>
-            <option value="Vaisheshika">Vaisheshika</option>
-            <option value="Samkhya">Samkhya</option>
-            <option value="Yoga">Yoga</option>
-            <option value="Mimamsa">Mimamsa</option>
-            <option value="Charvaka">Charvaka</option>
-            <option disabled>--- RELIGION ---</option>
-            <option value="Buddhism">Buddhism (All)</option>
-            <option value="Theravada">Buddhism (Theravada)</option>
-            <option value="Mahayana">Buddhism (Mahayana)</option>
-            <option value="Vajrayana">Buddhism (Vajrayana)</option>
-            <option value="Zen">Buddhism (Zen)</option>
-            <option value="Jainism">Jainism</option>
+            <option value="Deity">Deities</option>
+            <option value="Vedic">Vedas & Upanishads</option>
+            <option value="Vedanta">Vedanta (All)</option>
+            <option value="Advaita">Vedanta: Advaita</option>
+            <option value="Dvaita">Vedanta: Dvaita</option>
+            <option value="Nyaya">Nyaya & Vaisheshika</option>
             <option value="Shaivism">Kashmir Shaivism</option>
-            <option disabled>--- OTHER ---</option>
-            <option value="Bhakti">Bhakti</option>
-            <option value="West">Indologists</option>
+            <option value="Buddhism">Buddhism</option>
+            <option value="Jainism">Jainism</option>
+            <option value="Bhakti">Bhakti Movement</option>
+            <option value="West">Indology (West)</option>
         </select>
         
         <select id="regionFilter" onchange="updateMap()">
             <option value="all">All Regions</option>
-            <option value="North">North (Kashmir/Punjab)</option>
-            <option value="South">South (Tamil/Kerala/Karnataka)</option>
-            <option value="East">East (Bengal/Bihar/Mithila)</option>
-            <option value="West">West (Gujarat/Maharashtra)</option>
-            <option value="Central">Central India</option>
+            <option value="North">North India</option>
+            <option value="South">South India</option>
+            <option value="East">East (Bengal/Bihar)</option>
+            <option value="West">West (Gujarat/Maha)</option>
             <option value="Global">Global / West</option>
         </select>
 
@@ -91,6 +77,8 @@
 
 <div class="main-container">
     <div id="map"></div>
+    <div class="legend">★ Deity | ● Guru | ● Scholar</div>
+    
     <div id="side-panel"><div class="panel-content" id="panel-content">
         <div id="p-name" class="p-title"></div>
         <span id="p-dates" class="p-value" style="color:#aaa"></span>
@@ -98,7 +86,6 @@
         <span class="p-label">Region</span><div id="p-region" class="p-value"></div>
         <span class="p-label">Magnum Opus</span><div id="p-work" class="p-value iast"></div>
         <span class="p-label">Other Works</span><ul id="p-others" style="padding-left:15px; color:#aaa; font-size:0.9rem;"></ul>
-        <span class="p-label">Lineage</span><div id="p-lineage" class="p-value"></div>
         <span class="p-label">Significance</span><div id="p-note" class="p-value"></div>
     </div></div>
 </div>
@@ -123,12 +110,12 @@
         if (p.parent === "Nyaya" || p.parent === "Vaisheshika") return "#00bcd4"; // Blue
         if (p.parent === "Shaivism") return "#9c27b0"; // Purple
         if (p.parent === "West") return "#a5a5a5"; // Silver
+        if (p.parent === "Bhakti") return "#ffeb3b"; // Yellow
         return "#ddd"; // White default
     }
 
-    // UPDATE VISUALIZATION
+    // UPDATE MAP
     function updateMap() {
-        // Clear
         markers.forEach(m => map.removeLayer(m));
         polylines.forEach(l => map.removeLayer(l));
         markers = []; polylines = [];
@@ -136,36 +123,38 @@
         const sFilter = document.getElementById('schoolFilter').value;
         const rFilter = document.getElementById('regionFilter').value;
 
-        // Draw Lineages First (Behind Nodes)
-        lineages.forEach(l => {
-            const s = rawData.find(x => x.id === l.s);
-            const t = rawData.find(x => x.id === l.t);
-            if (s && t) {
-                // Visibility Check
-                let visible = true;
-                if (sFilter !== 'all' && s.subset !== sFilter && t.subset !== sFilter && s.parent !== sFilter) visible = false;
-                if (visible) {
-                    const color = l.type.includes("Guru") ? "#d4af37" : "#444";
-                    const weight = l.type.includes("Guru") ? 2 : 1;
-                    const line = L.polyline([[s.lat, s.lng], [t.lat, t.lng]], {color: color, weight: weight, opacity: 0.5}).addTo(map);
-                    polylines.push(line);
+        // Draw Lineages (if available in rawData)
+        // Note: Lineages are usually separate edges, but here we visualize nodes. 
+        // If you want lines, you need an edges array in data.js. 
+        // Assuming edges exist in data.js as 'edges' variable.
+        if (typeof edges !== 'undefined') {
+            edges.forEach(l => {
+                const s = rawData.find(x => x.id === l.from);
+                const t = rawData.find(x => x.id === l.to);
+                if (s && t) {
+                    let visible = true;
+                    if (sFilter !== 'all' && s.parent !== sFilter && s.subset !== sFilter) visible = false;
+                    if (visible) {
+                        const color = l.type.includes("Guru") ? "#d4af37" : "#444";
+                        const line = L.polyline([[s.lat, s.lng], [t.lat, t.lng]], {color: color, weight: 1, opacity: 0.5}).addTo(map);
+                        polylines.push(line);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // Draw Nodes
         rawData.forEach(p => {
-            // Filter Logic
             let show = true;
-            if (sFilter !== 'all' && p.parent !== sFilter && p.subset !== sFilter) show = false;
-            if (rFilter !== 'all' && p.region !== rFilter && p.zone !== rFilter) show = false;
+            if (sFilter !== 'all' && p.parent !== sFilter && p.subset !== sFilter && p.group !== sFilter) show = false;
+            if (rFilter !== 'all' && p.zone !== rFilter && p.region !== rFilter) show = false;
             
             if (show) {
-                // Jitter to prevent overlap
+                // Jitter
                 const lat = p.lat + (Math.random() * 0.1 - 0.05);
                 const lng = p.lng + (Math.random() * 0.1 - 0.05);
 
-                const size = p.isDeity ? 16 : 10;
+                const size = p.isDeity ? 16 : 8;
                 const html = `<div style="width:${size}px; height:${size}px; background:${getColor(p)}; border-radius:50%; border:1px solid #fff; box-shadow:0 0 5px ${getColor(p)};"></div>`;
                 const icon = L.divIcon({ className: 'leaflet-div-icon', html: html, iconSize: [size, size] });
                 
@@ -199,15 +188,10 @@
         document.getElementById('p-name').innerText = d.iast || d.label;
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
         document.getElementById('p-school').innerText = `${d.parent} (${d.subset})`;
-        document.getElementById('p-region').innerText = `${d.subregion || d.zone}, ${d.region}`;
+        document.getElementById('p-region').innerText = `${d.subregion || d.region} (${d.zone})`;
         document.getElementById('p-work').innerText = d.work || "N/A";
         document.getElementById('p-note').innerText = d.note || "";
         
-        // Lineage
-        let parent = lineages.find(l => l.t === d.id && l.type.includes("Guru"));
-        document.getElementById('p-lineage').innerText = parent ? `Disciple of ${parent.s}` : "Independent / Source";
-
-        // Other Works
         const ul = document.getElementById('p-others');
         ul.innerHTML = "";
         if (d.others && d.others.length > 0) d.others.forEach(w => ul.innerHTML += `<li>${w}</li>`);
@@ -222,7 +206,6 @@
             const q = document.getElementById('search').value.toLowerCase();
             const found = rawData.find(p => p.label.toLowerCase().includes(q) || (p.iast && p.iast.toLowerCase().includes(q)));
             if (found) {
-                // Force show if filtered
                 document.getElementById('schoolFilter').value = 'all';
                 document.getElementById('regionFilter').value = 'all';
                 updateMap();
