@@ -204,22 +204,49 @@ const rawData = [
     {id: "Max Muller", label: "Max Müller", iast: "Friedrich Max Müller", year: 1823, school: "west", region: "Germany", ethnicity: "German", work: "Sacred Books of the East", others: ["History of Ancient Sanskrit Literature"], note: "Giant of Philology and Indology."},
     {id: "Tesla", label: "Tesla", iast: "Nikola Tesla", year: 1856, school: "west", region: "USA", ethnicity: "Serbian", work: "AC Current", others: [], note: "Used 'Akasha' and 'Prana' after meeting Vivekananda."},
     {id: "Oppenheimer", label: "Oppenheimer", iast: "J. Robert Oppenheimer", year: 1904, school: "west", region: "USA", ethnicity: "American", work: "Manhattan Project", others: [], note: "Quoted Gita at Trinity: 'I am become Death'."},
-    {id: "Eliot", label: "T.S. Eliot", iast: "T.S. Eliot", year: 1888, school: "west", region: "UK", ethnicity: "American", work: "The Waste Land", others: ["Four Quartets"], note: "Ended his masterpiece with 'Shantih Shantih Shantih'."}
+    {id: "Eliot", label: "T.S. Eliot", iast: "T.S. Eliot", year: 1888, school: "west", region: "UK", ethnicity: "American", work: "The Waste Land", others: ["Four Quartets"], note: "Ended his masterpiece with 'Shantih Shantih Shantih'."},
+    
+    // --- ADDED DEITIES (No Timeline) ---
+    {id: "Narayana", label: "Nārāyaṇa", iast: "Nārāyaṇa", group: "deity", isDeity: true, note: "Primordial Vishnu"},
+    {id: "Brahma", label: "Brahmā", iast: "Brahmā", group: "deity", isDeity: true, note: "Creator"},
+    {id: "Shiva", label: "Śiva", iast: "Śiva", group: "deity", isDeity: true, note: "Adi Guru"},
+    
+    // --- ADDED LINEAGE FIGURES ---
+    {id: "Govinda Bhagavatpada", label: "Govinda", iast: "Govinda Bhagavatpāda", year: 750, school: "advaita", region: "Narmada", work: "Yoga Taravali", note: "Guru of Adi Shankara."},
+    {id: "Padmapadacharya", label: "Padmapāda", iast: "Padmapādācārya", year: 820, school: "advaita", region: "South", work: "Panchapadika", note: "First Disciple of Shankara."},
+    {id: "Hastamalakacharya", label: "Hastāmalaka", iast: "Hastāmalakācārya", year: 820, school: "advaita", region: "South", work: "Hastamalakiya", note: "Disciple of Shankara."},
+    {id: "Totakacharya", label: "Toṭaka", iast: "Toṭakācārya", year: 820, school: "advaita", region: "South", work: "Totakashtakam", note: "Disciple of Shankara."},
+    {id: "Vasugupta", label: "Vasugupta", iast: "Vasugupta", year: 800, school: "kashmir", region: "Kashmir", work: "Shiva Sutras", note: "Received Shiva Sutras from Shiva."},
+    {id: "Somananda", label: "Somānanda", iast: "Somānanda", year: 900, school: "kashmir", region: "Kashmir", work: "Shiva Drishti", note: "Founder of Pratyabhijna."},
+    {id: "Kshemaraja", label: "Kṣemarāja", iast: "Kṣemarāja", year: 1000, school: "kashmir", region: "Kashmir", work: "Pratyabhijnahridayam", note: "Disciple of Abhinavagupta."},
+    {id: "Nathamuni", label: "Nāthamuni", iast: "Nāthamuni", year: 900, school: "bhakti", region: "Tamil Nadu", note: "First Sri Vaishnava Acharya."},
+    {id: "Yamunacharya", label: "Yāmunācārya", iast: "Yāmunācārya", year: 917, school: "bhakti", region: "Tamil Nadu", work: "Siddhitraya", note: "Preceptor of Ramanuja."},
+    {id: "Nimbarka", label: "Nimbārka", iast: "Nimbārka", year: 1150, school: "bhakti", region: "Andhra", work: "Vedanta Parijata", note: "Dvaitadvaita Founder."},
+    {id: "Vallabhacharya", label: "Vallabha", iast: "Vallabhācārya", year: 1479, school: "bhakti", region: "Charthaval", work: "Anubhashya", note: "Shuddhadvaita Founder."}
 ];
 
 // --- 2. GURU-SHISHYA LINEAGES (The Nodes that connect) ---
 const lineages = [
     // Advaita Lineage
-    {s: "Gaudapada", t: "Adi Shankara", type: "guru"},
+    {s: "Narayana", t: "Brahma", type: "guru"},
+    {s: "Brahma", t: "Vashishta", type: "guru"}, // Assume Vashishta exists in extended data or handled
+    {s: "Gaudapada", t: "Govinda Bhagavatpada", type: "guru"},
+    {s: "Govinda Bhagavatpada", t: "Adi Shankara", type: "guru"},
     {s: "Adi Shankara", t: "Suresvara", type: "guru"},
-    {s: "Adi Shankara", t: "Padmapada", type: "guru"},
+    {s: "Adi Shankara", t: "Padmapadacharya", type: "guru"},
+    {s: "Adi Shankara", t: "Hastamalakacharya", type: "guru"},
+    {s: "Adi Shankara", t: "Totakacharya", type: "guru"},
     {s: "Adi Shankara", t: "Vacaspati Misra", type: "influence"}, 
     {s: "Adi Shankara", t: "Vidyaranya", type: "influence"},
     {s: "Adi Shankara", t: "Madhusudana", type: "influence"},
     {s: "Adi Shankara", t: "Vivekananda", type: "lineage"},
     
     // Kashmir Shaivism
-    {s: "Utpaladeva", t: "Abhinavagupta", type: "guru"},
+    {s: "Shiva", t: "Vasugupta", type: "divine"},
+    {s: "Vasugupta", t: "Somananda", type: "lineage"},
+    {s: "Somananda", t: "Utpaladeva", type: "guru"},
+    {s: "Utpaladeva", t: "Abhinavagupta", type: "grand_guru"},
+    {s: "Abhinavagupta", t: "Kshemaraja", type: "guru"},
     
     // Nyaya
     {s: "Gautama Buddha", t: "Nagarjuna", type: "influence"},
@@ -228,6 +255,9 @@ const lineages = [
     {s: "Udayana", t: "Gangesa", type: "influence"},
     
     // Bhakti
+    {s: "Narayana", t: "Nathamuni", type: "inspiration"},
+    {s: "Nathamuni", t: "Yamunacharya", type: "grand_guru"},
+    {s: "Yamunacharya", t: "Ramanuja", type: "preceptor"},
     {s: "Ramanuja", t: "Madhvacharya", type: "influence"},
     {s: "Jayadeva", t: "Chaitanya", type: "influence"},
     {s: "Chaitanya", t: "Tagore", type: "influence"},
@@ -247,25 +277,28 @@ let allNodes = [];
 
 // Icons/Shapes Mapping
 const shapeMap = {
-    "advaita": "dot", "nyaya": "triangle", "kashmir": "diamond",
-    "buddhism": "dot", "west": "star", "Literature": "square"
+    "advaita": "dot", "nyaya": "triangle", "kashmir": "diamond", "bhakti": "dot",
+    "buddhism": "dot", "west": "star", "Literature": "square", "deity": "star"
 };
 
 const colorMap = {
     "advaita": "#ff9800", "nyaya": "#00bcd4", "kashmir": "#9c27b0",
     "buddhism": "#e91e63", "west": "#a5a5a5", "Literature": "#4caf50",
-    "bhakti": "#ffeb3b", "grammar": "#795548", "Science": "#607d8b"
+    "bhakti": "#ffeb3b", "grammar": "#795548", "Science": "#607d8b", "deity": "#ffd700"
 };
 
 // Initialize
 rawData.forEach(p => {
+    let size = p.isDeity ? 40 : 20;
+    let label = p.isDeity ? "★ " + p.label : p.label;
+    
     allNodes.push({
         id: p.id,
-        label: p.label,
-        group: p.school,
-        value: 20,
-        color: colorMap[p.school] || "#ddd",
-        shape: shapeMap[p.school] || "dot",
+        label: label,
+        group: p.school || p.group,
+        value: size,
+        color: colorMap[p.school] || colorMap[p.group] || "#ddd",
+        shape: shapeMap[p.school] || shapeMap[p.group] || "dot",
         font: { face: 'Noto Serif', color: '#ccc', size: 14 },
         data: p // Store full data
     });
@@ -273,12 +306,20 @@ rawData.forEach(p => {
 
 // Create Edges
 lineages.forEach(l => {
-    let color = "#333";
-    let dashes = true;
-    if(l.type === "guru") { color = "#d4af37"; dashes = false; }
-    if(l.type === "meeting") { color = "#fff"; }
+    // Check if nodes exist
+    let srcExists = rawData.find(n => n.id === l.s);
+    let tgtExists = rawData.find(n => n.id === l.t);
     
-    edges.add({ from: l.s, to: l.t, color:{color:color, opacity:0.5}, dashes: dashes, arrows: 'to' });
+    if (srcExists && tgtExists) {
+        let color = "#333";
+        let dashes = true;
+        let label = l.type;
+        
+        if(l.type === "guru" || l.type === "divine") { color = "#d4af37"; dashes = false; label = "Guru"; }
+        if(l.type === "meeting") { color = "#fff"; }
+        
+        edges.add({ from: l.s, to: l.t, color:{color:color, opacity:0.6}, dashes: dashes, arrows: 'to', label: label, font: {align: 'middle', size: 10, color: '#888', strokeWidth: 0} });
+    }
 });
 
 nodes.add(allNodes);
@@ -288,18 +329,19 @@ const container = document.getElementById('mynetwork');
 const data = { nodes: nodes, edges: edges };
 const options = {
     nodes: { borderWidth: 1, shadow:true },
+    edges: { smooth: { type: "continuous" } },
     physics: {
         stabilization: false,
-        barnesHut: { gravitationalConstant: -3000, springLength: 150, springConstant: 0.02 }
+        barnesHut: { gravitationalConstant: -4000, springLength: 200, springConstant: 0.01 }
     },
     interaction: { hover: true, tooltipDelay: 50 }
 };
 const network = new vis.Network(container, data, options);
 
-// --- 5. TIMELINE ---
-const timelineData = new vis.DataSet(rawData.map((t, i) => ({
+// --- 5. TIMELINE (Exclude Deities) ---
+const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
     id: i, content: t.label, start: new Date(0).setFullYear(t.year), 
-    className: t.school, nodeId: t.id
+    className: t.school || t.group, nodeId: t.id
 })));
 
 const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
@@ -318,7 +360,8 @@ window.filterNetwork = function() {
         nodes.clear();
         nodes.add(allNodes);
     } else {
-        const schoolNodes = allNodes.filter(n => n.group === type);
+        // Show selected school + deities + westerners (for context)
+        const schoolNodes = allNodes.filter(n => n.group === type || n.group === 'deity');
         nodes.clear();
         nodes.add(schoolNodes);
     }
@@ -333,9 +376,9 @@ network.on("click", function(params) {
         if (node) {
             const d = node.data;
             document.getElementById('p-name').innerText = d.iast; // Use IAST name
-            document.getElementById('p-dates').innerText = d.date || d.year;
-            document.getElementById('p-school').innerText = d.school.toUpperCase();
-            document.getElementById('p-work').innerText = d.work;
+            document.getElementById('p-dates').innerText = d.isDeity ? "Timeless / Divine" : (d.date || d.year);
+            document.getElementById('p-school').innerText = (d.school || d.group).toUpperCase();
+            document.getElementById('p-work').innerText = d.work || "N/A";
             document.getElementById('p-note').innerText = d.note;
             
             // Ethnicity Rendering
@@ -355,15 +398,18 @@ network.on("click", function(params) {
             let linText = "Independent Thinker";
             if (d.school === 'advaita') linText = "Paramparā: Śaṅkara Lineage";
             if (d.school === 'nyaya') linText = "Paramparā: Mithilā School";
+            if (d.isDeity) linText = "Divine Source";
             document.getElementById('p-lineage').innerText = linText;
 
             // Open Panel
             document.getElementById('side-panel').style.width = "400px";
             document.getElementById('panel-content').style.opacity = "1";
             
-            // Sync Timeline
-            const tItem = timelineData.get({ filter: i => i.nodeId === nodeId });
-            if(tItem.length) { timeline.moveTo(tItem[0].start); timeline.setSelection(tItem[0].id); }
+            // Sync Timeline (Skip deities)
+            if (!d.isDeity) {
+                const tItem = timelineData.get({ filter: i => i.nodeId === nodeId });
+                if(tItem.length) { timeline.moveTo(tItem[0].start); timeline.setSelection(tItem[0].id); }
+            }
         }
     } else {
         document.getElementById('side-panel').style.width = "0";
@@ -375,7 +421,7 @@ network.on("click", function(params) {
 window.searchNode = function() {
     let q = document.getElementById('search').value.toLowerCase();
     if (!q) return;
-    let found = allNodes.find(p => p.label.toLowerCase().includes(q) || p.data.iast.toLowerCase().includes(q));
+    let found = allNodes.find(p => p.label.toLowerCase().includes(q) || (p.data.iast && p.data.iast.toLowerCase().includes(q)));
     if (found) {
         // If filtered out, reset filter
         if (!nodes.get(found.id)) {
