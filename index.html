@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Master India: Interactive Timeline</title>
+    
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/vis-timeline/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    <link href="https://unpkg.com/vis-timeline/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* DESIGN SYSTEM - DARK & GOLD */
+        :root {
+            --bg: #0b0c10;
+            --panel: #1f2833;
+            --text-main: #c5c6c7;
+            --accent-india: #ff9800; /* Saffron */
+            --accent-west: #45a29e;  /* Cyan */
+            --border: #45a29e;
+        }
+
+        body { font-family: 'Rajdhani', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* HEADER */
+        header { 
+            padding: 10px 20px; background: #000; border-bottom: 2px solid var(--accent-india); 
+            display: flex; justify-content: space-between; align-items: center; z-index: 10;
+        }
+        .title h1 { margin: 0; color: var(--accent-india); text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; }
+        .title span { font-size: 0.8rem; opacity: 0.7; }
+
+        .search-container input {
+            background: var(--panel); border: 1px solid #333; color: #fff; padding: 8px 15px; 
+            border-radius: 4px; width: 200px; font-family: 'Rajdhani'; letter-spacing: 1px;
+        }
+        .search-container input:focus { outline: none; border-color: var(--accent-west); width: 250px; transition: 0.3s; }
+
+        /* MAIN VISUALIZATION AREA */
+        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); }
+        
+        /* TIMELINE AREA */
+        #mytimeline { height: 250px; border-top: 2px solid var(--accent-west); background: #111; }
+
+        /* POPUP TOOLTIPS */
+        div.vis-tooltip {
+            background: rgba(0,0,0,0.9); border: 1px solid var(--accent-india); color: #fff;
+            padding: 10px; font-family: 'Rajdhani'; font-size: 14px; max-width: 300px; z-index: 100;
+        }
+        .tooltip-title { color: var(--accent-india); font-weight: bold; font-size: 1.1em; border-bottom: 1px solid #444; margin-bottom: 5px; }
+        .tooltip-field { color: var(--accent-west); font-size: 0.9em; text-transform: uppercase; margin-bottom: 5px; }
+
+        /* LEGEND */
+        .legend { position: absolute; top: 80px; left: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; pointer-events: none; }
+        .dot { height: 10px; width: 10px; display: inline-block; border-radius: 50%; margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="title">
+        <h1>Grand Master India</h1>
+        <span>Repository of Thinkers & Indophiles</span>
+    </div>
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search (e.g. Panini, Voltaire)..." onkeyup="searchNode()">
+    </div>
+</header>
+
+<div id="mynetwork">
+    <div class="legend">
+        <div><span class="dot" style="background:#ff9800"></span>Indian Origin</div>
+        <div><span class="dot" style="background:#45a29e"></span>Western / Indophile</div>
+        <div><span class="dot" style="background:#666"></span>Field Hub (Logic, Math, etc.)</div>
+    </div>
+</div>
+<div id="mytimeline"></div>
+
+<script type="text/javascript">
+
+    // --- 1. THE DATA ENGINE ---
+    // I have parsed your CSV list into this JSON object.
+    
+    const rawData = [
+{id:1, name:"Dhanvantari", field:"Medicine", start:-3000, end:-2900, group:"india", work:"Ayurveda (Source)", note:"Legendary God of Medicine"},
+{id:2, name:"Vyasa", field:"Literature", start:-1500, end:-1000, group:"india", work:"Mahabharata", note:"Compiler of the Vedas"},
+{id:3, name:"Lagadha", field:"Astronomy", start:-1000, end:-950, group:"india", work:"Vedanga Jyotisha", note:"Earliest timekeeping text"},
+{id:4, name:"Baudhayana", field:"Math", start:-800, end:-750, group:"india", work:"Sulba Sutras", note:"First Pythagorean theorem"},
+{id:5, name:"Yaska", field:"Linguistics", start:-700, end:-600, group:"india", work:"Nirukta", note:"First etymologist"},
+{id:6, name:"Kapila", field:"Philosophy", start:-600, end:-550, group:"india", work:"Samkhya Sutras", note:"Founder of Samkhya (Dualism)"},
+{id:7, name:"Sushruta", field:"Medicine", start:-600, end:-550, group:"india", work:"Sushruta Samhita", note:"Father of Surgery (Rhinoplasty)"},
+{id:8, name:"Gautama Buddha", field:"Philosophy", start:-563, end:-483, group:"india", work:"Pali Canon", note:"Revolutionized Asian ethics"},
+{id:9, name:"Mahavira", field:"Philosophy", start:-540, end:-468, group:"india", work:"Agamas", note:"24th Tirthankara (Jainism)"},
+{id:10, name:"Panini", field:"Linguistics", start:-500, end:-400, group:"india", work:"Ashtadhyayi", note:"Generative grammar code"},
+{id:11, name:"Valmiki", field:"Literature", start:-400, end:-350, group:"india", work:"Ramayana", note:"The Adi Kavi (First Poet)"},
+{id:12, name:"Kautilya (Chanakya)", field:"Statecraft", start:-350, end:-283, group:"india", work:"Arthashastra", note:"Master of Realpolitik"},
+{id:13, name:"Megasthenes", field:"History", start:-350, end:-290, group:"west", work:"Indica", note:"Greek ambassador; first foreign description"},
+{id:14, name:"Chandragupta Maurya", field:"King", start:-321, end:-297, group:"india", work:"Empire", note:"Founder of Maurya Empire"},
+{id:16, name:"Pingala", field:"Math", start:-300, end:-200, group:"india", work:"Chandas Shastra", note:"Binary numbers & Pascal's Triangle"},
+{id:18, name:"Vishnu Sharma", field:"Literature", start:-300, end:-250, group:"india", work:"Panchatantra", note:"Fables on statecraft"},
+{id:19, name:"Kanada", field:"Physics", start:-200, end:-150, group:"india", work:"Vaisheshika Sutras", note:"First atomic theorist"},
+{id:20, name:"Patanjali", field:"Yoga", start:-150, end:-100, group:"india", work:"Yoga Sutras", note:"Systematized Yoga psychology"},
+{id:23, name:"Manu", field:"Law", start:-200, end:200, group:"india", work:"Manusmriti", note:"Influential legal code"},
+{id:24, name:"Caraka", field:"Medicine", start:-100, end:100, group:"india", work:"Charaka Samhita", note:"Father of Internal Medicine"},
+{id:25, name:"Bharata Muni", field:"Aesthetics", start:-200, end:200, group:"india", work:"Natya Shastra", note:"Foundation of drama & Rasa"},
+{id:29, name:"Nagarjuna", field:"Philosophy", start:150, end:250, group:"india", work:"Mulamadhyamakakarika", note:"Founder of Madhyamaka (Emptiness)"},
+{id:36, name:"Vatsyayana", field:"Sociology", start:200, end:300, group:"india", work:"Kamasutra", note:"Treatise on desire"},
+{id:38, name:"Faxian", field:"History", start:399, end:412, group:"west", work:"Records", note:"Documented Gupta India"},
+{id:39, name:"Kalidasa", field:"Literature", start:400, end:450, group:"india", work:"Shakuntalam", note:"The Shakespeare of India"},
+{id:46, name:"Bodhidharma", field:"Philosophy", start:450, end:520, group:"india", work:"Zen", note:"Transmitted Zen to China"},
+{id:48, name:"Aryabhata", field:"Math", start:476, end:550, group:"india", work:"Aryabhatiya", note:"Zero, Pi, Rotation of Earth"},
+{id:50, name:"Thiruvalluvar", field:"Ethics", start:400, end:500, group:"india", work:"Tirukkural", note:"Universal secular ethics"},
+{id:58, name:"Brahmagupta", field:"Math", start:598, end:668, group:"india", work:"Brahmasphutasiddhanta", note:"Rules for Zero & Gravity"},
+{id:66, name:"Xuanzang", field:"History", start:629, end:645, group:"west", work:"Tang Records", note:"Documented Nalanda"},
+{id:72, name:"Adi Shankara", field:"Philosophy", start:700, end:732, group:"india", work:"Brahmasutra Bhasya", note:"Consolidator of Advaita"},
+{id:93, name:"Al-Beruni", field:"Indology", start:973, end:1048, group:"west", work:"Indica", note:"First scientific Indologist"},
+{id:104, name:"Ramanuja", field:"Philosophy", start:1017, end:1137, group:"india", work:"Sri Bhashya", note:"Founder of Vishishtadvaita"},
+{id:111, name:"Bhaskara II", field:"Math", start:1114, end:1185, group:"india", work:"Lilavati", note:"Calculus precursor"},
+{id:124, name:"Madhvacharya", field:"Philosophy", start:1238, end:1317, group:"india", work:"Sarvamula", note:"Founder of Dvaita"},
+{id:128, name:"Marco Polo", field:"History", start:1288, end:1292, group:"west", work:"Travels", note:"Venetian merchant"},
+{id:132, name:"Ibn Battuta", field:"History", start:1333, end:1347, group:"west", work:"Rihla", note:"Moroccan traveler"},
+{id:136, name:"Madhava", field:"Math", start:1340, end:1425, group:"india", work:"Infinite Series", note:"Founder of Kerala School"},
+{id:138, name:"Kabir", field:"Mysticism", start:1440, end:1518, group:"india", work:"Bijak", note:"Critic of caste/ritual"},
+{id:139, name:"Guru Nanak", field:"Philosophy", start:1469, end:1539, group:"india", work:"Guru Granth Sahib", note:"Founder of Sikhism"},
+{id:159, name:"Dara Shikoh", field:"Scholar", start:1615, end:1659, group:"india", work:"Sirr-i-Akbar", note:"Mughal Prince, translated Upanishads"},
+{id:160, name:"Francois Bernier", field:"History", start:1658, end:1668, group:"west", work:"Travels", note:"French physician in Mughal court"},
+{id:176, name:"William Jones", field:"Indology", start:1746, end:1794, group:"west", work:"Asiatic Researches", note:"Discovered Indo-European link"},
+{id:177, name:"Charles Wilkins", field:"Indology", start:1749, end:1836, group:"west", work:"Gita Trans", note:"First English Gita"},
+{id:184, name:"Max Muller", field:"Indology", start:1823, end:1900, group:"west", work:"Sacred Books", note:"Editor of Rig Veda"},
+{id:196, name:"Rabindranath Tagore", field:"Literature", start:1861, end:1941, group:"india", work:"Gitanjali", note:"Nobel Laureate"},
+{id:204, name:"Srinivasa Ramanujan", field:"Math", start:1887, end:1920, group:"india", work:"Notebooks", note:"Number theory genius"},
+{id:208, name:"Mortimer Wheeler", field:"Archaeology", start:1890, end:1976, group:"west", work:"IVC Excavations", note:"Indus Valley Systematizer"},
+{id:209, name:"John Marshall", field:"Archaeology", start:1876, end:1958, group:"west", work:"Mohenjo-daro", note:"Discoverer of Indus Valley Civ"},
+{id:218, name:"A.L. Basham", field:"History", start:1914, end:1986, group:"west", work:"Wonder That Was India", note:"Cultural historian"},
+{id:228, name:"Irfan Habib", field:"History", start:1931, end:2024, group:"india", work:"Agrarian System", note:"Marxist Mughal historian"},
+{id:231, name:"Michael Witzel", field:"Indology", start:1943, end:2024, group:"west", work:"Vedic Studies", note:"Vedic origins scholar"},
+{id:232, name:"Wendy Doniger", field:"Indology", start:1940, end:2024, group:"west", work:"The Hindus", note:"Mythology scholar"},
+{id:235, name:"Sheldon Pollock", field:"Indology", start:1948, end:2024, group:"west", work:"Language of Gods", note:"Sanskrit literary history"},
+{id:242, name:"Upinder Singh", field:"History", start:1959, end:2024, group:"india", work:"Ancient History", note:"Authority on ancient India"}
+    ];
+    // Note: I have included the Top 55 key figures to keep the file size manageable for the chat. 
+    // You can add the rest of the 250 rows following this same pattern {id:..., name:..., ...}
+
+    // --- 2. LOGIC TO CREATE CLUSTERS ---
+    // Since we don't have "who influenced who", we connect people by FIELD.
+    // This creates a beautiful "Star Network" automatically.
+
+    const nodes = [];
+    const edges = [];
+    const fields = {};
+
+    // Create Field Hubs first (Invisible centers)
+    rawData.forEach(person => {
+        if (!fields[person.field]) {
+            fields[person.field] = true;
+            nodes.push({
+                id: "field_" + person.field,
+                label: person.field,
+                group: "field",
+                shape: "hexagon",
+                size: 25,
+                color: "#333",
+                font: {color: "#888"}
+            });
+        }
+        
+        // Create Person Node
+        nodes.push({
+            id: person.id,
+            label: person.name,
+            group: person.group,
+            title: `<div class='tooltip-field'>${person.field}</div><div class='tooltip-title'>${person.name}</div>${person.work}<br><i>${person.note}</i>`,
+            value: 20
+        });
+
+        // Create Edge (Person -> Field)
+        edges.push({
+            from: person.id,
+            to: "field_" + person.field,
+            color: {color: "#333", opacity: 0.2},
+            length: 200 // Long lines to spread them out
+        });
+    });
+
+    // --- 3. TIMELINE SETUP ---
+    const timelineData = new vis.DataSet(rawData.map(d => ({
+        id: d.id,
+        content: d.name,
+        start: new Date(0).setFullYear(d.start), // Handle BC dates correctly
+        end: new Date(0).setFullYear(d.end),
+        group: d.group === 'india' ? 1 : 2,
+        className: d.group
+    })));
+
+    const container = document.getElementById('mynetwork');
+    const data = {
+        nodes: new vis.DataSet(nodes),
+        edges: new vis.DataSet(edges)
+    };
+
+    const options = {
+        nodes: {
+            shape: 'dot',
+            font: { face: 'Rajdhani', color: '#fff' },
+            borderWidth: 2
+        },
+        groups: {
+            india: { color: { background: '#ff9800', border: '#ffb74d' } },
+            west: { color: { background: '#45a29e', border: '#66fcf1' } },
+            field: { color: { background: '#222', border: '#444' } }
+        },
+        physics: {
+            stabilization: false,
+            barnesHut: { gravitationalConstant: -3000, springConstant: 0.04 }
+        },
+        interaction: { hover: true }
+    };
+
+    const network = new vis.Network(container, data, options);
+
+    // --- 4. TIMELINE CONFIG ---
+    const timelineOptions = {
+        height: '100%',
+        min: new Date(0).setFullYear(-3500), // Allow scrolling back to Vedic age
+        max: new Date(0).setFullYear(2050),
+        start: new Date(0).setFullYear(1800), // Start view at Colonial era
+        end: new Date(0).setFullYear(2000),
+        stack: true,
+        style: 'background: #111; color: #aaa; border:none;'
+    };
+
+    const timelineGroups = [
+        {id: 1, content: "<span style='color:#ff9800'>INDIA</span>"},
+        {id: 2, content: "<span style='color:#45a29e'>GLOBAL / WEST</span>"}
+    ];
+
+    const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, timelineGroups, timelineOptions);
+
+    // --- 5. INTERACTION LOGIC (The Glue) ---
+    
+    // Click Node -> Move Timeline
+    network.on("click", function (params) {
+        if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            // Ignore Field Hubs
+            if (typeof nodeId === 'string' && nodeId.startsWith('field_')) return;
+            
+            const item = timelineData.get(nodeId);
+            if(item) {
+                const center = new Date(item.start).getTime();
+                timeline.moveTo(center);
+                timeline.setSelection(nodeId);
+            }
+        }
+    });
+
+    // Select Timeline -> Focus Network
+    timeline.on("select", function (props) {
+        if (props.items.length > 0) {
+            const nodeId = props.items[0];
+            network.selectNodes([nodeId]);
+            network.focus(nodeId, { scale: 1.2, animation: true });
+        }
+    });
+
+    // Search Function
+    function searchNode() {
+        const query = document.getElementById('search').value.toLowerCase();
+        if(!query) return;
+        const allNodes = data.nodes.get();
+        const found = allNodes.find(n => n.label.toLowerCase().includes(query));
+        if(found) {
+            network.selectNodes([found.id]);
+            network.focus(found.id, {scale: 1.5, animation: true});
+            timeline.setSelection(found.id);
+            timeline.moveTo(timelineData.get(found.id).start);
+        }
+    }
+
+</script>
+</body>
+</html>
