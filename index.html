@@ -14,7 +14,6 @@
     <style>
         :root { --bg: #050505; --panel: #0f0f0f; --gold: #d4af37; --silver: #a5a5a5; --border: #333; }
         
-        /* LAYOUT FIX: Ensures timeline stays at bottom */
         body { 
             background: var(--bg); color: #e0e0e0; margin: 0; 
             font-family: 'Noto Serif', serif; 
@@ -26,7 +25,7 @@
             height: 60px; background: var(--panel); border-bottom: 1px solid var(--border); 
             display: flex; justify-content: space-between; align-items: center; 
             padding: 0 25px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); 
-            flex-shrink: 0; /* Prevents header from shrinking */
+            flex-shrink: 0; 
         }
         
         .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); }
@@ -34,28 +33,23 @@
         select, input { background: #1a1a1a; color: #ddd; border: 1px solid #444; padding: 6px 10px; font-family: 'Cinzel', serif; font-size: 0.8rem; border-radius: 3px; outline: none; }
         select:hover, input:focus { border-color: var(--gold); }
 
-        /* MAIN CONTAINER takes all available space */
         .main-container { flex: 1; position: relative; display: flex; overflow: hidden; }
         
         #network { width: 100%; height: 100%; background: radial-gradient(circle at center, #111 0%, #000 120%); }
         
-        /* TIMELINE fixed height at bottom */
         #mytimeline { 
             height: 140px; background: rgba(10,10,10,0.95); 
             border-top: 1px solid var(--border); z-index: 20; position: relative; 
-            flex-shrink: 0; /* Prevents timeline from shrinking */
+            flex-shrink: 0;
         }
 
-        /* SIDE PANEL */
         #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.4s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; box-shadow: -5px 0 30px rgba(0,0,0,0.9); }
         .panel-content { padding: 30px; opacity: 0; transition: opacity 0.3s 0.2s; min-width: 300px; }
         .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
         .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 600; }
         .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; }
-        .iast { font-style: italic; color: #e6c673; }
         .works-list { margin-top: 5px; padding-left: 0; list-style: none; }
         .works-list li { margin-bottom: 4px; color: #aaa; font-size: 0.9rem; }
-        .works-list li::before { content: "•"; color: var(--gold); display: inline-block; width: 1em; margin-left: -1em; }
         .legend { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
     </style>
 </head>
@@ -96,7 +90,7 @@
         <span id="p-dates" class="p-value" style="color:#aaa"></span>
         <span class="p-label">School</span><div id="p-school" class="p-value" style="color: var(--gold)"></div>
         <span class="p-label">Region</span><div id="p-region" class="p-value"></div>
-        <span class="p-label">Magnum Opus</span><div id="p-work" class="p-value iast"></div>
+        <span class="p-label">Magnum Opus</span><div id="p-work" class="p-value" style="font-style: italic; color: #e6c673;"></div>
         <span class="p-label">Other Works</span><ul id="p-others" class="works-list"></ul>
         <span class="p-label">Significance</span><div id="p-note" class="p-value"></div>
         <span class="p-label">Lineage</span><div id="p-lineage" class="p-value" style="border-left: 2px solid #333; padding-left: 10px;"></div>
@@ -106,13 +100,15 @@
 <div id="mytimeline"></div>
 
 <script type="text/javascript">
-    // --- VARIABLES ---
+    // --- 1. GLOBAL VARIABLES ---
+    let network = null;
+    let timeline = null;
     let nodes = new vis.DataSet([]);
     let edges = new vis.DataSet([]);
     let allNodes = [];
     let allEdges = [];
 
-    // --- COLOR MAPPING ---
+    // --- 2. COLOR MAPPING ---
     function getColor(school) {
         if (!school) return "#ddd";
         if (school.includes('Advaita')) return "#ff9800";
@@ -124,55 +120,15 @@
         return "#ddd";
     }
 
-    // --- GRAPH INITIALIZATION ---
-    const container = document.getElementById('network');
-    const data = { nodes: nodes, edges: edges };
-    
-    // 🔥 PERFORMANCE FIX: PHYSICS SETTINGS 🔥
-    const options = {
-        nodes: { 
-            borderWidth: 1, 
-            shadow: true, 
-            font: { face: 'Noto Serif', color: '#ccc' },
-            shape: 'dot',
-            size: 15
-        },
-        edges: { 
-            smooth: { type: "continuous" },
-            width: 1,
-            color: { color: '#555', opacity: 0.6 }
-        },
-        physics: { 
-            // This stops the drifting. It stabilizes heavily on load, then STOPS.
-            stabilization: {
-                enabled: true,
-                iterations: 1000, // Run 1000 calculations before showing
-                updateInterval: 25,
-                onlyDynamicEdges: false,
-                fit: true 
-            },
-            barnesHut: { 
-                gravitationalConstant: -8000, // Stronger repulsion to separate nodes
-                centralGravity: 0.3,
-                springLength: 95,
-                springConstant: 0.04,
-                damping: 0.09
-            },
-            minVelocity: 0.75 // Stop moving sooner
-        },
-        interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true }
-    };
-    
-    const network = new vis.Network(container, data, options);
+    // --- 3. INITIALIZATION FUNCTION ---
+    // We run this immediately to ensure data appears on load
+    function init() {
+        if (typeof rawData === 'undefined') {
+            console.error("Data.js not loaded!");
+            return;
+        }
 
-    // --- EVENT: STOP PHYSICS AFTER LOAD ---
-    // This is the magic fix. Once graph is drawn, TURN OFF PHYSICS.
-    network.on("stabilizationIterationsDone", function () {
-        network.setOptions( { physics: false } );
-    });
-
-    // --- LOAD DATA ---
-    if (typeof rawData !== 'undefined') {
+        // A. Process Nodes
         rawData.forEach(p => {
             allNodes.push({
                 id: p.id,
@@ -181,10 +137,11 @@
                 value: p.isDeity ? 30 : 15,
                 color: p.isDeity ? "#ffd700" : getColor(p.school),
                 shape: p.isDeity ? "star" : "dot",
-                data: p
+                data: p // Store full object for panel
             });
         });
 
+        // B. Process Edges (Lineages)
         lineages.forEach(l => {
             let s = rawData.find(x => x.id === l.s);
             let t = rawData.find(x => x.id === l.t);
@@ -195,64 +152,86 @@
                     from: l.s, to: l.t, 
                     arrows: "to", color: {color: color}, 
                     dashes: dashes, 
-                    label: l.type, font: {size: 9, color: '#777', strokeWidth: 0, align:'middle'} 
+                    label: l.type, font: {size: 9, color: '#777', strokeWidth: 0, align: 'middle'} 
                 });
             }
         });
 
+        // Add everything to the active datasets immediately
         nodes.add(allNodes);
         edges.add(allEdges);
-    }
 
-    // --- TIMELINE ---
-    const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
-        id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
-    })));
-    
-    const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
-        height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
-        start: new Date(0).setFullYear(-500), end: new Date(0).setFullYear(2000),
-        zoomMin: 1000 * 60 * 60 * 24 * 365 * 10 // Prevent zooming too deep (min 10 years)
-    });
+        // C. Setup Network
+        const container = document.getElementById('network');
+        const data = { nodes: nodes, edges: edges };
+        
+        // PHYSICS FIX: Stabilize once, then stop. Prevents "floating away".
+        const options = {
+            nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
+            edges: { smooth: { type: "continuous" } },
+            physics: { 
+                stabilization: { 
+                    enabled: true, 
+                    iterations: 1500, // Pre-calculate layout hiddenly
+                    updateInterval: 50
+                },
+                barnesHut: { gravitationalConstant: -4000, springConstant: 0.04, springLength: 95 } 
+            },
+            interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true }
+        };
+        
+        network = new vis.Network(container, data, options);
 
-    timeline.on('select', (props) => {
-        if(props.items.length) {
-            const item = timelineData.get(props.items[0]);
-            const person = rawData.find(p => p.id === item.personId);
-            if(person) openPanel(person);
-        }
-    });
-
-    // --- INTERACTION ---
-    function updateGraph() {
-        const sFilter = document.getElementById('schoolFilter').value;
-        const rFilter = document.getElementById('regionFilter').value;
-
-        const filteredNodes = allNodes.filter(n => {
-            let p = n.data;
-            let show = true;
-            if (sFilter !== 'all' && p.school !== sFilter && p.group !== sFilter) show = false;
-            if (rFilter !== 'all' && p.region !== rFilter && p.region !== rFilter) show = false; // Fixed zone check
-            if (p.isDeity && sFilter === 'all' && rFilter === 'all') show = true;
-            return show;
+        // FREEZE GRAPH AFTER LOAD to prevent lag/moving
+        network.on("stabilizationIterationsDone", function () {
+            network.setOptions( { physics: false } );
+            network.fit(); // Zoom to fit everything
         });
 
-        nodes.clear();
-        edges.clear();
-        nodes.add(filteredNodes);
+        // Click Handler
+        network.on("click", function(params) {
+            if (params.nodes.length > 0) {
+                const nodeId = params.nodes[0];
+                const node = nodes.get(nodeId);
+                if (node) {
+                    openPanel(node.data);
+                    // Scroll timeline if not deity
+                    if(!node.data.isDeity) {
+                        const tItem = timelineData.get({ filter: i => i.personId === node.id });
+                        if(tItem.length) timeline.moveTo(tItem[0].start);
+                    }
+                }
+            } else {
+                closePanel();
+            }
+        });
 
-        const visibleIds = new Set(filteredNodes.map(n => n.id));
-        const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
-        edges.add(filteredEdges);
+        // D. Setup Timeline
+        const timelineContainer = document.getElementById('mytimeline');
+        const tItems = rawData.filter(x => !x.isDeity).map((t, i) => ({
+            id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
+        }));
         
-        // RE-STABILIZE ON FILTER
-        network.setOptions( { physics: true } ); // Turn on to rearrange
-        network.fit(); // Center camera
+        // Define timelineData globally so we can search it later
+        window.timelineData = new vis.DataSet(tItems);
+        
+        timeline = new vis.Timeline(timelineContainer, window.timelineData, {
+            height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
+            start: new Date(0).setFullYear(-500), end: new Date(0).setFullYear(2000)
+        });
+
+        timeline.on('select', (props) => {
+            if(props.items.length) {
+                const item = window.timelineData.get(props.items[0]);
+                const person = rawData.find(p => p.id === item.personId);
+                if(person) openPanel(person);
+            }
+        });
     }
 
-    // Side Panel
+    // --- 4. PANEL LOGIC ---
     function openPanel(d) {
-        document.getElementById('p-name').innerText = d.iast || d.label;
+        document.getElementById('p-name').innerText = d.label; // Using label as fallback
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
         document.getElementById('p-school').innerText = d.school || "";
         document.getElementById('p-region').innerText = d.region || "";
@@ -271,23 +250,39 @@
         document.getElementById('panel-content').style.opacity = "1";
     }
 
-    network.on("click", function(params) {
-        if (params.nodes.length > 0) {
-            const nodeId = params.nodes[0];
-            const node = nodes.get(nodeId);
-            if (node) {
-                openPanel(node.data);
-                if(!node.data.isDeity) {
-                    const tItem = timelineData.get({ filter: i => i.personId === node.id });
-                    if(tItem.length) timeline.moveTo(tItem[0].start);
-                }
-            }
-        } else {
-            document.getElementById('side-panel').style.width = "0";
-            document.getElementById('panel-content').style.opacity = "0";
-        }
-    });
+    function closePanel() {
+        document.getElementById('side-panel').style.width = "0";
+        document.getElementById('panel-content').style.opacity = "0";
+    }
 
+    // --- 5. FILTER LOGIC ---
+    function updateGraph() {
+        const sFilter = document.getElementById('schoolFilter').value;
+        const rFilter = document.getElementById('regionFilter').value;
+
+        const filteredNodes = allNodes.filter(n => {
+            let p = n.data;
+            let show = true;
+            if (sFilter !== 'all' && p.school !== sFilter && p.group !== sFilter) show = false;
+            if (rFilter !== 'all' && p.region !== rFilter) show = false;
+            // Always show deities unless we are filtering strictly
+            if (p.isDeity && sFilter === 'all' && rFilter === 'all') show = true;
+            return show;
+        });
+
+        nodes.clear();
+        edges.clear();
+        nodes.add(filteredNodes);
+
+        const visibleIds = new Set(filteredNodes.map(n => n.id));
+        const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
+        edges.add(filteredEdges);
+        
+        // Important: Re-center after filtering
+        network.fit();
+    }
+
+    // --- 6. SEARCH LOGIC ---
     function searchNode(e) {
         if (e.key === 'Enter') {
             const q = document.getElementById('search').value.toLowerCase();
@@ -305,6 +300,10 @@
             }
         }
     }
+
+    // START APPLICATION
+    init();
+
 </script>
 </body>
 </html>
