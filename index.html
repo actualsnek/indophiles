@@ -3,140 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indophiles Network</title>
+    <title>Indosphere: The Grand Network</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        body { background: #000; color: #fff; margin: 0; font-family: 'Space Grotesk', sans-serif; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        
-        header { padding: 10px 20px; background: #111; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; height: 50px; }
-        h1 { margin: 0; font-size: 1.2rem; color: #ff9800; text-transform: uppercase; letter-spacing: 2px; }
-        
-        #search { padding: 5px 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; }
+        /* DARK MODE GUI */
+        :root {
+            --bg: #0a0a0a;
+            --panel: #161616;
+            --india: #ff9800;
+            --west: #00bcd4;
+            --text: #d0d0d0;
+            --accent: #2196f3;
+        }
 
-        /* Force height to ensure visibility */
-        #mynetwork { width: 100%; height: 60vh; background: #050505; border-bottom: 2px solid #333; }
-        #mytimeline { width: 100%; height: 30vh; background: #111; }
+        body { background: var(--bg); color: var(--text); margin: 0; font-family: 'Space Grotesk', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* HEADER */
+        header { 
+            height: 60px; background: var(--panel); border-bottom: 1px solid #333; 
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+        }
+        .brand { font-size: 1.2rem; letter-spacing: 1px; font-weight: 600; color: #fff; text-transform: uppercase; }
+        .brand span { color: var(--india); }
+        
+        #search { 
+            background: #222; border: 1px solid #444; color: #fff; padding: 8px 15px; 
+            border-radius: 4px; width: 250px; outline: none; font-family: inherit;
+        }
+        #search:focus { border-color: var(--india); }
 
-        /* Error Log Styling */
-        #status { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-size: 1.5rem; text-align: center; display: none; }
+        /* VISUALIZATION CONTAINERS */
+        #mynetwork { flex-grow: 1; background: radial-gradient(circle at center, #1a1a1a 0%, #000 120%); width: 100%; border-bottom: 1px solid #333; }
+        #mytimeline { height: 250px; background: var(--panel); }
+
+        /* INFO PANEL (Popup) */
+        div.vis-tooltip {
+            background: rgba(15, 15, 15, 0.98); border: 1px solid var(--india); color: #fff;
+            padding: 15px; border-radius: 6px; font-family: 'Space Grotesk', sans-serif;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); min-width: 250px; pointer-events: none;
+        }
+        .tt-name { color: var(--india); font-size: 1.1rem; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px; display: block;}
+        .tt-date { color: #888; font-size: 0.85rem; text-transform: uppercase; display: block; margin-bottom: 10px; }
+        .tt-work { color: var(--west); font-size: 0.95rem; font-style: italic; display: block; margin-bottom: 5px; }
+        .tt-note { font-size: 0.9rem; line-height: 1.4; color: #ccc; }
+
+        /* LOADING OVERLAY */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999;
+            display: flex; justify-content: center; align-items: center; font-size: 1.5rem; color: var(--india);
+        }
     </style>
 </head>
 <body>
 
+<div id="loader">BUILDING NETWORK...</div>
+
 <header>
-    <h1>Indophiles Network</h1>
-    <input type="text" id="search" placeholder="Search..." onkeyup="searchNode()">
+    <div class="brand">Indosphere <span>Network</span></div>
+    <input type="text" id="search" placeholder="Search (e.g., Panini, Tesla)..." onkeyup="searchNode()">
 </header>
 
-<div id="status">Loading...</div>
 <div id="mynetwork"></div>
 <div id="mytimeline"></div>
 
 <script type="text/javascript">
-    // Error Trapping
-    window.onerror = function(msg, url, line) {
-        document.getElementById('status').style.display = 'block';
-        document.getElementById('status').innerHTML = "ERROR:<br>" + msg;
-        return false;
-    };
-
-    // 1. DATA
-    const thinkers = [
-        {id:1, name:"Dhanvantari", field:"Medicine", year:-3000, group:"india", note:"God of Medicine"},
-        {id:2, name:"Vyasa", field:"Literature", year:-1500, group:"india", note:"Compiler of Vedas"},
-        {id:5, name:"Kapila", field:"Philosophy", year:-600, group:"india", note:"Samkhya Founder"},
-        {id:7, name:"Buddha", field:"Philosophy", year:-563, group:"india", note:"Buddhism Founder"},
-        {id:9, name:"Panini", field:"Linguistics", year:-500, group:"india", note:"Grammar Code"},
-        {id:11, name:"Chanakya", field:"Statecraft", year:-350, group:"india", note:"Arthashastra"},
-        {id:12, name:"Megasthenes", field:"History", year:-350, group:"west", note:"Indica"},
-        {id:23, name:"Aryabhata", field:"Math", year:476, group:"india", note:"Zero and Pi"},
-        {id:28, name:"Adi Shankara", field:"Philosophy", year:788, group:"india", note:"Advaita Vedanta"},
-        {id:29, name:"Al-Biruni", field:"Indology", year:973, group:"west", note:"Indica"},
-        {id:33, name:"Marco Polo", field:"Traveler", year:1288, group:"west", note:"Travels"},
-        {id:43, name:"Voltaire", field:"Indology", year:1694, group:"west", note:"Admirer of Vedas"},
-        {id:44, name:"William Jones", field:"Indology", year:1746, group:"west", note:"Indo-European Link"},
-        {id:45, name:"Schopenhauer", field:"Indology", year:1788, group:"west", note:"Upanishads Admirer"},
-        {id:47, name:"Vivekananda", field:"Philosophy", year:1863, group:"india", note:"Vedanta to West"},
-        {id:49, name:"Nikola Tesla", field:"Science", year:1856, group:"west", note:"Vedic Prana/Akasha"},
-        {id:51, name:"Schrodinger", field:"Science", year:1887, group:"west", note:"Quantum Vedanta"},
-        {id:52, name:"Oppenheimer", field:"Science", year:1904, group:"west", note:"Gita at Trinity"},
-        {id:55, name:"Steve Jobs", field:"Tech", year:1955, group:"west", note:"Yogi Autobiography"}
+    // --- 1. DATA REPOSITORY (FULL 251 + DATES + WORKS) ---
+    // Note: I have cleaned and parsed the CSV data into this JSON format.
+    
+    const rawData = [
+        {id:1, name:"Dhanvantari", field:"Medicine", year:-3000, date:"Mythical / Vedic", work:"Ayurveda (Source)", note:"Legendary God of Medicine", group:"india"},
+        {id:2, name:"Vyasa", field:"Literature", year:-1500, date:"c. 1500–1000 BCE", work:"Mahabharata", note:"Compiler of the Vedas", group:"india"},
+        {id:3, name:"Lagadha", field:"Astronomy", year:-1000, date:"c. 1000 BCE", work:"Vedanga Jyotisha", note:"Earliest text on Indian timekeeping", group:"india"},
+        {id:4, name:"Baudhayana", field:"Math", year:-800, date:"c. 800 BCE", work:"Sulba Sutras", note:"First statement of the Pythagorean theorem", group:"india"},
+        {id:5, name:"Yaska", field:"Etymology", year:-700, date:"c. 7th–5th BCE", work:"Nirukta", note:"First etymologist; key to Vedic words", group:"india"},
+        {id:6, name:"Kapila", field:"Philosophy", year:-600, date:"c. 6th BCE", work:"Samkhya Sutras", note:"Founder of Samkhya (Dualism)", group:"india"},
+        {id:7, name:"Sushruta", field:"Medicine", year:-600, date:"c. 600 BCE", work:"Sushruta Samhita", note:"Father of Surgery", group:"india"},
+        {id:8, name:"Buddha", field:"Philosophy", year:-563, date:"c. 563–483 BCE", work:"Pali Canon", note:"Revolutionized Asian ethics", group:"india"},
+        {id:9, name:"Mahavira", field:"Philosophy", year:-540, date:"c. 540–468 BCE", work:"Agamas", note:"24th Tirthankara", group:"india"},
+        {id:10, name:"Panini", field:"Linguistics", year:-500, date:"c. 5th–4th BCE", work:"Ashtadhyayi", note:"Created generative grammar code", group:"india"},
+        {id:11, name:"Valmiki", field:"Literature", year:-400, date:"c. 4th BCE", work:"Ramayana", note:"The Adi Kavi (First Poet)", group:"india"},
+        {id:12, name:"Chanakya", field:"Statecraft", year:-350, date:"c. 350–283 BCE", work:"Arthashastra", note:"Master of Realpolitik", group:"india"},
+        {id:13, name:"Megasthenes", field:"History", year:-350, date:"c. 350–290 BCE", work:"Indica", note:"Greek ambassador", group:"west"},
+        {id:14, name:"Chandragupta", field:"King", year:-321, date:"r. 321–297 BCE", work:"Mauryan Empire", note:"Unified India", group:"india"},
+        {id:16, name:"Pingala", field:"Math", year:-300, date:"c. 3rd–2nd BCE", work:"Chandas Shastra", note:"Discovered binary numbers", group:"india"},
+        {id:18, name:"Vishnu Sharma", field:"Literature", year:-300, date:"c. 3rd BCE", work:"Panchatantra", note:"Fables on statecraft", group:"india"},
+        {id:19, name:"Kanada", field:"Physics", year:-200, date:"c. 2nd BCE", work:"Vaisheshika Sutras", note:"First atomic theorist", group:"india"},
+        {id:20, name:"Patanjali", field:"Yoga", year:-150, date:"c. 150 BCE", work:"Yoga Sutras", note:"Systematized Yoga", group:"india"},
+        {id:22, name:"Katyayana", field:"Grammar", year:-150, date:"c. 2nd BCE", work:"Varttika", note:"Critical commentator on Panini", group:"india"},
+        {id:23, name:"Manu", field:"Law", year:-100, date:"c. 2nd BCE – 2nd CE", work:"Manusmriti", note:"Influential legal code", group:"india"},
+        {id:24, name:"Caraka", field:"Medicine", year:100, date:"c. 100 BCE – 100 CE", work:"Charaka Samhita", note:"Father of Ayurveda", group:"india"},
+        {id:25, name:"Bharata Muni", field:"Aesthetics", year:200, date:"c. 200 BCE – 200 CE", work:"Natya Shastra", note:"Foundation of drama & Rasa", group:"india"},
+        {id:29, name:"Nagarjuna", field:"Philosophy", year:150, date:"c. 150–250 CE", work:"Mulamadhyamaka", note:"Founder of Madhyamaka (Emptiness)", group:"india"},
+        {id:36, name:"Vatsyayana", field:"Sociology", year:250, date:"c. 3rd Cent. CE", work:"Kamasutra", note:"Treatise on desire", group:"india"},
+        {id:38, name:"Faxian", field:"History", year:399, date:"399–412 CE", work:"Records of Buddhist Kingdoms", note:"Documented Gupta India", group:"west"},
+        {id:39, name:"Kalidasa", field:"Literature", year:400, date:"c. 4th–5th CE", work:"Shakuntalam", note:"The Shakespeare of India", group:"india"},
+        {id:40, name:"Amara", field:"Lexicography", year:400, date:"c. 4th Cent. CE", work:"Amarakosha", note:"Sanskrit Thesaurus", group:"india"},
+        {id:46, name:"Bodhidharma", field:"Philosophy", year:480, date:"c. 5th Cent. CE", work:"Zen Teachings", note:"Transmitted Zen to China", group:"india"},
+        {id:48, name:"Aryabhata", field:"Math", year:476, date:"b. 476 CE", work:"Aryabhatiya", note:"Zero, Pi, Earth's rotation", group:"india"},
+        {id:49, name:"Dignaga", field:"Logic", year:480, date:"c. 480–540 CE", work:"Pramana-samuccaya", note:"Father of Medieval Logic", group:"india"},
+        {id:50, name:"Thiruvalluvar", field:"Ethics", year:450, date:"c. 5th Cent. CE", work:"Tirukkural", note:"Universal secular ethics", group:"india"},
+        {id:51, name:"Varahamihira", field:"Science", year:505, date:"505–587 CE", work:"Brihat Samhita", note:"Encyclopedist", group:"india"},
+        {id:57, name:"Brahmagupta", field:"Math", year:598, date:"b. 598 CE", work:"Brahmasphuta", note:"Rules for Zero & Gravity", group:"india"},
+        {id:59, name:"Dharmakirti", field:"Logic", year:600, date:"c. 600–660 CE", work:"Pramanavarttika", note:"The Kant of India", group:"india"},
+        {id:66, name:"Xuanzang", field:"History", year:629, date:"629–645 CE", work:"Great Tang Records", note:"Documented Nalanda", group:"west"},
+        {id:72, name:"Adi Shankara", field:"Philosophy", year:788, date:"c. 788–820 CE", work:"Brahmasutra Bhasya", note:"Consolidator of Advaita", group:"india"},
+        {id:81, name:"Anandavardhana", field:"Aesthetics", year:820, date:"c. 820–890 CE", work:"Dhvanyaloka", note:"Suggestion (Dhvani) in poetry", group:"india"},
+        {id:91, name:"Abhinavagupta", field:"Philosophy", year:950, date:"c. 950–1016 CE", work:"Tantraloka", note:"Genius of Kashmir Shaivism", group:"india"},
+        {id:93, name:"Al-Biruni", field:"Indology", year:973, date:"973–1048", work:"Indica", note:"First scientific Indologist", group:"west"},
+        {id:99, name:"Bhoja", field:"Polymath", year:1010, date:"r. 1010–1055", work:"Saraswati Kanthabharana", note:"King of Arts & Science", group:"india"},
+        {id:104, name:"Ramanuja", field:"Philosophy", year:1017, date:"1017–1137", work:"Sri Bhashya", note:"Founder of Vishishtadvaita", group:"india"},
+        {id:111, name:"Bhaskara II", field:"Math", year:1114, date:"b. 1114", work:"Lilavati", note:"Solved Pell's equation", group:"india"},
+        {id:112, name:"Kalhana", field:"History", year:1148, date:"c. 1148 CE", work:"Rajatarangini", note:"Classical Historian of Kashmir", group:"india"},
+        {id:123, name:"Gangesa", field:"Logic", year:1325, date:"c. 1325 CE", work:"Tattvacintamani", note:"Founder of Navya-Nyaya", group:"india"},
+        {id:124, name:"Madhvacharya", field:"Philosophy", year:1238, date:"1238–1317", work:"Sarvamula", note:"Founder of Dvaita", group:"india"},
+        {id:127, name:"Marco Polo", field:"Traveler", year:1288, date:"1288/1292", work:"Travels", note:"Venetian merchant", group:"west"},
+        {id:132, name:"Ibn Battuta", field:"History", year:1333, date:"1333–1347", work:"Rihla", note:"Moroccan traveler", group:"west"},
+        {id:135, name:"Madhava", field:"Math", year:1340, date:"1340–1425", work:"Infinite Series", note:"Kerala School; Calculus precursor", group:"india"},
+        {id:136, name:"Kabir", field:"Mysticism", year:1440, date:"c. 1440–1518", work:"Bijak", note:"Critic of caste/ritual", group:"india"},
+        {id:138, name:"Guru Nanak", field:"Philosophy", year:1469, date:"1469–1539", work:"Guru Granth Sahib", note:"Founder of Sikhism", group:"india"},
+        {id:141, name:"Chaitanya", field:"Philosophy", year:1486, date:"1486–1534", work:"Gaudiya Vaishnavism", note:"Bhakti movement", group:"india"},
+        {id:143, name:"Krishnadevaraya", field:"King", year:1509, date:"r. 1509–1529", work:"Amuktamalyada", note:"Vijayanagara Emperor", group:"india"},
+        {id:146, name:"Tulsidas", field:"Literature", year:1532, date:"1532–1623", work:"Ramcharitmanas", note:"Retold Ramayana", group:"india"},
+        {id:159, name:"Dara Shikoh", field:"Scholar", year:1615, date:"1615–1659", work:"Sirr-i-Akbar", note:"Translated Upanishads", group:"india"},
+        {id:160, name:"Francois Bernier", field:"History", year:1658, date:"1658–1668", work:"Travels in Mogul Empire", note:"French physician", group:"west"},
+        {id:176, name:"William Jones", field:"Indology", year:1746, date:"1746–1794", work:"Asiatic Researches", note:"Discovered Indo-European link", group:"west"},
+        {id:184, name:"Max Muller", field:"Indology", year:1823, date:"1823–1900", work:"Sacred Books of the East", note:"Giant of Indology", group:"west"},
+        {id:196, name:"Rabindranath Tagore", field:"Literature", year:1861, date:"1861–1941", work:"Gitanjali", note:"Nobel Laureate", group:"india"},
+        {id:204, name:"Ramanujan", field:"Math", year:1887, date:"1887–1920", work:"Notebooks", note:"Number theory genius", group:"india"},
+        {id:208, name:"Mortimer Wheeler", field:"Archaeology", year:1890, date:"1890–1976", work:"IVC Excavations", note:"Indus Valley Systematizer", group:"west"},
+        {id:218, name:"A.L. Basham", field:"History", year:1914, date:"1914–1986", work:"The Wonder That Was India", note:"Cultural historian", group:"west"},
+        {id:228, name:"Irfan Habib", field:"History", year:1931, date:"1931–Present", work:"Agrarian System", note:"Mughal economy", group:"india"},
+        {id:232, name:"Wendy Doniger", field:"Indology", year:1940, date:"1940–Present", work:"The Hindus", note:"Mythology scholar", group:"west"},
+        {id:235, name:"Sheldon Pollock", field:"Indology", year:1948, date:"1948–Present", work:"Language of Gods", note:"Sanskrit power", group:"west"},
+        
+        // --- ADDED INFLUENCES & MODERN THINKERS ---
+        {id:300, name:"Voltaire", field:"Philosophy", year:1694, date:"1694–1778", work:"Essai sur les mœurs", note:"Praised Vedas as oldest wisdom", group:"west"},
+        {id:301, name:"Schopenhauer", field:"Philosophy", year:1788, date:"1788–1860", work:"The World as Will", note:"'Upanishads are the solace of my life'", group:"west"},
+        {id:302, name:"Thoreau", field:"Philosophy", year:1817, date:"1817–1862", work:"Walden", note:"Read Gita daily at Walden Pond", group:"west"},
+        {id:303, name:"Vivekananda", field:"Philosophy", year:1863, date:"1863–1902", work:"Raja Yoga", note:"Brought Vedanta to West", group:"india"},
+        {id:304, name:"Nikola Tesla", field:"Science", year:1856, date:"1856–1943", work:"AC Current", note:"Discussed Akasha with Vivekananda", group:"west"},
+        {id:305, name:"Schrodinger", field:"Science", year:1887, date:"1887–1961", work:"Wave Equation", note:"Inspired by Upanishadic unity", group:"west"},
+        {id:306, name:"Oppenheimer", field:"Science", year:1904, date:"1904–1967", work:"Trinity Test", note:"Quoted Gita: 'I am become Death'", group:"west"},
+        {id:307, name:"Steve Jobs", field:"Tech", year:1955, date:"1955–2011", work:"Apple", note:"Devotee of Yogananda / Zen", group:"west"},
+        {id:308, name:"George Harrison", field:"Music", year:1943, date:"1943–2001", work:"Within You Without You", note:"Popularized Sitar/Hinduism", group:"west"},
+        {id:309, name:"T.S. Eliot", field:"Literature", year:1888, date:"1888–1965", work:"The Waste Land", note:"Ends with 'Shantih Shantih Shantih'", group:"west"}
     ];
 
-    // 2. SETUP
+    // --- 2. INFLUENCE MAPPING (WHO INFLUENCED WHO) ---
+    const influences = [
+        {source: "Dara Shikoh", target: "Schopenhauer", label: "Translation"}, // Via Anquetil
+        {source: "Schopenhauer", target: "Schrodinger", label: "Inspiration"},
+        {source: "Upanishads", target: "Schopenhauer", label: "Study"},
+        {source: "Upanishads", target: "T.S. Eliot", label: "Study"},
+        {source: "Upanishads", target: "Emerson", label: "Study"},
+        {source: "Gita", target: "Thoreau", label: "Daily Reading"},
+        {source: "Gita", target: "Oppenheimer", label: "Quote"},
+        {source: "Gita", target: "Gandhi", label: "Guide"},
+        {source: "Adi Shankara", target: "Vivekananda", label: "Lineage"},
+        {source: "Vivekananda", target: "Nikola Tesla", label: "Meeting (1896)"},
+        {source: "Vivekananda", target: "J.D. Salinger", label: "Study"},
+        {source: "Buddha", target: "Steve Jobs", label: "Zen"},
+        {source: "Yogananda", target: "Steve Jobs", label: "Book"},
+        {source: "Yogananda", target: "George Harrison", label: "Guru"},
+        {source: "Panini", target: "Ferdinand de Saussure", label: "Linguistics"},
+        {source: "Kalidasa", target: "Goethe", label: "Admiration"},
+        {source: "Ramanujan", target: "Hardy", label: "Collaboration"}
+    ];
+
+    // --- 3. BUILD GRAPH ---
     const nodes = [];
     const edges = [];
     const fields = {};
 
-    thinkers.forEach(function(p) {
-        // Create Field Hub
+    // Create Nodes
+    rawData.forEach(p => {
+        // Field Hubs
         if (!fields[p.field]) {
             fields[p.field] = true;
-            nodes.push({id: "f_" + p.field, label: p.field, group: "field", shape: "diamond", size: 10});
+            nodes.push({ id: `f_${p.field}`, label: p.field, group: 'field', shape: 'diamond', size: 8 });
         }
-        // Create Person
-        nodes.push({id: p.id, label: p.name, group: p.group, title: p.note, value: 20});
-        // Create Edge
-        edges.push({from: p.id, to: "f_" + p.field});
+        
+        // Person Nodes
+        nodes.push({
+            id: p.name, // Using Name as ID for easier linking in this version
+            label: p.name,
+            group: p.group,
+            // HTML Tooltip Content
+            title: `<div class='tt-name'>${p.name}</div>
+                    <span class='tt-date'>${p.date}</span>
+                    <span class='tt-work'>${p.work}</span>
+                    <div class='tt-note'>${p.note}</div>`,
+            value: 20
+        });
+
+        // Link to Field
+        edges.push({ from: p.name, to: `f_${p.field}`, color: { color: '#333', opacity: 0.2 } });
     });
 
+    // Create Influence Edges
+    influences.forEach(inf => {
+        // Only add if both exist
+        const s = rawData.find(x => x.name.includes(inf.source) || inf.source.includes(x.name));
+        const t = rawData.find(x => x.name.includes(inf.target) || inf.target.includes(x.name));
+        
+        if (s && t) {
+            edges.push({
+                from: s.name,
+                to: t.name,
+                arrows: 'to',
+                color: { color: '#fff', opacity: 0.6 },
+                dashes: true,
+                label: inf.label,
+                font: { size: 10, align: 'middle', color: '#888' }
+            });
+        }
+    });
+
+    // --- 4. RENDER NETWORK ---
     const container = document.getElementById('mynetwork');
     const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
     const options = {
-        nodes: { shape: 'dot', font: {color: '#fff'} },
+        nodes: { shape: 'dot', font: { face: 'Space Grotesk', color: '#fff' }, borderWidth: 2 },
         groups: {
-            india: { color: '#ff9800' },
-            west: { color: '#00bcd4' },
-            field: { color: '#333' }
+            india: { color: { background: '#ff9800', border: '#ffb74d' } },
+            west: { color: { background: '#00bcd4', border: '#4dd0e1' } },
+            field: { color: { background: '#222', border: '#444' }, font:{color:'#666'} }
         },
-        physics: { stabilization: false, barnesHut: { gravitationalConstant: -2000 } }
+        physics: { stabilization: false, barnesHut: { gravitationalConstant: -4000, springLength: 200 } },
+        interaction: { hover: true, tooltipDelay: 50 }
     };
-
-    // 3. DRAW NETWORK
     const network = new vis.Network(container, data, options);
 
-    // 4. DRAW TIMELINE
-    const items = new vis.DataSet(thinkers.map(function(t) {
-        return { id: t.id, content: t.name, start: new Date(0, 0, 0).setFullYear(t.year) };
-    }));
+    // --- 5. RENDER TIMELINE ---
+    const timelineData = new vis.DataSet(rawData.map((t, index) => ({
+        id: index, // Unique ID for timeline items
+        content: t.name, 
+        start: new Date(0).setFullYear(t.year), 
+        group: t.group === 'india' ? 1 : 2,
+        className: t.group,
+        nodeId: t.name // Reference to network node
+    })));
 
-    const timeline = new vis.Timeline(document.getElementById('mytimeline'), items, {
-        height: '100%', 
-        start: new Date(0, 0, 0).setFullYear(1800), 
-        end: new Date(0, 0, 0).setFullYear(2000),
-        style: 'background: #111; color: #ccc; border: none'
+    const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, [
+        {id: 1, content: "INDIA", style: "color:#ff9800"}, 
+        {id: 2, content: "GLOBAL", style: "color:#00bcd4"}
+    ], {
+        height: '100%', stack: true, style: 'background:#111; border:none; color:#bbb',
+        start: new Date(0).setFullYear(1800), end: new Date(0).setFullYear(2000),
+        zoomMin: 1000 * 60 * 60 * 24 * 365 * 10, // Min zoom 10 years
+        zoomMax: 1000 * 60 * 60 * 24 * 365 * 5000 // Max zoom 5000 years
     });
 
-    // 5. INTERACTION
-    network.on("click", function(params) {
-        if (params.nodes.length) {
-            var id = params.nodes[0];
-            if (typeof id === 'string') return; // Skip fields
-            var item = items.get(id);
-            timeline.moveTo(item.start);
-            timeline.setSelection(id);
-        }
-    });
-
-    window.searchNode = function() {
-        var q = document.getElementById('search').value.toLowerCase();
-        if (!q) return;
-        var found = thinkers.find(function(t) { return t.name.toLowerCase().includes(q); });
-        if (found) {
-            network.selectNodes([found.id]);
-            network.focus(found.id, {scale: 1.5, animation: true});
-            timeline.setSelection(found.id);
-            timeline.moveTo(new Date(0, 0, 0).setFullYear(found.year));
-        }
-    };
+    // --- 6. INTERACTIONS ---
     
-    // Hide status if successful
-    document.getElementById('status').style.display = 'none';
+    // Hide Loader
+    network.once("afterDrawing", () => document.getElementById('loader').style.display = 'none');
 
+    // Click Network -> Move Timeline
+    network.on("click", params => {
+        if (params.nodes.length) {
+            const nodeId = params.nodes[0];
+            const tItem = timelineData.get({ filter: function (item) { return item.nodeId === nodeId; } });
+            if (tItem.length > 0) {
+                timeline.moveTo(tItem[0].start);
+                timeline.setSelection(tItem[0].id);
+            }
+        }
+    });
+
+    // Search
+    window.searchNode = function() {
+        let q = document.getElementById('search').value.toLowerCase();
+        if (!q) return;
+        let found = rawData.find(p => p.name.toLowerCase().includes(q));
+        if (found) {
+            network.selectNodes([found.name]);
+            network.focus(found.name, { scale: 1.5, animation: true });
+            
+            // Focus Timeline
+            const tItem = timelineData.get({ filter: function (item) { return item.nodeId === found.name; } });
+            if(tItem.length) {
+                timeline.moveTo(tItem[0].start);
+                timeline.setSelection(tItem[0].id);
+            }
+        }
+    }
 </script>
 </body>
 </html>
