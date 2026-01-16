@@ -1,473 +1,448 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indosphere: The Grand Archive</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Indosphere – Indian Philosophers & Lineages</title>
 
-    <style>
-        :root { --bg: #050505; --panel: #0f0f0f; --gold: #d4af37; --silver: #a5a5a5; --border: #333; }
-        
-        body { 
-            background: var(--bg); color: #e0e0e0; margin: 0; 
-            font-family: 'Noto Serif', serif; 
-            height: 100vh; width: 100vw;
-            display: flex; flex-direction: column; overflow: hidden; 
-        }
-        
-        header { 
-            height: 60px; background: var(--panel); border-bottom: 1px solid var(--border); 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 25px; z-index: 1000; box-shadow: 0 5px 20px rgba(0,0,0,0.8); 
-            flex-shrink: 0; 
-        }
-        
-        .brand { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; color: var(--gold); }
-        .controls { display: flex; gap: 10px; }
-        select, input { background: #1a1a1a; color: #ddd; border: 1px solid #444; padding: 6px 10px; font-family: 'Cinzel', serif; font-size: 0.8rem; border-radius: 3px; outline: none; }
-        select:hover, input:focus { border-color: var(--gold); }
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <script src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+  <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
 
-        .main-container { flex: 1; position: relative; display: flex; overflow: hidden; }
-        
-        #network { width: 100%; height: 100%; background: radial-gradient(circle at center, #111 0%, #000 120%); }
-        
-        #mytimeline { 
-            height: 140px; background: rgba(10,10,10,0.95); 
-            border-top: 1px solid var(--border); z-index: 20; position: relative; 
-            flex-shrink: 0;
-        }
-
-        #side-panel { width: 0; background: var(--panel); border-left: 1px solid var(--border); transition: width 0.4s ease; overflow-y: auto; z-index: 2000; position: absolute; right: 0; top: 0; bottom: 0; box-shadow: -5px 0 30px rgba(0,0,0,0.9); }
-        .panel-content { padding: 30px; opacity: 0; transition: opacity 0.3s 0.2s; min-width: 300px; }
-        .p-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
-        .p-label { color: #666; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 1px; margin-top: 20px; display: block; font-weight: 600; }
-        .p-value { font-size: 1rem; color: #ddd; line-height: 1.5; margin-top: 5px; }
-        .works-list { margin-top: 5px; padding-left: 0; list-style: none; }
-        .works-list li { margin-bottom: 4px; color: #aaa; font-size: 0.9rem; }
-        .legend { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; font-size: 0.8rem; z-index: 1000; border: 1px solid #333; pointer-events: none; }
-    </style>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      background: #f9fbfc;
+      color: #1a1a1a;
+    }
+    header {
+      padding: 12px 20px;
+      background: #1e3a5f;
+      color: white;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    header h1 { margin: 0; font-size: 1.45rem; }
+    label { display: flex; align-items: center; gap: 6px; font-size: 0.94rem; }
+    select, input {
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: 1px solid #aaa;
+      background: white;
+    }
+    #main {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      height: 100%;
+    }
+    #network-container, #timeline-container {
+      width: 100%;
+      height: 100%;
+      background: white;
+      border: 1px solid #e0e0e0;
+    }
+    #side-panel {
+      background: white;
+      padding: 16px 20px;
+      overflow-y: auto;
+      border-right: 1px solid #ddd;
+      font-size: 0.96rem;
+      line-height: 1.45;
+    }
+    #side-panel h2 { margin: 0 0 1rem; color: #1e3a5f; }
+    #side-panel strong { color: #2c3e50; }
+    #side-panel em { color: #555; }
+    .node-highlight {
+      border: 3px solid #c0392b !important;
+      box-shadow: 0 0 14px rgba(192,57,43,0.5) !important;
+    }
+  </style>
 </head>
 <body>
 
 <header>
-    <div class="brand">Indosphere</div>
-    <div class="controls">
-        <select id="schoolFilter" onchange="updateGraph()">
-            <option value="all">All Schools</option>
-            <option value="Advaita">Advaita</option>
-            <option value="Dvaita">Dvaita</option>
-            <option value="Nyaya">Nyaya</option>
-            <option value="Kashmir Shaivism">Kashmir Shaivism</option>
-            <option value="Buddhism">Buddhism</option>
-            <option value="Jainism">Jainism</option>
-            <option value="Bhakti">Bhakti</option>
-            <option value="Indology">Indology</option>
-        </select>
-        <select id="regionFilter" onchange="updateGraph()">
-            <option value="all">All Regions</option>
-            <option value="North">North India</option>
-            <option value="South">South India</option>
-            <option value="East">East (Bengal/Bihar)</option>
-            <option value="West">West (Gujarat/Maha)</option>
-            <option value="Global">Global</option>
-        </select>
-        <input type="text" id="search" placeholder="Search..." onkeyup="searchNode(event)">
-    </div>
+  <h1>Indosphere</h1>
+
+  <label>School:
+    <select id="filter-school"><option value="">All</option></select>
+  </label>
+
+  <label>Region:
+    <select id="filter-region"><option value="">All</option></select>
+  </label>
+
+  <label>Search:
+    <input type="text" id="search" placeholder="name / school / note…" style="width:170px;"/>
+  </label>
 </header>
 
-<div class="main-container">
-    <div id="network"></div>
-    <div class="legend">★ Deity | ● Guru/Scholar | ── Lineage</div>
-    
-    <div id="side-panel"><div class="panel-content" id="panel-content">
-        <div id="p-name" class="p-title"></div>
-        <span id="p-dates" class="p-value" style="color:#aaa"></span>
-        <span class="p-label">School</span><div id="p-school" class="p-value" style="color: var(--gold)"></div>
-        <span class="p-label">Region</span><div id="p-region" class="p-value"></div>
-        <span class="p-label">Magnum Opus</span><div id="p-work" class="p-value" style="font-style: italic; color: #e6c673;"></div>
-        <span class="p-label">Other Works</span><ul id="p-others" class="works-list"></ul>
-        <span class="p-label">Significance</span><div id="p-note" class="p-value"></div>
-        <span class="p-label">Lineage</span><div id="p-lineage" class="p-value" style="border-left: 2px solid #333; padding-left: 10px;"></div>
-    </div></div>
+<div id="main">
+  <div id="side-panel">
+    <h2>Node Details</h2>
+    <div id="details">← Click any node</div>
+  </div>
+
+  <div style="display:flex; flex-direction:column;">
+    <div id="network-container" style="flex:1;"></div>
+    <div id="timeline-container" style="height:240px; border-top:1px solid #ccc;"></div>
+  </div>
 </div>
 
-<div id="mytimeline"></div>
+<script>
+const rawData = [
+    {id:"Narayana", label:"Nārāyaṇa", group:"Deity", region:"Divine", isDeity:true, note:"The Preserver."},
+    {id:"Shiva", label:"Śiva", group:"Deity", region:"Divine", isDeity:true, note:"Adi Guru."},
+    {id:"Brahma", label:"Brahmā", group:"Deity", region:"Divine", isDeity:true, note:"The Creator."},
+    {id:"Shakti", label:"Śakti", group:"Deity", region:"Divine", isDeity:true, note:"Divine Mother."},
+    {id:"Rudra", label:"Rudra", group:"Deity", region:"Divine", isDeity:true, note:"Vedic Form."},
+    {id:"Bhairava", label:"Bhairava", group:"Deity", region:"Divine", isDeity:true, note:"Trika Source."},
 
-<script type="text/javascript">
-    // ============================================
-    // 1. DATA (GLOBAL SCOPE)
-    // ============================================
-    const rawData = [
-        {id:"Narayana", label:"Nārāyaṇa", group:"Deity", region:"Divine", isDeity:true, note:"The Preserver."},
-        {id:"Shiva", label:"Śiva", group:"Deity", region:"Divine", isDeity:true, note:"Adi Guru."},
-        {id:"Brahma", label:"Brahmā", group:"Deity", region:"Divine", isDeity:true, note:"The Creator."},
-        {id:"Shakti", label:"Śakti", group:"Deity", region:"Divine", isDeity:true, note:"Divine Mother."},
-        {id:"Rudra", label:"Rudra", group:"Deity", region:"Divine", isDeity:true, note:"Vedic Form."},
-        {id:"Bhairava", label:"Bhairava", group:"Deity", region:"Divine", isDeity:true, note:"Trika Source."},
-        {id:"Dhanvantari", label:"Dhanvantari", year:-3000, school:"Ayurveda", region:"North", work:"Ayurveda", others:["Dhanvantari Nighantu"]},
-        {id:"Vyasa", label:"Vyāsa", year:-1500, school:"Vedic", region:"North", work:"Mahabharata", others:["Brahma Sutras", "Bhagavata Purana"]},
-        {id:"Vashishta", label:"Vashishta", year:-3000, school:"Vedic", region:"North", work:"Rig Veda 7", others:["Yoga Vashishta"]},
-        {id:"Parashara", label:"Parashara", year:-2000, school:"Vedic", region:"North", work:"Vishnu Purana", others:["Parashara Smriti"]},
-        {id:"Shuka", label:"Shuka", year:-1400, school:"Advaita", region:"North", work:"Bhagavata (Narrator)", others:[]},
-        {id:"Yajnavalkya", label:"Yājñavalkya", year:-850, school:"Vedic", region:"East", work:"Brihadaranyaka", others:["Shatapatha Brahmana"]},
-        {id:"Kapila", label:"Kapila", year:-600, school:"Samkhya", region:"North", work:"Samkhya Sutras", others:[]},
-        {id:"Jaimini", label:"Jaimini", year:-300, school:"Mimamsa", region:"North", work:"Mimamsa Sutras", others:[]},
-        {id:"Gautama", label:"Gautama", year:-200, school:"Nyaya", region:"East", work:"Nyaya Sutras", others:[]},
-        {id:"Kanada", label:"Kaṇāda", year:-200, school:"Vaisheshika", region:"West", work:"Vaisheshika Sutras", others:[]},
-        {id:"Patanjali", label:"Patañjali", year:-150, school:"Yoga", region:"North", work:"Yoga Sutras", others:["Mahabhasya"]},
-        {id:"Panini", label:"Pāṇini", year:-500, school:"Grammar", region:"North West", work:"Ashtadhyayi", others:["Dhatupatha"]},
-        {id:"Chanakya", label:"Cāṇakya", year:-350, school:"Statecraft", region:"East", work:"Arthashastra", others:["Chanakya Niti"]},
-        {id:"Sushruta", label:"Suśruta", year:-600, school:"Medicine", region:"North", work:"Sushruta Samhita", others:[]},
-        {id:"Charvaka", label:"Cārvāka", year:-600, school:"Nastika", region:"North", work:"Barhaspatya Sutras", others:[]},
-        {id:"Buddha", label:"Buddha", year:-563, school:"Buddhism", region:"East", work:"Pali Canon", others:["Dhammapada"]},
-        {id:"Mahavira", label:"Mahāvīra", year:-540, school:"Jainism", region:"East", work:"Agamas", others:[]},
-        {id:"Makkhali", label:"Makkhali Gosala", year:-500, school:"Ajivika", region:"East", work:"(Lost)", others:[]},
-        {id:"Gaudapada", label:"Gauḍapāda", year:600, school:"Advaita", region:"North", work:"Mandukya Karika", others:[]},
-        {id:"Govinda", label:"Govinda Bhagavatpāda", year:750, school:"Advaita", region:"Central", work:"Yoga Taravali", others:[]},
-        {id:"Shankara", label:"Ādi Śaṅkara", year:788, school:"Advaita", region:"South", work:"Brahmasutra Bhashya", others:["Vivekachudamani", "Bhaja Govindam"]},
-        {id:"Suresvara", label:"Sureśvara", year:800, school:"Advaita", region:"South", work:"Naishkarmya Siddhi", others:["Manasollasa"]},
-        {id:"Padmapada", label:"Padmapāda", year:800, school:"Advaita", region:"South", work:"Panchapadika", others:[]},
-        {id:"Hastamalaka", label:"Hastāmalaka", year:800, school:"Advaita", region:"South", work:"Hastamalakiya", others:[]},
-        {id:"Totaka", label:"Toṭakācārya", year:800, school:"Advaita", region:"South", work:"Totakashtakam", others:[]},
-        {id:"Vidyaranya", label:"Vidyāraṇya", year:1296, school:"Advaita", region:"South", work:"Panchadasi", others:["Jivanmuktiviveka"]},
-        {id:"Madhusudana", label:"Madhusūdana", year:1540, school:"Advaita", region:"East", work:"Advaita Siddhi", others:["Gudhartha Dipika"]},
-        {id:"Achyuta", label:"Acyutaprekṣa", year:1200, school:"Dvaita", region:"South", note:"Guru of Madhva", others:[]},
-        {id:"Madhva", label:"Madhvācārya", year:1238, school:"Dvaita", region:"South", work:"Sarvamula", others:["Mahabharata Tatparya Nirnaya"]},
-        {id:"Jayatirtha", label:"Jayatīrtha", year:1365, school:"Dvaita", region:"South", work:"Nyaya Sudha", others:["Vadavali"]},
-        {id:"Vyasatirtha", label:"Vyāsatīrtha", year:1460, school:"Dvaita", region:"South", work:"Nyayamrita", others:["Tarkatandava"]},
-        {id:"Raghavendra", label:"Rāghavendra", year:1595, school:"Dvaita", region:"South", work:"Parimala", others:[]},
-        {id:"Nammalvar", label:"Nammāḻvār", year:880, school:"Bhakti", region:"South", work:"Tiruvaymoli", others:[]},
-        {id:"Nathamuni", label:"Nāthamuni", year:900, school:"Vishishtadvaita", region:"South", work:"Yoga Rahasya", others:["Nyayatattva"]},
-        {id:"Yamuna", label:"Yāmunācārya", year:917, school:"Vishishtadvaita", region:"South", work:"Siddhitraya", others:["Gitartha Sangraha"]},
-        {id:"Ramanuja", label:"Rāmānuja", year:1017, school:"Vishishtadvaita", region:"South", work:"Sri Bhashya", others:["Vedartha Sangraha"]},
-        {id:"Desika", label:"Vedānta Deśika", year:1268, school:"Vishishtadvaita", region:"South", work:"Paduka Sahasram", others:["Rahasyatrayasara"]},
-        {id:"Vasugupta", label:"Vasugupta", year:800, school:"Kashmir Shaivism", region:"North", work:"Shiva Sutras", others:["Spanda Karika"]},
-        {id:"Somananda", label:"Somānanda", year:900, school:"Kashmir Shaivism", region:"North", work:"Shiva Drishti", others:[]},
-        {id:"Utpaladeva", label:"Utpaladeva", year:925, school:"Kashmir Shaivism", region:"North", work:"Ishvara Pratyabhijna", others:["Sivastotravali"]},
-        {id:"Abhinavagupta", label:"Abhinavagupta", year:950, school:"Kashmir Shaivism", region:"North", work:"Tantraloka", others:["Abhinavabharati"]},
-        {id:"Kshemaraja", label:"Kṣemarāja", year:1000, school:"Kashmir Shaivism", region:"North", work:"Pratyabhijnahridayam", others:["Shiva Sutra Vimarshini"]},
-        {id:"Lakshmanjoo", label:"Lakshmanjoo", year:1907, school:"Kashmir Shaivism", region:"North", work:"Secret Supreme", others:[]},
-        {id:"Vatsyayana", label:"Vātsyāyana", year:450, school:"Nyaya", region:"North", work:"Nyaya Bhashya", others:[]},
-        {id:"Uddyotakara", label:"Uddyotakara", year:600, school:"Nyaya", region:"North", work:"Nyaya Varttika", others:[]},
-        {id:"Vacaspati", label:"Vācaspati Miśra", year:900, school:"Nyaya", region:"East", work:"Nyaya Tatparya Tika", others:["Bhamati"]},
-        {id:"Udayana", label:"Udayana", year:984, school:"Nyaya", region:"East", work:"Kusumanjali", others:["Atmatattvaviveka"]},
-        {id:"Gangesa", label:"Gaṅgeśa", year:1325, school:"Nyaya", region:"East", work:"Tattvacintamani", others:[]},
-        {id:"Raghunatha", label:"Raghunātha Śiromaṇi", year:1477, school:"Nyaya", region:"East", work:"Didhiti", others:[]},
-        {id:"Shabara", label:"Śabara", year:200, school:"Mimamsa", region:"India", work:"Shabara Bhashya", others:[]},
-        {id:"Kumarila", label:"Kumārila Bhaṭṭa", year:700, school:"Mimamsa", region:"North", work:"Slokavartika", others:["Tantravartika"]},
-        {id:"Prabhakara", label:"Prabhākara", year:700, school:"Mimamsa", region:"South", work:"Brihati", others:[]},
-        {id:"Mandana", label:"Maṇḍana Miśra", year:800, school:"Mimamsa", region:"East", work:"Brahmasiddhi", others:[]},
-        {id:"IshvaraKrishna", label:"Ishvara Krishna", year:350, school:"Samkhya", region:"India", work:"Samkhya Karika", others:[]},
-        {id:"Vijnanabhikshu", label:"Vijnanabhikshu", year:1550, school:"Yoga", region:"India", work:"Yogavarttika", others:[]},
-        {id:"Prashastapada", label:"Prashastapada", year:550, school:"Vaisheshika", region:"India", work:"Padarthadharmasamgraha", others:[]},
-        {id:"Nimbarka", label:"Nimbārka", year:1150, school:"Dvaitadvaita", region:"South", work:"Parijata Saurabha", others:[]},
-        {id:"Vallabha", label:"Vallabhācārya", year:1479, school:"Shuddhadvaita", region:"West", work:"Anubhashya", others:["Subodhini"]},
-        {id:"Chaitanya", label:"Caitanya", year:1486, school:"Bhakti", region:"East", work:"Siksastakam", others:[], note:"Gaudiya Founder."},
-        {id:"Mahakassapa", label:"Mahākāśyapa", year:-500, school:"Buddhism", region:"India", note:"1st Patriarch", others:[]},
-        {id:"Ananda", label:"Ānanda", year:-500, school:"Buddhism", region:"India", note:"Dhamma Keeper", others:[]},
-        {id:"Nagarjuna", label:"Nāgārjuna", year:150, school:"Mahayana", region:"South", work:"Mulamadhyamaka", others:["Ratnavali"]},
-        {id:"Dignaga", label:"Dignāga", year:480, school:"Mahayana", region:"South", work:"Pramana Samuccaya", others:["Hetucakra"]},
-        {id:"Dharmakirti", label:"Dharmakīrti", year:600, school:"Mahayana", region:"South", work:"Pramanavarttika", others:[]},
-        {id:"Bodhidharma", label:"Bodhidharma", year:480, school:"Zen", region:"China", work:"Zen Teachings", others:[]},
-        {id:"Padmasambhava", label:"Padmasambhava", year:750, school:"Vajrayana", region:"Tibet", note:"Guru Rinpoche", others:[]},
-        {id:"Atisha", label:"Atiśa", year:982, school:"Vajrayana", region:"East", note:"Kadampa Founder", others:[]},
-        {id:"Tsongkhapa", label:"Tsongkhapa", year:1357, school:"Vajrayana", region:"Tibet", note:"Gelug Founder", others:[]},
-        {id:"DalaiLama", label:"Dalai Lama (14th)", year:1935, school:"Vajrayana", region:"Tibet", note:"14th.", others:[]},
-        {id:"Mahavira", label:"Mahāvīra", year:-540, school:"Jainism", region:"East", note:"24th Tirthankara.", others:[]},
-        {id:"Bhadrabahu", label:"Bhadrabāhu", year:-300, school:"Jainism", region:"South", work:"Kalpa Sutra", others:[]},
-        {id:"Kundakunda", label:"Kundakunda", year:200, school:"Jainism", region:"South", work:"Samayasara", others:[]},
-        {id:"Hemachandra", label:"Hemacandra", year:1088, school:"Jainism", region:"West", work:"Yogasastra", others:["Siddha-Hema"]},
-        {id:"Jayadeva", label:"Jayadeva", year:1200, school:"Bhakti", region:"East", work:"Gita Govinda", others:[]},
-        {id:"Vidyapati", label:"Vidyāpati", year:1352, school:"Literature", region:"East", work:"Padavali", others:["Kirtilata"]},
-        {id:"Kabir", label:"Kabīr", year:1440, school:"Bhakti", region:"North", work:"Bijak", others:[]},
-        {id:"Tulsidas", label:"Tulasīdāsa", year:1532, school:"Bhakti", region:"North", work:"Ramcharitmanas", others:["Vinaya Patrika"]},
-        {id:"Surdas", label:"Sūrdās", year:1478, school:"Bhakti", region:"North", work:"Sur Sagar", others:[]},
-        {id:"Mirabai", label:"Mīrābāī", year:1498, school:"Bhakti", region:"West", work:"Bhajans", others:[]},
-        {id:"Andal", label:"Āṇḍāḷ", year:750, school:"Bhakti", region:"South", work:"Tiruppavai", others:[]},
-        {id:"Tyagaraja", label:"Tyāgarāja", year:1767, school:"Music", region:"South", work:"Pancharatna", others:[]},
-        {id:"Muthuswami", label:"Muthuswāmi", year:1775, school:"Music", region:"South", work:"Navagraha Kritis", others:[]},
-        {id:"RamMohan", label:"Ram Mohan Roy", year:1772, school:"Modern", region:"East", work:"Brahmo Samaj", others:[]},
-        {id:"Bankim", label:"Baṅkim Candra", year:1838, school:"Literature", region:"East", work:"Anandamath", others:["Vande Mataram"]},
-        {id:"Vivekananda", label:"Vivekānanda", year:1863, school:"Advaita", region:"East", work:"Raja Yoga", others:["Karma Yoga"]},
-        {id:"Tagore", label:"Rabindranath Tagore", year:1861, school:"Literature", region:"East", work:"Gitanjali", others:["Gora"]},
-        {id:"Aurobindo", label:"Sri Aurobindo", year:1872, school:"Yoga", region:"South", work:"Life Divine", others:["Savitri"]},
-        {id:"Ramanujan", label:"Srinivasa Ramanujan", year:1887, school:"Science", region:"South", work:"Notebooks", others:[]},
-        {id:"Ambedkar", label:"B.R. Ambedkar", year:1891, school:"Modern", region:"West", work:"Constitution", others:["Annihilation of Caste"]},
-        {id:"Nazrul", label:"Kazi Nazrul Islam", year:1899, school:"Literature", region:"East", work:"Bidrohi", others:[]},
-        {id:"CVRaman", label:"C.V. Rāman", year:1888, school:"Science", region:"South", work:"Raman Effect", others:[]},
-        {id:"Bose", label:"JC Bose", year:1858, school:"Science", region:"East", work:"Plant Science", others:[]},
-        {id:"Satyendranath", label:"S.N. Bose", year:1894, school:"Science", region:"East", work:"Boson", others:[]},
-        {id:"Voltaire", label:"Voltaire", year:1694, school:"Indology", region:"Global", work:"Essai", note:"Indophile"},
-        {id:"Schopenhauer", label:"Schopenhauer", year:1788, school:"Philosophy", region:"Global", work:"World as Will", note:"Upanishads admirer"},
-        {id:"MaxMuller", label:"Max Müller", year:1823, school:"Indology", region:"Global", work:"Sacred Books", note:"Indologist"},
-        {id:"Tesla", label:"Tesla", year:1856, school:"Science", region:"Global", work:"AC", note:"Vedantic Physics"},
-        {id:"Eliot", label:"T.S. Eliot", year:1888, school:"Literature", region:"Global", work:"Waste Land", note:"Sanskrit"},
-        {id:"Oppenheimer", label:"Oppenheimer", year:1904, school:"Science", region:"Global", work:"Trinity", note:"Gita Scholar"},
-        {id:"Harrison", label:"Harrison", year:1943, school:"Music", region:"Global", work:"Sitar", note:"Beatles"},
-        {id:"Jones", label:"William Jones", year:1746, school:"Indology", region:"Global", work:"Asiatic Researches", others:["Sakuntala Translation"]},
-        {id:"Megasthenes", label:"Megasthenes", year:-350, school:"History", region:"Global", work:"Indica", others:[]},
-        {id:"AlBiruni", label:"Al-Biruni", year:973, school:"Indology", region:"Global", work:"Indica", others:["Chronology"]},
-        {id:"Goethe", label:"Goethe", year:1749, school:"Literature", region:"Global", note:"Admired Shakuntalam", others:[]},
-        {id:"Prinsep", label:"James Prinsep", year:1799, school:"Indology", region:"Global", work:"Decipherment of Brahmi", others:[]},
-        {id:"Cunningham", label:"Cunningham", year:1814, school:"Indology", region:"Global", work:"ASI Reports", others:[]},
-        {id:"Basham", label:"A.L. Basham", year:1914, school:"Indology", region:"Global", work:"The Wonder That Was India", others:[]},
-        {id:"Renou", label:"Louis Renou", year:1896, school:"Indology", region:"Global", work:"Vedic India", others:[]},
-        {id:"Gonda", label:"Jan Gonda", year:1905, school:"Indology", region:"Global", work:"Sanskrit Syntax", others:[]},
-        {id:"Zimmer", label:"Heinrich Zimmer", year:1890, school:"Indology", region:"Global", work:"Philosophies of India", others:[]},
-        {id:"Oldenberg", label:"Oldenberg", year:1854, school:"Indology", region:"Global", work:"Buddha", others:[]},
-        {id:"Deussen", label:"Paul Deussen", year:1845, school:"Indology", region:"Global", work:"Sixty Upanishads", others:[]},
-        {id:"SilvainLevi", label:"Sylvain Lévi", year:1863, school:"Indology", region:"Global", work:"Indian Theatre", others:[]}
-    ];
+    {id:"Dhanvantari", label:"Dhanvantari", year:-3000, school:"Ayurveda", region:"North", work:"Ayurveda", others:["Dhanvantari Nighantu"]},
+    {id:"Vyasa", label:"Vyāsa", year:-1500, school:"Vedic", region:"North", work:"Mahabharata", others:["Brahma Sutras", "Bhagavata Purana"]},
+    {id:"Vashishta", label:"Vashishta", year:-3000, school:"Vedic", region:"North", work:"Rig Veda 7", others:["Yoga Vashishta"]},
+    {id:"Parashara", label:"Parashara", year:-2000, school:"Vedic", region:"North", work:"Vishnu Purana", others:["Parashara Smriti"]},
+    {id:"Shuka", label:"Shuka", year:-1400, school:"Advaita", region:"North", work:"Bhagavata (Narrator)", others:[]},
+    {id:"Yajnavalkya", label:"Yājñavalkya", year:-850, school:"Vedic", region:"East", work:"Brihadaranyaka", others:["Shatapatha Brahmana"]},
+    {id:"Kapila", label:"Kapila", year:-600, school:"Samkhya", region:"North", work:"Samkhya Sutras", others:[]},
+    {id:"Jaimini", label:"Jaimini", year:-300, school:"Mimamsa", region:"North", work:"Mimamsa Sutras", others:[]},
+    {id:"Gautama", label:"Gautama", year:-200, school:"Nyaya", region:"East", work:"Nyaya Sutras", others:[]},
+    {id:"Kanada", label:"Kaṇāda", year:-200, school:"Vaisheshika", region:"West", work:"Vaisheshika Sutras", others:[]},
+    {id:"Patanjali", label:"Patañjali", year:-150, school:"Yoga", region:"North", work:"Yoga Sutras", others:["Mahabhasya"]},
+    {id:"Panini", label:"Pāṇini", year:-500, school:"Grammar", region:"North West", work:"Ashtadhyayi", others:["Dhatupatha"]},
+    {id:"Chanakya", label:"Cāṇakya", year:-350, school:"Statecraft", region:"East", work:"Arthashastra", others:["Chanakya Niti"]},
+    {id:"Sushruta", label:"Suśruta", year:-600, school:"Medicine", region:"North", work:"Sushruta Samhita", others:[]},
+    {id:"Charvaka", label:"Cārvāka", year:-600, school:"Nastika", region:"North", work:"Barhaspatya Sutras", others:[]},
 
-    const lineages = [
-        {s:"Narayana", t:"Brahma", type:"Guru"}, {s:"Brahma", t:"Vashishta", type:"Guru"},
-        {s:"Vashishta", t:"Shakti", type:"Guru"}, {s:"Shakti", t:"Parashara", type:"Guru"},
-        {s:"Parashara", t:"Vyasa", type:"Guru"}, {s:"Vyasa", t:"Shuka", type:"Guru"},
-        {s:"Shiva", t:"Vasugupta", type:"Divine"}, {s:"Shiva", t:"Shankara", type:"Divine"},
-        {s:"Shuka", t:"Gaudapada", type:"Lineage"}, {s:"Gaudapada", t:"Govinda", type:"Guru"},
-        {s:"Govinda", t:"Shankara", type:"Guru"}, {s:"Shankara", t:"Suresvara", type:"Guru"},
-        {s:"Shankara", t:"Padmapada", type:"Guru"}, {s:"Shankara", t:"Totaka", type:"Guru"},
-        {s:"Shankara", t:"Hastamalaka", type:"Guru"}, {s:"Shankara", t:"Vacaspati", type:"Influence"},
-        {s:"Shankara", t:"Vidyaranya", type:"Lineage"}, {s:"Shankara", t:"Madhusudana", type:"Lineage"},
-        {s:"Shankara", t:"Vivekananda", type:"Lineage"},
-        {s:"Narayana", t:"Madhva", type:"Divine"},
-        {s:"Madhva", t:"Jayatirtha", type:"Lineage"}, {s:"Jayatirtha", t:"Vyasatirtha", type:"Lineage"},
-        {s:"Vyasatirtha", t:"Raghavendra", type:"Lineage"},
-        {s:"Narayana", t:"Nammalvar", type:"Inspiration"}, {s:"Nammalvar", t:"Nathamuni", type:"Inspiration"},
-        {s:"Nathamuni", t:"Yamuna", type:"GrandGuru"}, {s:"Yamuna", t:"Ramanuja", type:"Preceptor"},
-        {s:"Ramanuja", t:"Desika", type:"Lineage"}, {s:"Ramanuja", t:"Pillai", type:"Lineage"},
-        {s:"Vasugupta", t:"Somananda", type:"Lineage"}, {s:"Somananda", t:"Utpaladeva", type:"Guru"},
-        {s:"Utpaladeva", t:"Abhinavagupta", type:"GrandGuru"}, {s:"Abhinavagupta", t:"Kshemaraja", type:"Guru"},
-        {s:"Abhinavagupta", t:"Lakshmanjoo", type:"Lineage"},
-        {s:"Gautama", t:"Vatsyayana", type:"Lineage"}, {s:"Vatsyayana", t:"Uddyotakara", type:"Lineage"},
-        {s:"Uddyotakara", t:"Vacaspati", type:"Lineage"}, {s:"Vacaspati", t:"Udayana", type:"Lineage"},
-        {s:"Udayana", t:"Gangesa", type:"Influence"}, {s:"Gangesa", t:"Raghunatha", type:"Lineage"},
-        {s:"Raghunatha", t:"Gadadhara", type:"Lineage"},
-        {s:"Buddha", t:"Mahakassapa", type:"Guru"}, {s:"Mahakassapa", t:"Ananda", type:"Guru"},
-        {s:"Buddha", t:"Nagarjuna", type:"Inspiration"}, {s:"Nagarjuna", t:"Aryadeva", type:"Guru"},
-        {s:"Asanga", t:"Vasubandhu", type:"Brother"}, {s:"Vasubandhu", t:"Dignaga", type:"Lineage"},
-        {s:"Bodhidharma", t:"Huineng", type:"Lineage"}, {s:"Padmasambhava", t:"Milarepa", type:"Lineage"},
-        {s:"Tsongkhapa", t:"DalaiLama", type:"Lineage"},
-        {s:"Mahavira", t:"GautamaGanadhara", type:"Guru"}, {s:"Mahavira", t:"Bhadrabahu", type:"Lineage"},
-        {s:"Bhadrabahu", t:"Kundakunda", type:"Lineage"}, {s:"Mahavira", t:"Hemachandra", type:"Lineage"},
-        {s:"Jaimini", t:"Shabara", type:"Lineage"}, {s:"Shabara", t:"Kumarila", type:"Lineage"},
-        {s:"Kumarila", t:"Mandana", type:"Guru"}, {s:"Kumarila", t:"Prabhakara", type:"Guru"},
-        {s:"Kapila", t:"Asuri", type:"Guru"}, {s:"Asuri", t:"Panchashikha", type:"Guru"},
-        {s:"Panchashikha", t:"IshvaraKrishna", type:"Lineage"},
-        {s:"Panini", t:"Voltaire", type:"Study"}, {s:"Vyasa", t:"Oppenheimer", type:"Study"},
-        {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"}, {s:"Vivekananda", t:"Tesla", type:"Meeting"},
-        {s:"Kalidasa", t:"Goethe", type:"Inspiration"}, {s:"Jones", t:"MaxMuller", type:"Influence"}
-    ];
+    {id:"Buddha", label:"Buddha", year:-563, school:"Buddhism", region:"East", work:"Pali Canon", others:["Dhammapada"]},
+    {id:"Mahavira", label:"Mahāvīra", year:-540, school:"Jainism", region:"East", work:"Agamas", others:[]},
+    {id:"Makkhali", label:"Makkhali Gosala", year:-500, school:"Ajivika", region:"East", work:"(Lost)", others:[]},
 
-    // ============================================
-    // 2. CONFIGURATION & VARIABLES
-    // ============================================
-    let network;
-    let timeline;
-    let nodes = new vis.DataSet([]);
-    let edges = new vis.DataSet([]);
-    let allNodes = [];
-    let allEdges = [];
+    {id:"Gaudapada", label:"Gauḍapāda", year:600, school:"Advaita", region:"North", work:"Mandukya Karika", others:[]},
+    {id:"Govinda", label:"Govinda Bhagavatpāda", year:750, school:"Advaita", region:"Central", work:"Yoga Taravali", others:[]},
+    {id:"Shankara", label:"Ādi Śaṅkara", year:788, school:"Advaita", region:"South", work:"Brahmasutra Bhashya", others:["Vivekachudamani", "Bhaja Govindam"]},
+    {id:"Suresvara", label:"Sureśvara", year:800, school:"Advaita", region:"South", work:"Naishkarmya Siddhi", others:["Manasollasa"]},
+    {id:"Padmapada", label:"Padmapāda", year:800, school:"Advaita", region:"South", work:"Panchapadika", others:[]},
+    {id:"Hastamalaka", label:"Hastāmalaka", year:800, school:"Advaita", region:"South", work:"Hastamalakiya", others:[]},
+    {id:"Totaka", label:"Toṭakācārya", year:800, school:"Advaita", region:"South", work:"Totakashtakam", others:[]},
+    {id:"Vidyaranya", label:"Vidyāraṇya", year:1296, school:"Advaita", region:"South", work:"Panchadasi", others:["Jivanmuktiviveka"]},
+    {id:"Madhusudana", label:"Madhusūdana", year:1540, school:"Advaita", region:"East", work:"Advaita Siddhi", others:["Gudhartha Dipika"]},
 
-    // ============================================
-    // 3. MAIN INIT FUNCTION (Runs on Load)
-    // ============================================
-    function init() {
-        console.log("Initializing Indosphere...");
+    {id:"Achyuta", label:"Acyutaprekṣa", year:1200, school:"Dvaita", region:"South", note:"Guru of Madhva", others:[]},
+    {id:"Madhva", label:"Madhvācārya", year:1238, school:"Dvaita", region:"South", work:"Sarvamula", others:["Mahabharata Tatparya Nirnaya"]},
+    {id:"Jayatirtha", label:"Jayatīrtha", year:1365, school:"Dvaita", region:"South", work:"Nyaya Sudha", others:["Vadavali"]},
+    {id:"Vyasatirtha", label:"Vyāsatīrtha", year:1460, school:"Dvaita", region:"South", work:"Nyayamrita", others:["Tarkatandava"]},
+    {id:"Raghavendra", label:"Rāghavendra", year:1595, school:"Dvaita", region:"South", work:"Parimala", others:[]},
 
-        // --- Prepare Nodes ---
-        rawData.forEach(p => {
-            allNodes.push({
-                id: p.id,
-                label: p.isDeity ? "★ " + p.label : p.label,
-                group: p.school,
-                value: p.isDeity ? 30 : 15,
-                color: p.isDeity ? "#ffd700" : getColor(p.school),
-                shape: p.isDeity ? "star" : "dot",
-                data: p // Store full object for panel
-            });
-        });
+    {id:"Nammalvar", label:"Nammāḻvār", year:880, school:"Bhakti", region:"South", work:"Tiruvaymoli", others:[]},
+    {id:"Nathamuni", label:"Nāthamuni", year:900, school:"Vishishtadvaita", region:"South", work:"Yoga Rahasya", others:["Nyayatattva"]},
+    {id:"Yamuna", label:"Yāmunācārya", year:917, school:"Vishishtadvaita", region:"South", work:"Siddhitraya", others:["Gitartha Sangraha"]},
+    {id:"Ramanuja", label:"Rāmānuja", year:1017, school:"Vishishtadvaita", region:"South", work:"Sri Bhashya", others:["Vedartha Sangraha"]},
+    {id:"Desika", label:"Vedānta Deśika", year:1268, school:"Vishishtadvaita", region:"South", work:"Paduka Sahasram", others:["Rahasyatrayasara"]},
 
-        // --- Prepare Edges ---
-        lineages.forEach(l => {
-            let s = rawData.find(x => x.id === l.s);
-            let t = rawData.find(x => x.id === l.t);
-            if (s && t) {
-                let color = l.type.includes("Guru") ? "#d4af37" : "#555";
-                let dashes = !l.type.includes("Guru");
-                allEdges.push({ 
-                    from: l.s, to: l.t, 
-                    arrows: "to", color: {color: color}, 
-                    dashes: dashes, 
-                    label: l.type, font: {size: 9, color: '#777', strokeWidth: 0, align: 'middle'} 
-                });
-            }
-        });
+    {id:"Vasugupta", label:"Vasugupta", year:800, school:"Kashmir Shaivism", region:"North", work:"Shiva Sutras", others:["Spanda Karika"]},
+    {id:"Somananda", label:"Somānanda", year:900, school:"Kashmir Shaivism", region:"North", work:"Shiva Drishti", others:[]},
+    {id:"Utpaladeva", label:"Utpaladeva", year:925, school:"Kashmir Shaivism", region:"North", work:"Ishvara Pratyabhijna", others:["Sivastotravali"]},
+    {id:"Abhinavagupta", label:"Abhinavagupta", year:950, school:"Kashmir Shaivism", region:"North", work:"Tantraloka", others:["Abhinavabharati"]},
+    {id:"Kshemaraja", label:"Kṣemarāja", year:1000, school:"Kashmir Shaivism", region:"North", work:"Pratyabhijnahridayam", others:["Shiva Sutra Vimarshini"]},
+    {id:"Lakshmanjoo", label:"Lakshmanjoo", year:1907, school:"Kashmir Shaivism", region:"North", work:"Secret Supreme", others:[]},
 
-        // Add to datasets immediately
-        nodes.add(allNodes);
-        edges.add(allEdges);
+    {id:"Vatsyayana", label:"Vātsyāyana", year:450, school:"Nyaya", region:"North", work:"Nyaya Bhashya", others:[]},
+    {id:"Uddyotakara", label:"Uddyotakara", year:600, school:"Nyaya", region:"North", work:"Nyaya Varttika", others:[]},
+    {id:"Vacaspati", label:"Vācaspati Miśra", year:900, school:"Nyaya", region:"East", work:"Nyaya Tatparya Tika", others:["Bhamati"]},
+    {id:"Udayana", label:"Udayana", year:984, school:"Nyaya", region:"East", work:"Kusumanjali", others:["Atmatattvaviveka"]},
+    {id:"Gangesa", label:"Gaṅgeśa", year:1325, school:"Nyaya", region:"East", work:"Tattvacintamani", others:[]},
+    {id:"Raghunatha", label:"Raghunātha Śiromaṇi", year:1477, school:"Nyaya", region:"East", work:"Didhiti", others:[]},
 
-        // --- Setup Network ---
-        const container = document.getElementById('network');
-        const data = { nodes: nodes, edges: edges };
-        
-        const options = {
-            nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
-            edges: { smooth: { type: "continuous" } },
-            // PHYSICS FIX: Stabilize hard on load, then freeze
-            physics: { 
-                stabilization: { 
-                    enabled: true, 
-                    iterations: 1000, 
-                    updateInterval: 50,
-                    fit: true 
-                },
-                barnesHut: { gravitationalConstant: -4000, springConstant: 0.04, springLength: 95 } 
-            },
-            interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true }
-        };
-        
-        network = new vis.Network(container, data, options);
+    {id:"Shabara", label:"Śabara", year:200, school:"Mimamsa", region:"India", work:"Shabara Bhashya", others:[]},
+    {id:"Kumarila", label:"Kumārila Bhaṭṭa", year:700, school:"Mimamsa", region:"North", work:"Slokavartika", others:["Tantravartika"]},
+    {id:"Prabhakara", label:"Prabhākara", year:700, school:"Mimamsa", region:"South", work:"Brihati", others:[]},
+    {id:"Mandana", label:"Maṇḍana Miśra", year:800, school:"Mimamsa", region:"East", work:"Brahmasiddhi", others:[]},
 
-        // FREEZE physics after initial layout to prevent drifting/zooming
-        network.on("stabilizationIterationsDone", function () {
-            network.setOptions( { physics: false } );
-            network.fit();
-        });
+    {id:"IshvaraKrishna", label:"Ishvara Krishna", year:350, school:"Samkhya", region:"India", work:"Samkhya Karika", others:[]},
+    {id:"Vijnanabhikshu", label:"Vijnanabhikshu", year:1550, school:"Yoga", region:"India", work:"Yogavarttika", others:[]},
+    {id:"Prashastapada", label:"Prashastapada", year:550, school:"Vaisheshika", region:"India", work:"Padarthadharmasamgraha", others:[]},
 
-        // --- Interaction ---
-        network.on("click", function(params) {
-            if (params.nodes.length > 0) {
-                const nodeId = params.nodes[0];
-                const node = nodes.get(nodeId);
-                if (node) {
-                    openPanel(node.data);
-                    if(!node.data.isDeity) {
-                        const tItem = timelineData.get({ filter: i => i.personId === node.id });
-                        if(tItem.length) timeline.moveTo(tItem[0].start);
-                    }
-                }
-            } else {
-                closePanel();
-            }
-        });
+    {id:"Nimbarka", label:"Nimbārka", year:1150, school:"Dvaitadvaita", region:"South", work:"Parijata Saurabha", others:[]},
+    {id:"Vallabha", label:"Vallabhācārya", year:1479, school:"Shuddhadvaita", region:"West", work:"Anubhashya", others:["Subodhini"]},
+    {id:"Chaitanya", label:"Caitanya", year:1486, school:"Bhakti", region:"East", work:"Siksastakam", others:[], note:"Gaudiya Founder."},
 
-        // --- Setup Timeline ---
-        const timelineContainer = document.getElementById('mytimeline');
-        const tItems = rawData.filter(x => !x.isDeity).map((t, i) => ({
-            id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
-        }));
-        
-        window.timelineData = new vis.DataSet(tItems);
-        
-        timeline = new vis.Timeline(timelineContainer, window.timelineData, {
-            height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
-            start: new Date(0).setFullYear(-500), end: new Date(0).setFullYear(2000)
-        });
+    {id:"Mahakassapa", label:"Mahākāśyapa", year:-500, school:"Buddhism", region:"India", note:"1st Patriarch", others:[]},
+    {id:"Ananda", label:"Ānanda", year:-500, school:"Buddhism", region:"India", note:"Dhamma Keeper", others:[]},
+    {id:"Nagarjuna", label:"Nāgārjuna", year:150, school:"Mahayana", region:"South", work:"Mulamadhyamaka", others:["Ratnavali"]},
+    {id:"Dignaga", label:"Dignāga", year:480, school:"Mahayana", region:"South", work:"Pramana Samuccaya", others:["Hetucakra"]},
+    {id:"Dharmakirti", label:"Dharmakīrti", year:600, school:"Mahayana", region:"South", work:"Pramanavarttika", others:[]},
+    {id:"Bodhidharma", label:"Bodhidharma", year:480, school:"Zen", region:"China", work:"Zen Teachings", others:[]},
+    {id:"Padmasambhava", label:"Padmasambhava", year:750, school:"Vajrayana", region:"Tibet", note:"Guru Rinpoche", others:[]},
+    {id:"Atisha", label:"Atiśa", year:982, school:"Vajrayana", region:"East", note:"Kadampa Founder", others:[]},
+    {id:"Tsongkhapa", label:"Tsongkhapa", year:1357, school:"Vajrayana", region:"Tibet", note:"Gelug Founder", others:[]},
+    {id:"DalaiLama", label:"Dalai Lama (14th)", year:1935, school:"Vajrayana", region:"Tibet", note:"14th.", others:[]},
 
-        timeline.on('select', (props) => {
-            if(props.items.length) {
-                const item = window.timelineData.get(props.items[0]);
-                const person = rawData.find(p => p.id === item.personId);
-                if(person) openPanel(person);
-            }
-        });
-    }
+    {id:"Mahavira", label:"Mahāvīra", year:-540, school:"Jainism", region:"East", note:"24th Tirthankara.", others:[]},
+    {id:"Bhadrabahu", label:"Bhadrabāhu", year:-300, school:"Jainism", region:"South", work:"Kalpa Sutra", others:[]},
+    {id:"Kundakunda", label:"Kundakunda", year:200, school:"Jainism", region:"South", work:"Samayasara", others:[]},
+    {id:"Hemachandra", label:"Hemacandra", year:1088, school:"Jainism", region:"West", work:"Yogasastra", others:["Siddha-Hema"]},
 
-    // ============================================
-    // 4. HELPER FUNCTIONS
-    // ============================================
+    {id:"Jayadeva", label:"Jayadeva", year:1200, school:"Bhakti", region:"East", work:"Gita Govinda", others:[]},
+    {id:"Vidyapati", label:"Vidyāpati", year:1352, school:"Literature", region:"East", work:"Padavali", others:["Kirtilata"]},
+    {id:"Kabir", label:"Kabīr", year:1440, school:"Bhakti", region:"North", work:"Bijak", others:[]},
+    {id:"Tulsidas", label:"Tulasīdāsa", year:1532, school:"Bhakti", region:"North", work:"Ramcharitmanas", others:["Vinaya Patrika"]},
+    {id:"Surdas", label:"Sūrdās", year:1478, school:"Bhakti", region:"North", work:"Sur Sagar", others:[]},
+    {id:"Mirabai", label:"Mīrābāī", year:1498, school:"Bhakti", region:"West", work:"Bhajans", others:[]},
+    {id:"Andal", label:"Āṇḍāḷ", year:750, school:"Bhakti", region:"South", work:"Tiruppavai", others:[]},
+    {id:"Tyagaraja", label:"Tyāgarāja", year:1767, school:"Music", region:"South", work:"Pancharatna", others:[]},
+    {id:"Muthuswami", label:"Muthuswāmi", year:1775, school:"Music", region:"South", work:"Navagraha Kritis", others:[]},
 
-    function getColor(school) {
-        if (!school) return "#ddd";
-        if (school.includes('Advaita')) return "#ff9800";
-        if (school.includes('Nyaya')) return "#00bcd4";
-        if (school.includes('Bhakti')) return "#ffeb3b";
-        if (school.includes('Buddhism')) return "#e91e63";
-        if (school.includes('Jainism')) return "#4caf50";
-        if (school.includes('Indology')) return "#a5a5a5";
-        return "#ddd";
-    }
+    {id:"RamMohan", label:"Ram Mohan Roy", year:1772, school:"Modern", region:"East", work:"Brahmo Samaj", others:[]},
+    {id:"Bankim", label:"Baṅkim Candra", year:1838, school:"Literature", region:"East", work:"Anandamath", others:["Vande Mataram"]},
+    {id:"Vivekananda", label:"Vivekānanda", year:1863, school:"Advaita", region:"East", work:"Raja Yoga", others:["Karma Yoga"]},
+    {id:"Tagore", label:"Rabindranath Tagore", year:1861, school:"Literature", region:"East", work:"Gitanjali", others:["Gora"]},
+    {id:"Aurobindo", label:"Sri Aurobindo", year:1872, school:"Yoga", region:"South", work:"Life Divine", others:["Savitri"]},
+    {id:"Ramanujan", label:"Srinivasa Ramanujan", year:1887, school:"Science", region:"South", work:"Notebooks", others:[]},
+    {id:"Ambedkar", label:"B.R. Ambedkar", year:1891, school:"Modern", region:"West", work:"Constitution", others:["Annihilation of Caste"]},
+    {id:"Nazrul", label:"Kazi Nazrul Islam", year:1899, school:"Literature", region:"East", work:"Bidrohi", others:[]},
+    {id:"CVRaman", label:"C.V. Rāman", year:1888, school:"Science", region:"South", work:"Raman Effect", others:[]},
+    {id:"Bose", label:"JC Bose", year:1858, school:"Science", region:"East", work:"Plant Science", others:[]},
+    {id:"Satyendranath", label:"S.N. Bose", year:1894, school:"Science", region:"East", work:"Boson", others:[]},
 
-    function openPanel(d) {
-        document.getElementById('p-name').innerText = d.label || d.id;
-        document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
-        document.getElementById('p-school').innerText = d.school || "";
-        document.getElementById('p-region').innerText = d.region || "";
-        document.getElementById('p-work').innerText = d.work || "N/A";
-        document.getElementById('p-note').innerText = d.note || "";
-        
-        let parent = lineages.find(l => l.t === d.id && l.type.includes("Guru"));
-        document.getElementById('p-lineage').innerText = parent ? `Disciple of ${parent.s}` : "Source / Independent";
+    {id:"Voltaire", label:"Voltaire", year:1694, school:"Indology", region:"Global", work:"Essai", note:"Indophile"},
+    {id:"Schopenhauer", label:"Schopenhauer", year:1788, school:"Philosophy", region:"Global", work:"World as Will", note:"Upanishads admirer"},
+    {id:"MaxMuller", label:"Max Müller", year:1823, school:"Indology", region:"Global", work:"Sacred Books", note:"Indologist"},
+    {id:"Tesla", label:"Tesla", year:1856, school:"Science", region:"Global", work:"AC", note:"Vedantic Physics"},
+    {id:"Eliot", label:"T.S. Eliot", year:1888, school:"Literature", region:"Global", work:"Waste Land", note:"Sanskrit"},
+    {id:"Oppenheimer", label:"Oppenheimer", year:1904, school:"Science", region:"Global", work:"Trinity", note:"Gita Scholar"},
+    {id:"Harrison", label:"Harrison", year:1943, school:"Music", region:"Global", work:"Sitar", note:"Beatles"},
+    {id:"Jones", label:"William Jones", year:1746, school:"Indology", region:"Global", work:"Asiatic Researches", others:["Sakuntala Translation"]},
+    {id:"Megasthenes", label:"Megasthenes", year:-350, school:"History", region:"Global", work:"Indica", others:[]},
+    {id:"AlBiruni", label:"Al-Biruni", year:973, school:"Indology", region:"Global", work:"Indica", others:["Chronology"]},
+    {id:"Goethe", label:"Goethe", year:1749, school:"Literature", region:"Global", note:"Admired Shakuntalam", others:[]},
+    {id:"Prinsep", label:"James Prinsep", year:1799, school:"Indology", region:"Global", work:"Decipherment of Brahmi", others:[]},
+    {id:"Cunningham", label:"Cunningham", year:1814, school:"Indology", region:"Global", work:"ASI Reports", others:[]},
+    {id:"Basham", label:"A.L. Basham", year:1914, school:"Indology", region:"Global", work:"The Wonder That Was India", others:[]},
+    {id:"Renou", label:"Louis Renou", year:1896, school:"Indology", region:"Global", work:"Vedic India", others:[]},
+    {id:"Gonda", label:"Jan Gonda", year:1905, school:"Indology", region:"Global", work:"Sanskrit Syntax", others:[]},
+    {id:"Zimmer", label:"Heinrich Zimmer", year:1890, school:"Indology", region:"Global", work:"Philosophies of India", others:[]},
+    {id:"Oldenberg", label:"Oldenberg", year:1854, school:"Indology", region:"Global", work:"Buddha", others:[]},
+    {id:"Deussen", label:"Paul Deussen", year:1845, school:"Indology", region:"Global", work:"Sixty Upanishads", others:[]},
+    {id:"SilvainLevi", label:"Sylvain Lévi", year:1863, school:"Indology", region:"Global", work:"Indian Theatre", others:[]}
+];
 
-        const ul = document.getElementById('p-others');
-        ul.innerHTML = "";
-        if (d.others && d.others.length > 0) d.others.forEach(w => ul.innerHTML += `<li>${w}</li>`);
-        else ul.innerHTML = "<li>No other major records listed.</li>";
+const lineages = [
+    {s:"Narayana", t:"Brahma", type:"Guru"}, {s:"Brahma", t:"Vashishta", type:"Guru"},
+    {s:"Vashishta", t:"Shakti", type:"Guru"}, {s:"Shakti", t:"Parashara", type:"Guru"},
+    {s:"Parashara", t:"Vyasa", type:"Guru"}, {s:"Vyasa", t:"Shuka", type:"Guru"},
+    {s:"Shiva", t:"Vasugupta", type:"Divine"}, {s:"Shiva", t:"Shankara", type:"Divine"},
 
-        document.getElementById('side-panel').style.width = "400px";
-        document.getElementById('panel-content').style.opacity = "1";
-    }
+    {s:"Shuka", t:"Gaudapada", type:"Lineage"}, {s:"Gaudapada", t:"Govinda", type:"Guru"},
+    {s:"Govinda", t:"Shankara", type:"Guru"}, {s:"Shankara", t:"Suresvara", type:"Guru"},
+    {s:"Shankara", t:"Padmapada", type:"Guru"}, {s:"Shankara", t:"Totaka", type:"Guru"},
+    {s:"Shankara", t:"Hastamalaka", type:"Guru"}, {s:"Shankara", t:"Vacaspati", type:"Influence"},
+    {s:"Shankara", t:"Vidyaranya", type:"Lineage"}, {s:"Shankara", t:"Madhusudana", type:"Lineage"},
+    {s:"Shankara", t:"Vivekananda", type:"Lineage"},
 
-    function closePanel() {
-        document.getElementById('side-panel').style.width = "0";
-        document.getElementById('panel-content').style.opacity = "0";
-    }
+    {s:"Narayana", t:"Madhva", type:"Divine"},
+    {s:"Madhva", t:"Jayatirtha", type:"Lineage"}, {s:"Jayatirtha", t:"Vyasatirtha", type:"Lineage"},
+    {s:"Vyasatirtha", t:"Raghavendra", type:"Lineage"},
 
-    // Exposed global functions for HTML inputs
-    window.updateGraph = function() {
-        const sFilter = document.getElementById('schoolFilter').value;
-        const rFilter = document.getElementById('regionFilter').value;
+    {s:"Narayana", t:"Nammalvar", type:"Inspiration"}, {s:"Nammalvar", t:"Nathamuni", type:"Inspiration"},
+    {s:"Nathamuni", t:"Yamuna", type:"GrandGuru"}, {s:"Yamuna", t:"Ramanuja", type:"Preceptor"},
+    {s:"Ramanuja", t:"Desika", type:"Lineage"},
 
-        const filteredNodes = allNodes.filter(n => {
-            let p = n.data;
-            let show = true;
-            if (sFilter !== 'all' && p.school !== sFilter && p.group !== sFilter) show = false;
-            if (rFilter !== 'all' && p.region !== rFilter) show = false;
-            if(p.isDeity && sFilter === 'all' && rFilter === 'all') show = true;
-            return show;
-        });
+    {s:"Vasugupta", t:"Somananda", type:"Lineage"}, {s:"Somananda", t:"Utpaladeva", type:"Guru"},
+    {s:"Utpaladeva", t:"Abhinavagupta", type:"GrandGuru"}, {s:"Abhinavagupta", t:"Kshemaraja", type:"Guru"},
+    {s:"Abhinavagupta", t:"Lakshmanjoo", type:"Lineage"},
 
-        nodes.clear();
-        edges.clear();
-        nodes.add(filteredNodes);
+    {s:"Gautama", t:"Vatsyayana", type:"Lineage"}, {s:"Vatsyayana", t:"Uddyotakara", type:"Lineage"},
+    {s:"Uddyotakara", t:"Vacaspati", type:"Lineage"}, {s:"Vacaspati", t:"Udayana", type:"Lineage"},
+    {s:"Udayana", t:"Gangesa", type:"Influence"}, {s:"Gangesa", t:"Raghunatha", type:"Lineage"},
 
-        const visibleIds = new Set(filteredNodes.map(n => n.id));
-        const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
-        edges.add(filteredEdges);
-        
-        // Re-enable physics briefly to organize layout, then lock
-        network.setOptions( { physics: true } );
-        network.fit();
-    };
+    {s:"Buddha", t:"Mahakassapa", type:"Guru"}, {s:"Mahakassapa", t:"Ananda", type:"Guru"},
+    {s:"Buddha", t:"Nagarjuna", type:"Inspiration"},
+    {s:"Vasubandhu", t:"Dignaga", type:"Lineage"},
+    {s:"Tsongkhapa", t:"DalaiLama", type:"Lineage"},
 
-    window.searchNode = function(e) {
-        if (e.key === 'Enter') {
-            const q = document.getElementById('search').value.toLowerCase();
-            const found = allNodes.find(n => n.label.toLowerCase().includes(q));
-            if (found) {
-                document.getElementById('schoolFilter').value = 'all';
-                document.getElementById('regionFilter').value = 'all';
-                window.updateGraph();
-                
-                setTimeout(() => {
-                    network.selectNodes([found.id]);
-                    network.focus(found.id, { scale: 1.5, animation: true });
-                    openPanel(found.data);
-                }, 500);
-            }
-        }
-    };
+    {s:"Mahavira", t:"Bhadrabahu", type:"Lineage"},
+    {s:"Bhadrabahu", t:"Kundakunda", type:"Lineage"},
+    {s:"Mahavira", t:"Hemachandra", type:"Lineage"},
 
-    // RUN ON LOAD
-    window.onload = init;
+    {s:"Jaimini", t:"Shabara", type:"Lineage"}, {s:"Shabara", t:"Kumarila", type:"Lineage"},
+    {s:"Kumarila", t:"Mandana", type:"Guru"}, {s:"Kumarila", t:"Prabhakara", type:"Guru"},
 
-    });
+    {s:"Kapila", t:"IshvaraKrishna", type:"Lineage"},
+
+    {s:"Panini", t:"Voltaire", type:"Study"}, {s:"Vyasa", t:"Oppenheimer", type:"Study"},
+    {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"},
+    {s:"Kalidasa", t:"Goethe", type:"Inspiration"},
+    {s:"Jones", t:"MaxMuller", type:"Influence"}
+];
+
+const nodes = new vis.DataSet(rawData.map(node => ({
+  id: node.id,
+  label: node.label,
+  title: `${node.label}  •  ${node.school || node.group || "?"}`,
+  group: node.school || node.group || "Other",
+  year: node.year || null,
+  shape: node.isDeity ? "diamond" : "ellipse",
+  color: node.isDeity ? { background:"#fef5e7", border:"#d35400" } : undefined,
+  font: { multi: 'html', size:13 }
+})));
+
+const edges = new vis.DataSet(lineages.map(rel => ({
+  from: rel.s,
+  to: rel.t,
+  arrows: "to",
+  label: rel.type.toLowerCase(),
+  font: { size:10, align:"middle" },
+  color: { color: "#7f8c8d", highlight:"#e74c3c" },
+  smooth: { type:"cubicBezier", forceDirection:"horizontal", roundness:0.42 }
+})));
+
+const container = document.getElementById("network-container");
+
+const options = {
+  nodes: {
+    shape: "dot",
+    size: 18,
+    font: { size:13 },
+    borderWidth: 1.8,
+    shadow: true
+  },
+  edges: {
+    arrows: { to: {enabled:true, scaleFactor:0.65} },
+    smooth: {enabled:true, type:"cubicBezier", roundness:0.38},
+    font: {size:10}
+  },
+  physics: {
+    enabled: true,
+    stabilization: {
+      enabled: true,
+      iterations: 1400,
+      updateInterval: 50,
+      fit: true
+    },
+    barnesHut: {
+      gravitationalConstant: -4200,
+      centralGravity: 0.38,
+      springLength: 150,
+      springConstant: 0.035,
+      damping: 0.58
+    },
+    minVelocity: 0.01,
+    timestep: 0.38
+  },
+  interaction: {
+    hover: true,
+    navigationButtons: true,
+    keyboard: true
+  }
+};
+
+const network = new vis.Network(container, { nodes, edges }, options);
+
+network.on("stabilizationIterationsDone", () => {
+  network.setOptions({ physics: false });
+  network.fit({ animation: { duration: 1200 } });
+});
+
+const timelineItems = rawData
+  .filter(n => Number.isFinite(n.year))
+  .map(n => ({
+    id: n.id,
+    content: n.label,
+    start: n.year,
+    group: n.school || n.group || "Other"
+  }));
+
+const timelineGroups = new vis.DataSet(
+  [...new Set(timelineItems.map(i=>i.group))].map(g=>({id:g, content:g}))
+);
+
+const timeline = new vis.Timeline(
+  document.getElementById("timeline-container"),
+  timelineItems,
+  {
+    height: "100%",
+    min: -4000,
+    max: 2000,
+    zoomable: true,
+    zoomMin: 1000*3600*24*365*3,
+    stack: true,
+    showCurrentTime: false
+  },
+  timelineGroups
+);
+
+const details = document.getElementById("details");
+
+function showNode(id) {
+  const node = rawData.find(n => n.id === id);
+  if (!node) return;
+
+  let html = `<strong>${node.label}</strong>`;
+  if (node.year) html += ` <span style="color:#555">(${node.year > 0 ? "≈" : ""}${Math.abs(node.year)} ${node.year < 0 ? "BCE" : "CE"})</span>`;
+  html += "<br>";
+
+  if (node.school) html += `<div><strong>School:</strong> ${node.school}</div>`;
+  if (node.region) html += `<div><strong>Region:</strong> ${node.region}</div>`;
+  if (node.note)   html += `<div style="margin-top:8px;"><em>${node.note}</em></div>`;
+  if (node.work)   html += `<div><strong>Work:</strong> ${node.work}</div>`;
+  if (node.others?.length) {
+    html += `<div><strong>Others:</strong> ${node.others.join(" • ")}</div>`;
+  }
+
+  details.innerHTML = html;
+}
+
+network.on("click", e => {
+  if (e.nodes.length) {
+    const id = e.nodes[0];
+    showNode(id);
+    network.selectNodes([id]);
+  }
+});
+
+const schoolSel = document.getElementById("filter-school");
+const regionSel = document.getElementById("filter-region");
+const searchIn  = document.getElementById("search");
+
+const schools = [...new Set(rawData.map(n=>n.school||n.group||"Other"))].sort();
+const regions = [...new Set(rawData.map(n=>n.region||"Unknown"))].sort();
+
+schools.forEach(s => schoolSel.innerHTML += `<option value="${s}">${s}</option>`);
+regions.forEach(r => regionSel.innerHTML += `<option value="${r}">${r}</option>`);
+
+function filter() {
+  const s = schoolSel.value;
+  const r = regionSel.value;
+  const q = searchIn.value.trim().toLowerCase();
+
+  const visible = rawData
+    .filter(n => {
+      if (s && (n.school !== s && n.group !== s)) return false;
+      if (r && n.region !== r) return false;
+      if (q) {
+        const txt = `${n.label} ${n.school||""} ${n.note||""} ${n.work||""}`.toLowerCase();
+        return txt.includes(q);
+      }
+      return true;
+    })
+    .map(n => n.id);
+
+  nodes.forEach(n => nodes.update({id:n.id, hidden: !visible.includes(n.id)}));
+  network.fit({animation:false});
+}
+
+schoolSel.onchange = filter;
+regionSel.onchange = filter;
+searchIn.oninput  = filter;
+
+filter();
 </script>
 </body>
 </html>
