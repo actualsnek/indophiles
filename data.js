@@ -1,228 +1,155 @@
-// --- 1. DATASET (350+ ENTRIES) ---
+// ==========================================
+// INDOSPHERE DATABASE (400+ Entries)
+// ==========================================
+
 const rawData = [
     // --- DEITIES (The Source) ---
-    {id:"Narayana", label:"Nārāyaṇa", group:"deity", school:"Deity", region:"Divine", isDeity:true, note:"The Preserver."},
-    {id:"Shiva", label:"Śiva", group:"deity", school:"Deity", region:"Divine", isDeity:true, note:"Adi Guru."},
-    {id:"Brahma", label:"Brahmā", group:"deity", school:"Deity", region:"Divine", isDeity:true, note:"The Creator."},
-    {id:"Shakti", label:"Śakti", group:"deity", school:"Deity", region:"Divine", isDeity:true, note:"Divine Mother."},
-    {id:"Rudra", label:"Rudra", group:"deity", school:"Deity", region:"Divine", isDeity:true, note:"Vedic Shiva."},
-    {id:"Bhairava", label:"Bhairava", group:"deity", school:"Deity", region:"Divine", isDeity:true, note:"Fierce Form."},
-    {id:"Bhairavi", label:"Bhairavī Devi", group:"deity", school:"Deity", region:"Divine", isDeity:true, note:"Tantric Goddess."},
-    {id:"FourKumaras", label:"Four Kumāras", group:"deity", school:"Deity", region:"Divine", isDeity:true, note:"Sanaka, Sanandana..."},
-    {id:"Hiranyagarbha", label:"Hiraṇyagarbha", group:"deity", school:"Deity", region:"Divine", isDeity:true, note:"Cosmic Womb."},
+    {id:"Narayana", label:"Nārāyaṇa", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"The Preserver.", lat:32.0, lng:81.0},
+    {id:"Shiva", label:"Śiva", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"Adi Guru.", lat:31.5, lng:81.5},
+    {id:"Brahma", label:"Brahmā", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"Creator.", lat:32.5, lng:80.5},
+    {id:"Shakti", label:"Śakti", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, note:"Divine Mother.", lat:31.0, lng:80.0},
+    {id:"Rudra", label:"Rudra", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, lat:31.2, lng:81.2},
+    {id:"Bhairava", label:"Bhairava", group:"Deity", parent:"Deity", subset:"Deity", region:"Divine", isDeity:true, lat:34.0, lng:76.0},
+    
+    // --- VEDIC RISHIS ---
+    {id:"Vashishta", label:"Vasiṣṭha", year:-3000, parent:"Vedic", subset:"Rishi", region:"North", subregion:"Kashmir", work:"Rig Veda 7", lat:34.1, lng:74.8},
+    {id:"Vyasa", label:"Vyāsa", year:-1500, parent:"Vedic", subset:"Rishi", region:"North", subregion:"Kuru", work:"Mahabharata", lat:30.0, lng:76.0},
+    {id:"Yajnavalkya", label:"Yājñavalkya", year:-850, parent:"Vedic", subset:"Upanishad", region:"East", subregion:"Mithila", work:"Brihadaranyaka", lat:26.1, lng:85.9},
+    {id:"Maitreyi", label:"Maitreyī", year:-850, parent:"Vedic", subset:"Upanishad", region:"East", subregion:"Mithila", lat:26.2, lng:86.0},
+    {id:"Gargi", label:"Gārgī", year:-850, parent:"Vedic", subset:"Upanishad", region:"East", subregion:"Mithila", lat:26.15, lng:85.95},
+    {id:"Kapila", label:"Kapila", year:-600, parent:"Samkhya-Yoga", subset:"Samkhya", region:"North", subregion:"Vedic", work:"Samkhya Sutras", lat:30.5, lng:78.0},
+    
+    // --- ADVAITA VEDANTA LINEAGE ---
+    {id:"Gaudapada", label:"Gauḍapāda", year:600, parent:"Vedanta", subset:"Advaita", region:"North", subregion:"Kurukshetra", work:"Mandukya Karika", lat:29.9, lng:76.8},
+    {id:"Govinda", label:"Govinda Bhagavatpāda", year:750, parent:"Vedanta", subset:"Advaita", region:"Central", subregion:"Narmada", lat:22.5, lng:76.0},
+    {id:"Shankara", label:"Ādi Śaṅkara", year:788, parent:"Vedanta", subset:"Advaita", region:"South", subregion:"Kerala", work:"Brahmasutra Bhashya", lat:10.85, lng:76.27},
+    {id:"Suresvara", label:"Sureśvara", year:800, parent:"Vedanta", subset:"Advaita", region:"South", subregion:"Sringeri", note:"Sringeri Matha", lat:13.4, lng:75.2},
+    {id:"Padmapada", label:"Padmapāda", year:800, parent:"Vedanta", subset:"Advaita", region:"West", subregion:"Dwaraka", note:"Dwaraka Matha", lat:22.2, lng:68.9},
+    {id:"Hastamalaka", label:"Hastāmalaka", year:800, parent:"Vedanta", subset:"Advaita", region:"East", subregion:"Puri", note:"Govardhana Matha", lat:19.8, lng:85.8},
+    {id:"Totaka", label:"Toṭakācārya", year:800, parent:"Vedanta", subset:"Advaita", region:"North", subregion:"Jyotirmath", note:"Jyotir Matha", lat:30.5, lng:79.5},
+    {id:"Vacaspati", label:"Vācaspati Miśra", year:900, parent:"Vedanta", subset:"Advaita", region:"East", subregion:"Mithila", work:"Bhamati", lat:26.1, lng:86.0},
+    {id:"Vidyaranya", label:"Vidyāraṇya", year:1296, parent:"Vedanta", subset:"Advaita", region:"South", subregion:"Karnataka", work:"Panchadasi", lat:13.4, lng:75.25},
+    {id:"Madhusudana", label:"Madhusūdana Sarasvatī", year:1540, parent:"Vedanta", subset:"Advaita", region:"East", subregion:"Bengal", work:"Advaita Siddhi", lat:23.0, lng:90.0},
 
-    // --- ANCIENT RISHIS & FOUNDERS ---
-    {id:"Dhanvantari", label:"Dhanvantari", iast:"Dhanvantari", year:-3000, school:"Ayurveda", region:"Vedic", work:"Ayurveda", note:"God of Medicine", zone:"North"},
-    {id:"Vashishta", label:"Vashishta", iast:"Vasiṣṭha", year:-3000, school:"Vedas", region:"Vedic", work:"Rig Veda 7", zone:"North"},
-    {id:"Parashara", label:"Parashara", iast:"Parāśara", year:-2000, school:"Vedas", region:"Vedic", work:"Vishnu Purana", zone:"North"},
-    {id:"Vyasa", label:"Vyasa", iast:"Vyāsa", year:-1500, school:"Vedas", region:"Kuru", work:"Mahabharata", zone:"North"},
-    {id:"Shuka", label:"Shuka", iast:"Śuka", year:-1400, school:"Advaita", region:"Vedic", work:"Bhagavata", zone:"North"},
-    {id:"Yajnavalkya", label:"Yajnavalkya", iast:"Yājñavalkya", year:-850, school:"Vedas", region:"Mithila", work:"Brihadaranyaka", zone:"East"},
-    {id:"Kapila", label:"Kapila", iast:"Kapila", year:-600, school:"Samkhya", region:"Vedic", work:"Samkhya Sutras", zone:"North"},
-    {id:"Asuri", label:"Asuri", iast:"Āsuri", year:-580, school:"Samkhya", region:"Vedic", note:"Disciple of Kapila", zone:"North"},
-    {id:"Panchashikha", label:"Panchashikha", iast:"Pañcaśikha", year:-550, school:"Samkhya", region:"Vedic", note:"Expanded Samkhya", zone:"North"},
-    {id:"Gautama", label:"Gautama", iast:"Gautama", year:-200, school:"Nyaya", region:"Mithila", work:"Nyaya Sutras", zone:"East"},
-    {id:"Kanada", label:"Kanada", iast:"Kaṇāda", year:-200, school:"Vaisheshika", region:"Gujarat", work:"Vaisheshika Sutras", zone:"West"},
-    {id:"Jaimini", label:"Jaimini", iast:"Jaimini", year:-300, school:"Mimamsa", region:"India", work:"Mimamsa Sutras", zone:"North"},
-    {id:"Patanjali", label:"Patanjali", iast:"Patañjali", year:-150, school:"Yoga", region:"Kashmir", work:"Yoga Sutras", zone:"North"},
-    {id:"Panini", label:"Panini", iast:"Pāṇini", year:-500, school:"Grammar", region:"Gandhara", work:"Ashtadhyayi", zone:"North West"},
-    {id:"Chanakya", label:"Chanakya", iast:"Cāṇakya", year:-350, school:"Statecraft", region:"Magadha", work:"Arthashastra", zone:"East"},
-    {id:"Sushruta", label:"Sushruta", iast:"Suśruta", year:-600, school:"Medicine", region:"Kashi", work:"Sushruta Samhita", zone:"North"},
-    {id:"Narada", label:"Narada", iast:"Nārada", year:-1000, school:"Bhakti", region:"Vedic", work:"Bhakti Sutras", zone:"North"},
-
-    // --- HETERODOX FOUNDERS ---
-    {id:"Buddha", label:"Buddha", iast:"Siddhārtha Gautama", year:-563, school:"Buddhism", region:"Magadha", work:"Pali Canon", zone:"East"},
-    {id:"Mahavira", label:"Mahavira", iast:"Mahāvīra", year:-540, school:"Jainism", region:"Magadha", work:"Agamas", zone:"East"},
-    {id:"Makkhali", label:"Makkhali", iast:"Makkhali Gosāla", year:-500, school:"Ajivika", region:"Magadha", note:"Founder", zone:"East"},
-    {id:"Charvaka", label:"Charvaka", iast:"Cārvāka", year:-600, school:"Charvaka", region:"India", work:"Barhaspatya Sutras", zone:"North"},
-    {id:"Brihaspati", label:"Brihaspati", iast:"Bṛhaspati", year:-700, school:"Charvaka", region:"India", note:"Materialist", zone:"North"},
-
-    // --- ADVAITA LINEAGE ---
-    {id:"Gaudapada", label:"Gaudapada", iast:"Gauḍapāda", year:600, school:"Advaita", region:"North", work:"Mandukya Karika", zone:"North"},
-    {id:"Govinda", label:"Govinda", iast:"Govinda Bhagavatpāda", year:750, school:"Advaita", region:"Narmada", note:"Guru of Shankara", zone:"Central"},
-    {id:"Shankara", label:"Shankara", iast:"Ādi Śaṅkara", year:788, school:"Advaita", region:"Kerala", work:"Brahmasutra Bhashya", zone:"South"},
-    {id:"Suresvara", label:"Suresvara", iast:"Sureśvara", year:800, school:"Advaita", region:"South", work:"Naishkarmya Siddhi", zone:"South"},
-    {id:"Padmapada", label:"Padmapada", iast:"Padmapāda", year:800, school:"Advaita", region:"South", work:"Panchapadika", zone:"South"},
-    {id:"Hastamalaka", label:"Hastamalaka", iast:"Hastāmalaka", year:800, school:"Advaita", region:"South", note:"Disciple", zone:"South"},
-    {id:"Totaka", label:"Totaka", iast:"Toṭakācārya", year:800, school:"Advaita", region:"South", work:"Totakashtakam", zone:"South"},
-    {id:"Vidyaranya", label:"Vidyaranya", iast:"Vidyāraṇya", year:1296, school:"Advaita", region:"Sringeri", work:"Panchadasi", zone:"South"},
-    {id:"Madhusudana", label:"Madhusudana", iast:"Madhusūdana", year:1540, school:"Advaita", region:"Bengal", work:"Advaita Siddhi", zone:"East"},
-
-    // --- DVAITA LINEAGE ---
-    {id:"Achyuta", label:"Achyuta Preksha", iast:"Acyutaprekṣa", year:1200, school:"Dvaita", region:"Udupi", note:"Guru of Madhva", zone:"South"},
-    {id:"Madhva", label:"Madhva", iast:"Madhvācārya", year:1238, school:"Dvaita", region:"Udupi", work:"Sarvamula", zone:"South"},
-    {id:"Jayatirtha", label:"Jayatirtha", iast:"Jayatīrtha", year:1365, school:"Dvaita", region:"Karnataka", work:"Nyaya Sudha", zone:"South"},
-    {id:"Vyasatirtha", label:"Vyasatirtha", iast:"Vyāsatīrtha", year:1460, school:"Dvaita", region:"Karnataka", work:"Nyayamrita", zone:"South"},
-    {id:"Raghavendra", label:"Raghavendra", iast:"Rāghavendra Tīrtha", year:1595, school:"Dvaita", region:"Mantralayam", work:"Parimala", zone:"South"},
-    {id:"Padmanabha", label:"Padmanabha", iast:"Padmanābha Tīrtha", year:1300, school:"Dvaita", region:"Karnataka", note:"Disciple", zone:"South"},
+    // --- DVAITA VEDANTA ---
+    {id:"Madhva", label:"Madhvācārya", year:1238, parent:"Vedanta", subset:"Dvaita", region:"South", subregion:"Udupi", work:"Sarvamula", lat:13.3, lng:74.7},
+    {id:"Jayatirtha", label:"Jayatīrtha", year:1365, parent:"Vedanta", subset:"Dvaita", region:"South", subregion:"Karnataka", work:"Nyaya Sudha", lat:16.2, lng:77.3},
+    {id:"Vyasatirtha", label:"Vyāsatīrtha", year:1460, parent:"Vedanta", subset:"Dvaita", region:"South", subregion:"Karnataka", note:"Guru of Krishnadevaraya", lat:15.3, lng:76.4},
+    {id:"Raghavendra", label:"Rāghavendra Tīrtha", year:1595, parent:"Vedanta", subset:"Dvaita", region:"South", subregion:"Mantralayam", lat:15.9, lng:77.4},
+    {id:"Padmanabha", label:"Padmanābha Tīrtha", year:1300, parent:"Vedanta", subset:"Dvaita", region:"South", subregion:"Karnataka", lat:15.0, lng:76.0},
 
     // --- VISHISHTADVAITA ---
-    {id:"Nammalvar", label:"Nammalvar", iast:"Nammāḻvār", year:880, school:"Vishishtadvaita", region:"Tamil Nadu", work:"Tiruvaymoli", zone:"South"},
-    {id:"Nathamuni", label:"Nathamuni", iast:"Nāthamuni", year:900, school:"Vishishtadvaita", region:"Tamil Nadu", work:"Yoga Rahasya", zone:"South"},
-    {id:"Yamuna", label:"Yamuna", iast:"Yāmunācārya", year:917, school:"Vishishtadvaita", region:"Tamil Nadu", work:"Siddhitraya", zone:"South"},
-    {id:"Ramanuja", label:"Ramanuja", iast:"Rāmānuja", year:1017, school:"Vishishtadvaita", region:"Tamil Nadu", work:"Sri Bhashya", zone:"South"},
-    {id:"Desika", label:"Desika", iast:"Vedānta Deśika", year:1268, school:"Vishishtadvaita", region:"Tamil Nadu", work:"Paduka Sahasram", zone:"South"},
-    {id:"Pillai", label:"Pillai Lokacharya", iast:"Pillai Lokācārya", year:1205, school:"Vishishtadvaita", region:"Tamil Nadu", note:"Thenkalai", zone:"South"},
-
-    // --- KASHMIR SHAIVISM ---
-    {id:"Vasugupta", label:"Vasugupta", iast:"Vasugupta", year:800, school:"Kashmir Shaivism", region:"Kashmir", work:"Shiva Sutras", zone:"North"},
-    {id:"Somananda", label:"Somananda", iast:"Somānanda", year:900, school:"Kashmir Shaivism", region:"Kashmir", work:"Shiva Drishti", zone:"North"},
-    {id:"Utpaladeva", label:"Utpaladeva", iast:"Utpaladeva", year:925, school:"Kashmir Shaivism", region:"Kashmir", work:"Ishvara Pratyabhijna", zone:"North"},
-    {id:"Abhinavagupta", label:"Abhinavagupta", iast:"Abhinavagupta", year:950, school:"Kashmir Shaivism", region:"Kashmir", work:"Tantraloka", zone:"North"},
-    {id:"Kshemaraja", label:"Kshemaraja", iast:"Kṣemarāja", year:1000, school:"Kashmir Shaivism", region:"Kashmir", work:"Pratyabhijnahridayam", zone:"North"},
-    {id:"Lakshmanjoo", label:"Lakshmanjoo", iast:"Swami Lakshmanjoo", year:1907, school:"Kashmir Shaivism", region:"Kashmir", note:"Modern Master", zone:"North"},
-
-    // --- NYAYA & NAVYA-NYAYA ---
-    {id:"Vatsyayana", label:"Vatsyayana", iast:"Vātsyāyana", year:450, school:"Nyaya", region:"India", work:"Nyaya Bhashya", zone:"North"},
-    {id:"Uddyotakara", label:"Uddyotakara", iast:"Uddyotakara", year:600, school:"Nyaya", region:"India", work:"Nyaya Varttika", zone:"North"},
-    {id:"Vacaspati", label:"Vacaspati", iast:"Vācaspati Miśra", year:900, school:"Nyaya", region:"Mithila", work:"Nyaya Tatparya Tika", zone:"East"},
-    {id:"Udayana", label:"Udayana", iast:"Udayana", year:984, school:"Nyaya", region:"Mithila", work:"Kusumanjali", zone:"East"},
-    {id:"Gangesa", label:"Gangesa", iast:"Gaṅgeśa", year:1325, school:"Nyaya", region:"Mithila", work:"Tattvacintamani", zone:"East"},
-    {id:"Raghunatha", label:"Raghunatha", iast:"Raghunātha Śiromaṇi", year:1477, school:"Nyaya", region:"Bengal", work:"Didhiti", zone:"East"},
-    {id:"Gadadhara", label:"Gadadhara", iast:"Gadādhara", year:1650, school:"Nyaya", region:"Bengal", work:"Shaktivada", zone:"East"},
-
-    // --- MIMAMSA ---
-    {id:"Shabara", label:"Shabara", iast:"Śabara", year:200, school:"Mimamsa", region:"India", work:"Shabara Bhashya", zone:"North"},
-    {id:"Kumarila", label:"Kumarila", iast:"Kumārila Bhaṭṭa", year:700, school:"Mimamsa", region:"Prayag", work:"Slokavartika", zone:"North"},
-    {id:"Prabhakara", label:"Prabhakara", iast:"Prabhākara", year:700, school:"Mimamsa", region:"Kerala", work:"Brihati", zone:"South"},
-    {id:"Mandana", label:"Mandana", iast:"Maṇḍana Miśra", year:800, school:"Mimamsa", region:"Mithila", work:"Brahmasiddhi", zone:"East"},
-
-    // --- SAMKHYA & YOGA & VAISHESHIKA ---
-    {id:"IshvaraKrishna", label:"Ishvara Krishna", iast:"Īśvarakṛṣṇa", year:350, school:"Samkhya", region:"India", work:"Samkhya Karika", zone:"North"},
-    {id:"Vijnanabhikshu", label:"Vijnanabhikshu", iast:"Vijñānabhikṣu", year:1550, school:"Yoga", region:"India", work:"Yogavarttika", zone:"North"},
-    {id:"Prashastapada", label:"Prashastapada", iast:"Praśastapāda", year:550, school:"Vaisheshika", region:"India", work:"Padarthadharmasamgraha", zone:"North"},
+    {id:"Nammalvar", label:"Nammāḻvār", year:880, parent:"Bhakti", subset:"Alvar", region:"South", subregion:"Tamil Nadu", work:"Tiruvaymoli", lat:8.7, lng:77.7},
+    {id:"Nathamuni", label:"Nāthamuni", year:900, parent:"Vedanta", subset:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", lat:11.4, lng:79.6},
+    {id:"Yamuna", label:"Yāmunācārya", year:917, parent:"Vedanta", subset:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", lat:10.8, lng:78.7},
+    {id:"Ramanuja", label:"Rāmānuja", year:1017, parent:"Vedanta", subset:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", work:"Sri Bhashya", lat:11.1, lng:78.6},
+    {id:"Desika", label:"Vedānta Deśika", year:1268, parent:"Vedanta", subset:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", work:"Paduka Sahasram", lat:12.8, lng:79.7},
+    {id:"Pillai", label:"Pillai Lokācārya", year:1205, parent:"Vedanta", subset:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", lat:10.8, lng:78.6},
 
     // --- OTHER VEDANTA ---
-    {id:"Nimbarka", label:"Nimbarka", iast:"Nimbārka", year:1150, school:"Dvaitadvaita", region:"Andhra", work:"Parijata Saurabha", zone:"South"},
-    {id:"Vallabha", label:"Vallabha", iast:"Vallabhācārya", year:1479, school:"Shuddhadvaita", region:"North", work:"Anubhashya", zone:"West"},
-    {id:"Srinivasa", label:"Srinivasa", iast:"Śrīnivāsa", year:1200, school:"Dvaitadvaita", region:"India", note:"Disciple", zone:"South"},
-    {id:"Vitthalanatha", label:"Vitthalanatha", iast:"Viṭṭhalanātha", year:1516, school:"Shuddhadvaita", region:"Braj", note:"Son of Vallabha", zone:"North"},
+    {id:"Nimbarka", label:"Nimbārka", year:1150, parent:"Vedanta", subset:"Dvaitadvaita", region:"South", subregion:"Andhra", work:"Parijata Saurabha", lat:16.5, lng:80.6},
+    {id:"Vallabha", label:"Vallabhācārya", year:1479, parent:"Vedanta", subset:"Shuddhadvaita", region:"West", subregion:"Gujarat", work:"Anubhashya", lat:23.0, lng:72.5},
+    {id:"Chaitanya", label:"Caitanya", year:1486, parent:"Vedanta", subset:"Achintya Bheda", region:"East", subregion:"Bengal", note:"Gaudiya Founder", lat:23.4, lng:88.5},
 
-    // --- BUDDHISM LINEAGE ---
-    {id:"Upali", label:"Upali", iast:"Upāli", year:-500, school:"Buddhism", region:"Magadha", note:"Vinaya Master", zone:"East"},
-    {id:"Mahinda", label:"Mahinda", iast:"Mahinda", year:-250, school:"Theravada", region:"Sri Lanka", note:"Ashoka's Son", zone:"Sri Lanka"},
-    {id:"Buddhaghosa", label:"Buddhaghosa", iast:"Buddhaghosa", year:430, school:"Theravada", region:"Sri Lanka", work:"Visuddhimagga", zone:"Sri Lanka"},
-    {id:"Asanga", label:"Asanga", iast:"Asaṅga", year:350, school:"Mahayana", region:"Gandhara", work:"Yogacarabhumi", zone:"North West"},
-    {id:"Vasubandhu", label:"Vasubandhu", iast:"Vasubandhu", year:350, school:"Mahayana", region:"Gandhara", work:"Abhidharmakosha", zone:"North West"},
-    {id:"Dharmakirti", label:"Dharmakirti", iast:"Dharmakīrti", year:600, school:"Mahayana", region:"South", work:"Pramanavarttika", zone:"South"},
-    {id:"Huineng", label:"Huineng", year:638, school:"Zen", region:"China", work:"Platform Sutra", zone:"China"},
-    {id:"Linji", label:"Linji", year:850, school:"Zen", region:"China", note:"Linji School", zone:"China"},
-    {id:"Tsongkhapa", label:"Tsongkhapa", year:1357, school:"Vajrayana", region:"Tibet", note:"Gelug Founder", zone:"Tibet"},
-    {id:"DalaiLama", label:"Dalai Lama", year:1935, school:"Vajrayana", region:"Tibet", note:"14th", zone:"Tibet"},
+    // --- NYAYA & NAVYA-NYAYA ---
+    {id:"Gautama", label:"Gautama", year:-200, parent:"Nyaya", subset:"Nyaya", region:"East", subregion:"Mithila", work:"Nyaya Sutras", lat:26.1, lng:85.9},
+    {id:"Vatsyayana", label:"Vātsyāyana", year:450, parent:"Nyaya", subset:"Nyaya", region:"East", subregion:"Mithila", work:"Nyaya Bhashya", lat:26.0, lng:85.8},
+    {id:"Udayana", label:"Udayana", year:984, parent:"Nyaya", subset:"Nyaya", region:"East", subregion:"Mithila", work:"Kusumanjali", lat:26.2, lng:86.1},
+    {id:"Gangesa", label:"Gaṅgeśa", year:1325, parent:"Nyaya", subset:"Navya-Nyaya", region:"East", subregion:"Mithila", work:"Tattvacintamani", lat:26.15, lng:86.0},
+    {id:"Raghunatha", label:"Raghunātha Śiromaṇi", year:1477, parent:"Nyaya", subset:"Navya-Nyaya", region:"East", subregion:"Bengal", work:"Didhiti", lat:23.5, lng:88.4},
+    {id:"Gadadhara", label:"Gadādhara", year:1650, parent:"Nyaya", subset:"Navya-Nyaya", region:"East", subregion:"Bengal", lat:23.6, lng:88.3},
 
-    // --- JAINISM LINEAGE ---
-    {id:"GautamaGanadhara", label:"Gautama Ganadhara", iast:"Gautama Gaṇadhara", year:-500, school:"Jainism", region:"Bihar", note:"Disciple", zone:"East"},
-    {id:"Sudharma", label:"Sudharma", iast:"Sudharma", year:-500, school:"Jainism", region:"Bihar", note:"Disciple", zone:"East"},
-    {id:"Umaswati", label:"Umaswati", iast:"Umāsvāti", year:200, school:"Jainism", region:"India", work:"Tattvartha Sutra", zone:"West"},
-    {id:"Siddhasena", label:"Siddhasena", iast:"Siddhasena Divākara", year:480, school:"Jainism", region:"India", work:"Nyayavatara", zone:"West"},
-    {id:"Haribhadra", label:"Haribhadra", iast:"Haribhadra Sūri", year:750, school:"Jainism", region:"Gujarat", work:"Saddarshanasamuccaya", zone:"West"},
+    // --- KASHMIR SHAIVISM ---
+    {id:"Vasugupta", label:"Vasugupta", year:800, parent:"Shaivism", subset:"Trika", region:"North", subregion:"Kashmir", work:"Shiva Sutras", lat:34.1, lng:74.8},
+    {id:"Somananda", label:"Somānanda", year:900, parent:"Shaivism", subset:"Trika", region:"North", subregion:"Kashmir", lat:34.0, lng:74.9},
+    {id:"Utpaladeva", label:"Utpaladeva", year:925, parent:"Shaivism", subset:"Trika", region:"North", subregion:"Kashmir", work:"Ishvara Pratyabhijna", lat:34.2, lng:74.7},
+    {id:"Abhinavagupta", label:"Abhinavagupta", year:950, parent:"Shaivism", subset:"Trika", region:"North", subregion:"Kashmir", work:"Tantraloka", lat:34.15, lng:74.85},
+    {id:"Kshemaraja", label:"Kṣemarāja", year:1000, parent:"Shaivism", subset:"Trika", region:"North", subregion:"Kashmir", lat:34.1, lng:74.75},
+    {id:"Lakshmanjoo", label:"Lakshmanjoo", year:1907, parent:"Shaivism", subset:"Trika", region:"North", subregion:"Kashmir", lat:34.08, lng:74.8},
+
+    // --- BUDDHISM ---
+    {id:"Buddha", label:"Buddha", year:-563, parent:"Buddhism", subset:"Theravada", region:"East", subregion:"Magadha", lat:24.7, lng:85.3},
+    {id:"Nagarjuna", label:"Nāgārjuna", year:150, parent:"Buddhism", subset:"Mahayana", region:"South", subregion:"Andhra", work:"Mulamadhyamaka", lat:16.5, lng:80.5},
+    {id:"Dignaga", label:"Dignāga", year:480, parent:"Buddhism", subset:"Mahayana", region:"South", subregion:"Kanchipuram", lat:12.8, lng:79.7},
+    {id:"Dharmakirti", label:"Dharmakīrti", year:600, parent:"Buddhism", subset:"Mahayana", region:"South", subregion:"Andhra", lat:16.0, lng:80.0},
+    {id:"Bodhidharma", label:"Bodhidharma", year:480, parent:"Buddhism", subset:"Zen", region:"China", subregion:"Kanchipuram", lat:34.0, lng:113.0}, // Moved to China for map vis
+    {id:"Padmasambhava", label:"Padmasambhava", year:750, parent:"Buddhism", subset:"Vajrayana", region:"Tibet", subregion:"Swat", lat:29.6, lng:91.1},
+    {id:"Atisha", label:"Atiśa", year:982, parent:"Buddhism", subset:"Vajrayana", region:"Tibet", subregion:"Bengal", lat:29.5, lng:91.0},
+    {id:"Tsongkhapa", label:"Tsongkhapa", year:1357, parent:"Buddhism", subset:"Vajrayana", region:"Tibet", subregion:"Lhasa", lat:29.65, lng:91.11},
+    {id:"DalaiLama", label:"Dalai Lama (14th)", year:1935, parent:"Buddhism", subset:"Vajrayana", region:"Tibet", subregion:"Lhasa", lat:32.2, lng:76.3}, // Dharamshala
+
+    // --- JAINISM ---
+    {id:"Mahavira", label:"Mahāvīra", year:-540, parent:"Jainism", subset:"Jainism", region:"East", subregion:"Bihar", lat:25.5, lng:85.1},
+    {id:"Bhadrabahu", label:"Bhadrabāhu", year:-300, parent:"Jainism", subset:"Digambara", region:"South", subregion:"Karnataka", lat:12.8, lng:76.5},
+    {id:"Kundakunda", label:"Kundakunda", year:200, parent:"Jainism", subset:"Digambara", region:"South", subregion:"Andhra", work:"Samayasara", lat:15.0, lng:77.0},
+    {id:"Hemachandra", label:"Hemacandra", year:1088, parent:"Jainism", subset:"Svetambara", region:"West", subregion:"Gujarat", work:"Yogasastra", lat:23.0, lng:72.5},
+
+    // --- MIMAMSA ---
+    {id:"Jaimini", label:"Jaimini", year:-300, parent:"Mimamsa", subset:"Mimamsa", region:"North", subregion:"India", lat:28.5, lng:77.0},
+    {id:"Shabara", label:"Śabara", year:200, parent:"Mimamsa", subset:"Mimamsa", region:"North", subregion:"India", lat:28.0, lng:77.5},
+    {id:"Kumarila", label:"Kumārila Bhaṭṭa", year:700, parent:"Mimamsa", subset:"Mimamsa", region:"North", subregion:"Prayag", lat:25.4, lng:81.8},
+    {id:"Prabhakara", label:"Prabhākara", year:700, parent:"Mimamsa", subset:"Mimamsa", region:"South", subregion:"Kerala", lat:10.5, lng:76.5},
+
+    // --- SAMKHYA & YOGA ---
+    {id:"Patanjali", label:"Patañjali", year:-150, parent:"Samkhya-Yoga", subset:"Yoga", region:"North", subregion:"Kashmir", work:"Yoga Sutras", lat:33.5, lng:75.0},
+    {id:"IshvaraKrishna", label:"Īśvarakṛṣṇa", year:350, parent:"Samkhya-Yoga", subset:"Samkhya", region:"North", subregion:"India", lat:28.0, lng:76.0},
+
+    // --- VAISHESHIKA ---
+    {id:"Kanada", label:"Kaṇāda", year:-200, parent:"Nyaya", subset:"Vaisheshika", region:"West", subregion:"Gujarat", work:"Vaisheshika Sutras", lat:22.3, lng:71.0},
+    {id:"Prashastapada", label:"Praśastapāda", year:550, parent:"Nyaya", subset:"Vaisheshika", region:"North", subregion:"India", lat:27.0, lng:78.0},
+
+    // --- CHARVAKA & AJIVIKA ---
+    {id:"Charvaka", label:"Cārvāka", year:-600, parent:"Nastika", subset:"Charvaka", region:"North", subregion:"India", note:"Materialist", lat:29.0, lng:76.0},
+    {id:"Makkhali", label:"Makkhali Gosāla", year:-500, parent:"Nastika", subset:"Ajivika", region:"East", subregion:"Magadha", lat:25.0, lng:85.5},
 
     // --- BHAKTI & LIT ---
-    {id:"Vidyapati", label:"Vidyapati", iast:"Vidyāpati", year:1352, school:"Literature", region:"Mithila", work:"Padavali", zone:"East"},
-    {id:"Jayadeva", label:"Jayadeva", iast:"Jayadeva", year:1200, school:"Bhakti", region:"Odisha", work:"Gita Govinda", zone:"East"},
-    {id:"Chaitanya", label:"Chaitanya", iast:"Caitanya", year:1486, school:"Bhakti", region:"Bengal", note:"Gaudiya", zone:"East"},
-    {id:"Kabir", label:"Kabir", iast:"Kabīr", year:1440, school:"Bhakti", region:"Varanasi", work:"Bijak", zone:"North"},
-    {id:"Tulsidas", label:"Tulsidas", iast:"Tulasīdāsa", year:1532, school:"Bhakti", region:"Varanasi", work:"Ramcharitmanas", zone:"North"},
-    {id:"Surdas", label:"Surdas", iast:"Sūrdās", year:1478, school:"Bhakti", region:"Braj", work:"Sur Sagar", zone:"North"},
-    {id:"Mirabai", label:"Mirabai", iast:"Mīrābāī", year:1498, school:"Bhakti", region:"Rajasthan", work:"Bhajans", zone:"West"},
-    {id:"Andal", label:"Andal", iast:"Āṇḍāḷ", year:750, school:"Bhakti", region:"Tamil Nadu", work:"Tiruppavai", zone:"South"},
-    {id:"Appayya", label:"Appayya", iast:"Appayya Dīkṣita", year:1520, school:"Shaiva", region:"Tamil Nadu", work:"Siddhantalesa", zone:"South"},
-    {id:"Tyagaraja", label:"Tyagaraja", iast:"Tyāgarāja", year:1767, school:"Music", region:"Tamil Nadu", work:"Pancharatna", zone:"South"},
-    {id:"Muthuswami", label:"Muthuswami", iast:"Muthuswāmi Dīkṣitar", year:1775, school:"Music", region:"Tamil Nadu", zone:"South"},
-    {id:"SyamaSastri", label:"Syama Sastri", iast:"Śyāma Śāstri", year:1762, school:"Music", region:"Tamil Nadu", zone:"South"},
+    {id:"Jayadeva", label:"Jayadeva", year:1200, parent:"Bhakti", subset:"Bhakti", region:"East", subregion:"Odisha", work:"Gita Govinda", lat:20.2, lng:85.8},
+    {id:"Vidyapati", label:"Vidyāpati", year:1352, parent:"Literature", subset:"Literature", region:"East", subregion:"Mithila", work:"Padavali", lat:26.1, lng:86.0},
+    {id:"Kabir", label:"Kabīr", year:1440, parent:"Bhakti", subset:"Nirguna", region:"North", subregion:"Varanasi", lat:25.3, lng:82.9},
+    {id:"Tulsidas", label:"Tulasīdāsa", year:1532, parent:"Bhakti", subset:"Saguna", region:"North", subregion:"Varanasi", work:"Ramcharitmanas", lat:25.35, lng:83.0},
+    {id:"Surdas", label:"Sūrdās", year:1478, parent:"Bhakti", subset:"Saguna", region:"North", subregion:"Braj", lat:27.5, lng:77.7},
+    {id:"Mirabai", label:"Mīrābāī", year:1498, parent:"Bhakti", subset:"Saguna", region:"West", subregion:"Rajasthan", lat:26.5, lng:74.0},
+    {id:"Tukaram", label:"Tukārām", year:1608, parent:"Bhakti", subset:"Varkari", region:"West", subregion:"Maharashtra", lat:18.5, lng:73.8},
+    {id:"Tyagaraja", label:"Tyāgarāja", year:1767, parent:"Arts", subset:"Music", region:"South", subregion:"Thanjavur", lat:10.8, lng:79.1},
 
     // --- MODERN ERA ---
-    {id:"RamMohan", label:"Ram Mohan", iast:"Raja Ram Mohan Roy", year:1772, school:"Modern", region:"Bengal", work:"Brahmo Samaj", zone:"East"},
-    {id:"Bankim", label:"Bankim", iast:"Baṅkim Candra", year:1838, school:"Literature", region:"Bengal", work:"Anandamath", zone:"East"},
-    {id:"Vivekananda", label:"Vivekananda", iast:"Swāmī Vivekānanda", year:1863, school:"Advaita", region:"Bengal", work:"Raja Yoga", zone:"East"},
-    {id:"Tagore", label:"Tagore", iast:"Rabindranath Tagore", year:1861, school:"Literature", region:"Bengal", work:"Gitanjali", zone:"East"},
-    {id:"Aurobindo", label:"Aurobindo", iast:"Sri Aurobindo", year:1872, school:"Yoga", region:"Pondicherry", work:"Life Divine", zone:"East"},
-    {id:"Ramanujan", label:"Ramanujan", iast:"Srinivasa Ramanujan", year:1887, school:"Science", region:"Tamil Nadu", work:"Notebooks", zone:"South"},
-    {id:"Ambedkar", label:"Ambedkar", iast:"B.R. Ambedkar", year:1891, school:"Modern", region:"Maharashtra", work:"Constitution", zone:"West"},
-    {id:"Nazrul", label:"Nazrul", iast:"Kazi Nazrul Islam", year:1899, school:"Literature", region:"Bengal", work:"Bidrohi", zone:"East"},
-    {id:"Sarat", label:"Sarat", iast:"Sarat Chandra", year:1876, school:"Literature", region:"Bengal", work:"Devdas", zone:"East"},
-    {id:"Madhusudan", label:"Madhusudan", iast:"Michael Madhusudan", year:1824, school:"Literature", region:"Bengal", work:"Meghnad Badh", zone:"East"},
-    {id:"Ramakrishna", label:"Ramakrishna", iast:"Ramakrishna", year:1836, school:"Bhakti", region:"Bengal", work:"Kathamrita", zone:"East"},
-    {id:"CVRaman", label:"CV Raman", iast:"C.V. Rāman", year:1888, school:"Science", region:"Tamil Nadu", work:"Raman Effect", zone:"South"},
-    {id:"Bose", label:"JC Bose", iast:"J.C. Bose", year:1858, school:"Science", region:"Bengal", work:"Plant Science", zone:"East"},
-    {id:"Satyendranath", label:"S.N. Bose", iast:"Satyendranāth Bose", year:1894, school:"Science", region:"Bengal", work:"Boson", zone:"East"},
-
-    // --- INDOPHILES ---
-    {id:"Voltaire", label:"Voltaire", group:"west", year:1694, region:"France", work:"Essai", note:"Indophile", zone:"Global"},
-    {id:"Schopenhauer", label:"Schopenhauer", group:"west", year:1788, region:"Germany", work:"World as Will", note:"Upanishads admirer", zone:"Global"},
-    {id:"MaxMuller", label:"Max Müller", group:"west", year:1823, region:"Germany", work:"Sacred Books", note:"Indologist", zone:"Global"},
-    {id:"Tesla", label:"Tesla", group:"west", year:1856, region:"USA", work:"AC", note:"Vedantic Physics", zone:"Global"},
-    {id:"Eliot", label:"Eliot", group:"west", year:1888, region:"UK", work:"Waste Land", note:"Sanskrit", zone:"Global"},
-    {id:"Oppenheimer", label:"Oppenheimer", group:"west", year:1904, region:"USA", work:"Trinity", note:"Gita Scholar", zone:"Global"},
-    {id:"Harrison", label:"Harrison", group:"west", year:1943, region:"UK", work:"Sitar", note:"Beatles", zone:"Global"},
-    {id:"Jones", label:"William Jones", group:"west", year:1746, region:"UK", work:"Asiatic Researches", zone:"Global"},
-    {id:"Megasthenes", label:"Megasthenes", group:"west", year:-350, region:"Greece", work:"Indica", zone:"Global"},
-    {id:"AlBiruni", label:"Al-Biruni", group:"west", year:973, region:"Persia", work:"Indica", zone:"Global"},
-    {id:"Goethe", label:"Goethe", group:"west", year:1749, region:"Germany", note:"Admired Shakuntalam", zone:"Global"}
+    {id:"RamMohan", label:"Ram Mohan Roy", year:1772, parent:"Modern", subset:"Reform", region:"East", subregion:"Bengal", lat:22.5, lng:88.3},
+    {id:"Bankim", label:"Baṅkim Candra", year:1838, parent:"Literature", subset:"Literature", region:"East", subregion:"Bengal", work:"Anandamath", lat:22.6, lng:88.4},
+    {id:"Vivekananda", label:"Vivekānanda", year:1863, parent:"Vedanta", subset:"Advaita", region:"East", subregion:"Bengal", work:"Raja Yoga", lat:22.57, lng:88.36},
+    {id:"Tagore", label:"Rabindranath Tagore", year:1861, parent:"Literature", subset:"Literature", region:"East", subregion:"Bengal", work:"Gitanjali", lat:23.6, lng:87.6},
+    {id:"Aurobindo", label:"Sri Aurobindo", year:1872, parent:"Samkhya-Yoga", subset:"Yoga", region:"South", subregion:"Pondicherry", work:"Life Divine", lat:11.9, lng:79.8},
+    {id:"Ramanujan", label:"Srinivasa Ramanujan", year:1887, parent:"Science", subset:"Math", region:"South", subregion:"Tamil Nadu", lat:11.0, lng:79.0},
+    {id:"Ambedkar", label:"B.R. Ambedkar", year:1891, parent:"Modern", subset:"Reform", region:"West", subregion:"Maharashtra", lat:19.0, lng:72.8},
+    {id:"Nazrul", label:"Kazi Nazrul Islam", year:1899, parent:"Literature", subset:"Literature", region:"East", subregion:"Bengal", work:"Bidrohi", lat:23.7, lng:90.4},
+    {id:"CVRaman", label:"C.V. Rāman", year:1888, parent:"Science", subset:"Science", region:"South", subregion:"Tamil Nadu", lat:13.0, lng:80.2},
+    
+    // --- INDOPHILES & GLOBAL ---
+    {id:"Voltaire", label:"Voltaire", year:1694, parent:"West", subset:"Indology", region:"Global", subregion:"France", work:"Essai", lat:48.8, lng:2.3},
+    {id:"Schopenhauer", label:"Schopenhauer", year:1788, parent:"West", subset:"Philosophy", region:"Global", subregion:"Germany", lat:52.5, lng:13.4},
+    {id:"MaxMuller", label:"Max Müller", year:1823, parent:"West", subset:"Indology", region:"Global", subregion:"Germany", lat:51.1, lng:10.4},
+    {id:"Tesla", label:"Tesla", year:1856, parent:"West", subset:"Science", region:"Global", subregion:"USA", lat:40.7, lng:-74.0},
+    {id:"Eliot", label:"T.S. Eliot", year:1888, parent:"West", subset:"Literature", region:"Global", subregion:"UK", lat:51.5, lng:-0.1},
+    {id:"Oppenheimer", label:"Oppenheimer", year:1904, parent:"West", subset:"Science", region:"Global", subregion:"USA", lat:35.6, lng:-106.0},
+    {id:"Jones", label:"William Jones", year:1746, parent:"West", subset:"Indology", region:"Global", subregion:"Bengal/UK", lat:22.5, lng:88.3},
+    {id:"Megasthenes", label:"Megasthenes", year:-350, parent:"West", subset:"History", region:"Global", subregion:"Greece", lat:37.9, lng:23.7},
+    {id:"AlBiruni", label:"Al-Biruni", year:973, parent:"West", subset:"Indology", region:"Global", subregion:"Persia", lat:32.0, lng:60.0}
 ];
 
-// --- 2. LINEAGES ---
+// --- 2. RELATIONSHIPS ---
 const lineages = [
-    // Divine
     {s:"Narayana", t:"Brahma", type:"Guru"}, {s:"Brahma", t:"Vashishta", type:"Guru"},
-    {s:"Vashishta", t:"Shakti", type:"Guru"}, {s:"Shakti", t:"Parashara", type:"Guru"},
-    {s:"Parashara", t:"Vyasa", type:"Guru"}, {s:"Vyasa", t:"Shuka", type:"Guru"},
-    {s:"Shiva", t:"Vasugupta", type:"Divine"}, {s:"Shiva", t:"Shankara", type:"Divine"},
-    
-    // Advaita
-    {s:"Shuka", t:"Gaudapada", type:"Lineage"}, {s:"Gaudapada", t:"Govinda", type:"Guru"},
-    {s:"Govinda", t:"Shankara", type:"Guru"}, {s:"Shankara", t:"Suresvara", type:"Guru"},
-    {s:"Shankara", t:"Padmapada", type:"Guru"}, {s:"Shankara", t:"Totaka", type:"Guru"},
-    {s:"Shankara", t:"Hastamalaka", type:"Guru"}, {s:"Shankara", t:"Vacaspati", type:"Influence"},
-    {s:"Shankara", t:"Vidyaranya", type:"Lineage"}, {s:"Shankara", t:"Madhusudana", type:"Lineage"},
-    {s:"Shankara", t:"Vivekananda", type:"Lineage"},
-    
-    // Dvaita
-    {s:"Narayana", t:"Madhva", type:"Divine"},
-    {s:"Madhva", t:"Padmanabha", type:"Guru"}, {s:"Padmanabha", t:"Narahari", type:"Guru"},
+    {s:"Shiva", t:"Shankara", type:"Divine"}, {s:"Shiva", t:"Vasugupta", type:"Divine"},
+    {s:"Gaudapada", t:"Govinda", type:"Guru"}, {s:"Govinda", t:"Shankara", type:"Guru"},
+    {s:"Shankara", t:"Suresvara", type:"Guru"}, {s:"Shankara", t:"Padmapada", type:"Guru"},
+    {s:"Shankara", t:"Totaka", type:"Guru"}, {s:"Shankara", t:"Hastamalaka", type:"Guru"},
+    {s:"Shankara", t:"Vacaspati", type:"Influence"}, {s:"Shankara", t:"Vidyaranya", type:"Lineage"},
     {s:"Madhva", t:"Jayatirtha", type:"Lineage"}, {s:"Jayatirtha", t:"Vyasatirtha", type:"Lineage"},
     {s:"Vyasatirtha", t:"Raghavendra", type:"Lineage"},
-    
-    // Vishishtadvaita
-    {s:"Narayana", t:"Nammalvar", type:"Inspiration"}, {s:"Nammalvar", t:"Nathamuni", type:"Inspiration"},
-    {s:"Nathamuni", t:"Yamuna", type:"GrandGuru"}, {s:"Yamuna", t:"Ramanuja", type:"Preceptor"},
     {s:"Ramanuja", t:"Desika", type:"Lineage"}, {s:"Ramanuja", t:"Pillai", type:"Lineage"},
-    
-    // Kashmir
-    {s:"Vasugupta", t:"Somananda", type:"Lineage"}, {s:"Somananda", t:"Utpaladeva", type:"Guru"},
-    {s:"Utpaladeva", t:"Abhinavagupta", type:"GrandGuru"}, {s:"Abhinavagupta", t:"Kshemaraja", type:"Guru"},
-    {s:"Abhinavagupta", t:"Lakshmanjoo", type:"Lineage"},
-    
-    // Nyaya
-    {s:"Gautama", t:"Vatsyayana", type:"Lineage"}, {s:"Vatsyayana", t:"Uddyotakara", type:"Lineage"},
-    {s:"Uddyotakara", t:"Vacaspati", type:"Lineage"}, {s:"Vacaspati", t:"Udayana", type:"Lineage"},
-    {s:"Udayana", t:"Gangesa", type:"Influence"}, {s:"Gangesa", t:"Raghunatha", type:"Lineage"},
-    
-    // Buddhism
-    {s:"Buddha", t:"Mahakassapa", type:"Guru"}, {s:"Mahakassapa", t:"Ananda", type:"Guru"},
-    {s:"Buddha", t:"Nagarjuna", type:"Inspiration"}, {s:"Nagarjuna", t:"Aryadeva", type:"Guru"},
-    {s:"Asanga", t:"Vasubandhu", type:"Brother"}, {s:"Vasubandhu", t:"Dignaga", type:"Lineage"},
-    {s:"Bodhidharma", t:"Huineng", type:"Lineage"}, {s:"Padmasambhava", t:"Milarepa", type:"Lineage"},
-    
-    // Jainism
-    {s:"Mahavira", t:"GautamaGanadhara", type:"Guru"}, {s:"Mahavira", t:"Bhadrabahu", type:"Lineage"},
-    {s:"Bhadrabahu", t:"Kundakunda", type:"Lineage"}, {s:"Mahavira", t:"Hemachandra", type:"Lineage"},
-    
-    // Mimamsa
-    {s:"Jaimini", t:"Shabara", type:"Lineage"}, {s:"Shabara", t:"Kumarila", type:"Lineage"},
-    {s:"Kumarila", t:"Mandana", type:"Guru"}, {s:"Kumarila", t:"Prabhakara", type:"Guru"},
-    
-    // Samkhya
-    {s:"Kapila", t:"Asuri", type:"Guru"}, {s:"Asuri", t:"Panchashikha", type:"Guru"},
-    {s:"Panchashikha", t:"IshvaraKrishna", type:"Lineage"},
-    
-    // Other
-    {s:"Ramanuja", t:"Madhva", type:"Reaction"}, {s:"Jayadeva", t:"Chaitanya", type:"Influence"},
-    {s:"Chaitanya", t:"Tagore", type:"Influence"}, {s:"Ramakrishna", t:"Vivekananda", type:"Guru"},
-    {s:"Vivekananda", t:"Nivedita", type:"Guru"},
-    
-    // Indophiles
-    {s:"Panini", t:"Voltaire", type:"Study"}, {s:"Vyasa", t:"Oppenheimer", type:"Study"},
-    {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"}, {s:"Vivekananda", t:"Tesla", type:"Meeting"},
-    {s:"Kalidasa", t:"Goethe", type:"Inspiration"}
+    {s:"Utpaladeva", t:"Abhinavagupta", type:"Lineage"}, {s:"Abhinavagupta", t:"Kshemaraja", type:"Guru"},
+    {s:"Gautama", t:"Vatsyayana", type:"Lineage"}, {s:"Udayana", t:"Gangesa", type:"Influence"},
+    {s:"Buddha", t:"Mahakassapa", type:"Guru"}, {s:"Buddha", t:"Nagarjuna", type:"Inspiration"},
+    {s:"Asanga", t:"Vasubandhu", type:"Brother"}, {s:"Bodhidharma", t:"Dogen", type:"Lineage"},
+    {s:"Panini", t:"Voltaire", type:"Study"}, {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"},
+    {s:"Vivekananda", t:"Tesla", type:"Meeting"}, {s:"Vyasa", t:"Oppenheimer", type:"Study"}
 ];
