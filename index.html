@@ -3,69 +3,119 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Indosphere – Indian Philosophers & Lineages</title>
+  <title>Indosphere – Lineages of Thought</title>
 
   <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <script src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
   <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
 
   <style>
+    :root {
+      --space-black: #0a0015;
+      --deep-navy: #0f0b2e;
+      --glow-blue: #a5d8ff;
+      --deity-gold: #ffd700;
+    }
+
     body {
-      font-family: system-ui, -apple-system, sans-serif;
       margin: 0;
       padding: 0;
       height: 100vh;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      background: #f9fbfc;
-      color: #1a1a1a;
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(to bottom, var(--deep-navy), var(--space-black));
+      color: #e0e0ff;
+      overflow: hidden;
     }
+
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: 
+        radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.03) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 70%, rgba(200,220,255,0.04) 0%, transparent 70%);
+      z-index: 1;
+    }
+    .stars::before,
+    .stars::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      box-shadow: 
+        200px 300px 1px #fff, 500px 120px 1px #fff, 800px 450px 1px #ddd,
+        1200px 200px 1px #eee, 300px 800px 1px #fff, 600px 600px 2px #fff,
+        900px 900px 1px #ccc, 100px 900px 1px #fff, 1400px 400px 1px #eee;
+      opacity: 0.7;
+      animation: twinkle 18s infinite alternate ease-in-out;
+    }
+    .stars::after {
+      transform: scale(1.2) translate(15%, 20%);
+      animation-delay: -9s;
+      opacity: 0.5;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 0.6; }
+      50%     { opacity: 0.9; }
+    }
+
     header {
-      padding: 12px 20px;
-      background: #1e3a5f;
-      color: white;
+      position: relative;
+      z-index: 10;
+      padding: 12px 24px;
+      background: rgba(10, 5, 30, 0.65);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(100,120,255,0.15);
       display: flex;
-      gap: 18px;
+      gap: 16px;
       align-items: center;
       flex-wrap: wrap;
     }
-    header h1 { margin: 0; font-size: 1.45rem; }
-    label { display: flex; align-items: center; gap: 6px; font-size: 0.94rem; }
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--glow-blue);
+      text-shadow: 0 0 10px rgba(165,216,255,0.5);
+    }
     select, input {
-      padding: 6px 10px;
-      border-radius: 5px;
-      border: 1px solid #aaa;
-      background: white;
+      background: rgba(20,15,50,0.7);
+      color: #e0e0ff;
+      border: 1px solid rgba(100,140,255,0.3);
+      padding: 6px 12px;
+      border-radius: 6px;
     }
+
     #main {
+      position: relative;
+      z-index: 5;
       display: grid;
-      grid-template-columns: 340px 1fr;
-      height: 100%;
+      grid-template-columns: 320px 1fr;
+      height: calc(100vh - 60px);
     }
-    #network-container, #timeline-container {
-      width: 100%;
-      height: 100%;
-      background: white;
-      border: 1px solid #e0e0e0;
-    }
+
     #side-panel {
-      background: white;
-      padding: 16px 20px;
+      background: rgba(15,10,40,0.75);
+      backdrop-filter: blur(8px);
+      padding: 16px;
       overflow-y: auto;
-      border-right: 1px solid #ddd;
-      font-size: 0.96rem;
-      line-height: 1.45;
+      border-right: 1px solid rgba(80,100,200,0.2);
+      color: #d0d0ff;
     }
-    #side-panel h2 { margin: 0 0 1rem; color: #1e3a5f; }
-    #side-panel strong { color: #2c3e50; }
-    #side-panel em { color: #555; }
-    .node-highlight {
-      border: 3px solid #c0392b !important;
-      box-shadow: 0 0 14px rgba(192,57,43,0.5) !important;
+    #side-panel h2 { color: var(--glow-blue); margin: 0 0 1rem; }
+
+    #network-container {
+      background: transparent;
+    }
+    #timeline-container {
+      height: 220px;
+      background: rgba(5,3,20,0.85);
+      border-top: 1px solid rgba(80,100,200,0.15);
     }
   </style>
 </head>
 <body>
+
+<div class="stars"></div>
 
 <header>
   <h1>Indosphere</h1>
@@ -79,23 +129,27 @@
   </label>
 
   <label>Search:
-    <input type="text" id="search" placeholder="name / school / note…" style="width:170px;"/>
+    <input type="text" id="search" placeholder="name / school / note…" style="width:160px;"/>
   </label>
 </header>
 
 <div id="main">
   <div id="side-panel">
     <h2>Node Details</h2>
-    <div id="details">← Click any node</div>
+    <div id="details">Click a node to explore</div>
   </div>
 
   <div style="display:flex; flex-direction:column;">
     <div id="network-container" style="flex:1;"></div>
-    <div id="timeline-container" style="height:240px; border-top:1px solid #ccc;"></div>
+    <div id="timeline-container"></div>
   </div>
 </div>
 
 <script>
+// ────────────────────────────────────────────────
+// DATA 
+// ────────────────────────────────────────────────
+
 const rawData = [
     {id:"Narayana", label:"Nārāyaṇa", group:"Deity", region:"Divine", isDeity:true, note:"The Preserver."},
     {id:"Shiva", label:"Śiva", group:"Deity", region:"Divine", isDeity:true, note:"Adi Guru."},
@@ -252,7 +306,7 @@ const lineages = [
 
     {s:"Narayana", t:"Nammalvar", type:"Inspiration"}, {s:"Nammalvar", t:"Nathamuni", type:"Inspiration"},
     {s:"Nathamuni", t:"Yamuna", type:"GrandGuru"}, {s:"Yamuna", t:"Ramanuja", type:"Preceptor"},
-    {s:"Ramanuja", t:"Desika", type:"Lineage"},
+    {s:"Ramanuja", t:"Desika", type:"Lineage"}, {s:"Ramanuja", t:"Pillai", type:"Lineage"},
 
     {s:"Vasugupta", t:"Somananda", type:"Lineage"}, {s:"Somananda", t:"Utpaladeva", type:"Guru"},
     {s:"Utpaladeva", t:"Abhinavagupta", type:"GrandGuru"}, {s:"Abhinavagupta", t:"Kshemaraja", type:"Guru"},
@@ -261,85 +315,85 @@ const lineages = [
     {s:"Gautama", t:"Vatsyayana", type:"Lineage"}, {s:"Vatsyayana", t:"Uddyotakara", type:"Lineage"},
     {s:"Uddyotakara", t:"Vacaspati", type:"Lineage"}, {s:"Vacaspati", t:"Udayana", type:"Lineage"},
     {s:"Udayana", t:"Gangesa", type:"Influence"}, {s:"Gangesa", t:"Raghunatha", type:"Lineage"},
+    {s:"Raghunatha", t:"Gadadhara", type:"Lineage"},
 
     {s:"Buddha", t:"Mahakassapa", type:"Guru"}, {s:"Mahakassapa", t:"Ananda", type:"Guru"},
-    {s:"Buddha", t:"Nagarjuna", type:"Inspiration"},
-    {s:"Vasubandhu", t:"Dignaga", type:"Lineage"},
+    {s:"Buddha", t:"Nagarjuna", type:"Inspiration"}, {s:"Nagarjuna", t:"Aryadeva", type:"Guru"},
+    {s:"Asanga", t:"Vasubandhu", type:"Brother"}, {s:"Vasubandhu", t:"Dignaga", type:"Lineage"},
+    {s:"Bodhidharma", t:"Huineng", type:"Lineage"}, {s:"Padmasambhava", t:"Milarepa", type:"Lineage"},
     {s:"Tsongkhapa", t:"DalaiLama", type:"Lineage"},
 
-    {s:"Mahavira", t:"Bhadrabahu", type:"Lineage"},
-    {s:"Bhadrabahu", t:"Kundakunda", type:"Lineage"},
-    {s:"Mahavira", t:"Hemachandra", type:"Lineage"},
+    {s:"Mahavira", t:"GautamaGanadhara", type:"Guru"}, {s:"Mahavira", t:"Bhadrabahu", type:"Lineage"},
+    {s:"Bhadrabahu", t:"Kundakunda", type:"Lineage"}, {s:"Mahavira", t:"Hemachandra", type:"Lineage"},
 
     {s:"Jaimini", t:"Shabara", type:"Lineage"}, {s:"Shabara", t:"Kumarila", type:"Lineage"},
     {s:"Kumarila", t:"Mandana", type:"Guru"}, {s:"Kumarila", t:"Prabhakara", type:"Guru"},
 
-    {s:"Kapila", t:"IshvaraKrishna", type:"Lineage"},
+    {s:"Kapila", t:"Asuri", type:"Guru"}, {s:"Asuri", t:"Panchashikha", type:"Guru"},
+    {s:"Panchashikha", t:"IshvaraKrishna", type:"Lineage"},
 
     {s:"Panini", t:"Voltaire", type:"Study"}, {s:"Vyasa", t:"Oppenheimer", type:"Study"},
-    {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"},
-    {s:"Kalidasa", t:"Goethe", type:"Inspiration"},
-    {s:"Jones", t:"MaxMuller", type:"Influence"}
+    {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"}, {s:"Vivekananda", t:"Tesla", type:"Meeting"},
+    {s:"Kalidasa", t:"Goethe", type:"Inspiration"}, {s:"Jones", t:"MaxMuller", type:"Influence"}
 ];
 
-const nodes = new vis.DataSet(rawData.map(node => ({
-  id: node.id,
-  label: node.label,
-  title: `${node.label}  •  ${node.school || node.group || "?"}`,
-  group: node.school || node.group || "Other",
-  year: node.year || null,
-  shape: node.isDeity ? "diamond" : "ellipse",
-  color: node.isDeity ? { background:"#fef5e7", border:"#d35400" } : undefined,
-  font: { multi: 'html', size:13 }
+// ────────────────────────────────────────────────
+// VISUALIZATION
+// ────────────────────────────────────────────────
+
+const nodes = new vis.DataSet(rawData.map(n => ({
+  id: n.id,
+  label: n.label,
+  group: n.school || n.group || "Other",
+  year: n.year || null,
+  shape: n.isDeity ? "diamond" : "circle",
+  size: n.isDeity ? 28 : 16,
+  color: n.isDeity 
+    ? { background: "rgba(255,215,0,0.18)", border: "#ffd700" }
+    : { background: "rgba(80,140,255,0.12)", border: "#a5d8ff" },
+  font: { color: "#f0f8ff", size: 13, strokeWidth: 0 },
+  shadow: { enabled: true, color: "rgba(100,180,255,0.4)", size: 12, x: 0, y: 0 }
 })));
 
-const edges = new vis.DataSet(lineages.map(rel => ({
-  from: rel.s,
-  to: rel.t,
+const edges = new vis.DataSet(lineages.map(e => ({
+  from: e.s,
+  to: e.t,
   arrows: "to",
-  label: rel.type.toLowerCase(),
-  font: { size:10, align:"middle" },
-  color: { color: "#7f8c8d", highlight:"#e74c3c" },
-  smooth: { type:"cubicBezier", forceDirection:"horizontal", roundness:0.42 }
+  color: { color: "rgba(160,200,255,0.35)", highlight: "#a5d8ff" },
+  width: 1.2,
+  smooth: { type: "cubicBezier", roundness: 0.4 }
 })));
 
 const container = document.getElementById("network-container");
 
 const options = {
   nodes: {
-    shape: "dot",
-    size: 18,
-    font: { size:13 },
-    borderWidth: 1.8,
-    shadow: true
+    borderWidth: 1.5,
+    borderWidthSelected: 3,
+    font: { multi: true }
   },
   edges: {
-    arrows: { to: {enabled:true, scaleFactor:0.65} },
-    smooth: {enabled:true, type:"cubicBezier", roundness:0.38},
-    font: {size:10}
+    arrows: { to: { scaleFactor: 0.6 } },
+    smooth: { enabled: true }
   },
   physics: {
     enabled: true,
-    stabilization: {
-      enabled: true,
-      iterations: 1400,
-      updateInterval: 50,
-      fit: true
-    },
+    stabilization: { iterations: 1400, fit: true },
     barnesHut: {
-      gravitationalConstant: -4200,
-      centralGravity: 0.38,
-      springLength: 150,
-      springConstant: 0.035,
-      damping: 0.58
+      gravitationalConstant: -4500,
+      centralGravity: 0.25,
+      springLength: 160,
+      springConstant: 0.03,
+      damping: 0.55
     },
     minVelocity: 0.01,
-    timestep: 0.38
+    timestep: 0.4
   },
   interaction: {
     hover: true,
     navigationButtons: true,
-    keyboard: true
+    keyboard: true,
+    zoomView: true
   }
 };
 
@@ -347,8 +401,12 @@ const network = new vis.Network(container, { nodes, edges }, options);
 
 network.on("stabilizationIterationsDone", () => {
   network.setOptions({ physics: false });
-  network.fit({ animation: { duration: 1200 } });
+  network.fit({ animation: { duration: 1400 } });
 });
+
+// ────────────────────────────────────────────────
+// TIMELINE
+// ────────────────────────────────────────────────
 
 const timelineItems = rawData
   .filter(n => Number.isFinite(n.year))
@@ -356,46 +414,43 @@ const timelineItems = rawData
     id: n.id,
     content: n.label,
     start: n.year,
-    group: n.school || n.group || "Other"
+    group: n.school || "Other"
   }));
 
 const timelineGroups = new vis.DataSet(
-  [...new Set(timelineItems.map(i=>i.group))].map(g=>({id:g, content:g}))
+  [...new Set(timelineItems.map(i => i.group))].map(g => ({id: g, content: g}))
 );
 
-const timeline = new vis.Timeline(
+new vis.Timeline(
   document.getElementById("timeline-container"),
   timelineItems,
   {
     height: "100%",
-    min: -4000,
+    min: -3500,
     max: 2000,
-    zoomable: true,
-    zoomMin: 1000*3600*24*365*3,
+    zoomMin: 3 * 365 * 24 * 3600 * 1000,
     stack: true,
     showCurrentTime: false
   },
   timelineGroups
 );
 
+// ────────────────────────────────────────────────
+// SIDE PANEL + FILTERS
+// ────────────────────────────────────────────────
+
 const details = document.getElementById("details");
 
 function showNode(id) {
   const node = rawData.find(n => n.id === id);
   if (!node) return;
-
-  let html = `<strong>${node.label}</strong>`;
-  if (node.year) html += ` <span style="color:#555">(${node.year > 0 ? "≈" : ""}${Math.abs(node.year)} ${node.year < 0 ? "BCE" : "CE"})</span>`;
-  html += "<br>";
-
+  let html = `<strong style="color:#a5d8ff">${node.label}</strong>`;
+  if (node.year) html += ` <span style="color:#aaa">(${Math.abs(node.year)} ${node.year < 0 ? 'BCE' : 'CE'})</span>`;
   if (node.school) html += `<div><strong>School:</strong> ${node.school}</div>`;
   if (node.region) html += `<div><strong>Region:</strong> ${node.region}</div>`;
-  if (node.note)   html += `<div style="margin-top:8px;"><em>${node.note}</em></div>`;
-  if (node.work)   html += `<div><strong>Work:</strong> ${node.work}</div>`;
-  if (node.others?.length) {
-    html += `<div><strong>Others:</strong> ${node.others.join(" • ")}</div>`;
-  }
-
+  if (node.note) html += `<div style="margin-top:8px;color:#bbb"><em>${node.note}</em></div>`;
+  if (node.work) html += `<div><strong>Work:</strong> ${node.work}</div>`;
+  if (node.others?.length) html += `<div><strong>Others:</strong> ${node.others.join(" • ")}</div>`;
   details.innerHTML = html;
 }
 
@@ -417,7 +472,7 @@ const regions = [...new Set(rawData.map(n=>n.region||"Unknown"))].sort();
 schools.forEach(s => schoolSel.innerHTML += `<option value="${s}">${s}</option>`);
 regions.forEach(r => regionSel.innerHTML += `<option value="${r}">${r}</option>`);
 
-function filter() {
+function applyFilter() {
   const s = schoolSel.value;
   const r = regionSel.value;
   const q = searchIn.value.trim().toLowerCase();
@@ -438,11 +493,11 @@ function filter() {
   network.fit({animation:false});
 }
 
-schoolSel.onchange = filter;
-regionSel.onchange = filter;
-searchIn.oninput  = filter;
+schoolSel.onchange = applyFilter;
+regionSel.onchange = applyFilter;
+searchIn.oninput  = applyFilter;
 
-filter();
+applyFilter();
 </script>
 </body>
 </html>
