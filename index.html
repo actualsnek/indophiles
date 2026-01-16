@@ -68,11 +68,8 @@
                 <option value="Shaiva">Shaiva</option>
                 <option value="Bhakti">Bhakti</option>
             </optgroup>
-            <optgroup label="Buddhism">
-                <option value="Theravada">Theravada</option>
-                <option value="Mahayana">Mahayana</option>
-                <option value="Vajrayana">Vajrayana</option>
-                <option value="Zen">Zen</option>
+            <optgroup label="Buddhism (General)">
+                <option value="Buddhism">All Buddhism</option>
             </optgroup>
             <optgroup label="Heterodox">
                 <option value="Jainism">Jainism</option>
@@ -129,15 +126,15 @@
     const container = document.getElementById('network');
     const data = { nodes: nodes, edges: edges };
     
-    // Performance Optimization: Faster stabilization, less iterations
+    // Performance Optimization: Reduced iterations, improved physics settings
     const options = {
         nodes: { borderWidth: 1, shadow: true, font: { face: 'Noto Serif', color: '#ccc' } },
         edges: { smooth: { type: "continuous", roundness: 0.2 }, arrows: { to: { scaleFactor: 0.5 } } },
         physics: { 
-            stabilization: { iterations: 150, updateInterval: 25 }, // Faster load
-            barnesHut: { gravitationalConstant: -2000, springConstant: 0.04, springLength: 95 } 
+            stabilization: { iterations: 200 }, 
+            barnesHut: { gravitationalConstant: -2500, springConstant: 0.04, springLength: 95 } 
         },
-        interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true } // Better performace on drag
+        interaction: { hover: true, tooltipDelay: 50, hideEdgesOnDrag: true }
     };
     const network = new vis.Network(container, data, options);
 
@@ -185,11 +182,11 @@
             }
         });
         
-        // Initial Load: Show everything (or maybe limit if too slow?)
+        // Initial Load
         updateGraph();
     }
 
-    // UPDATE GRAPH (FILTERING)
+    // UPDATE GRAPH (FIXED LOGIC)
     function updateGraph() {
         const sFilter = document.getElementById('schoolFilter').value;
         const rFilter = document.getElementById('regionFilter').value;
@@ -198,17 +195,15 @@
             let p = n.data;
             let show = true;
             
-            // School Logic
+            // School Logic (Fixed property name: p.school)
             if (sFilter !== 'all') {
-                if (sFilter === 'Buddhism') { if (!p.parent.includes('Buddhism')) show = false; }
-                else if (p.school !== sFilter && p.subset !== sFilter) show = false;
+                if (p.school !== sFilter && p.group !== sFilter) show = false;
             }
             
-            // Region Logic
-            if (rFilter !== 'all' && p.region !== rFilter && p.zone !== rFilter) show = false;
+            // Region Logic (Fixed property name: p.subregion)
+            if (rFilter !== 'all' && p.region !== rFilter && p.subregion !== rFilter) show = false;
             
-            // Always show deities involved in lineages if filter matches child? 
-            // For simplicity, Deities only show if 'Deity' selected or 'All'
+            // Deities only show if filter is 'all' or matches lineage logic
             if (p.isDeity && sFilter !== 'all') show = false; 
 
             return show;
@@ -218,21 +213,40 @@
         edges.clear();
         nodes.add(filteredNodes);
 
-        // Filter Edges: Only show if both nodes are present
         const visibleIds = new Set(filteredNodes.map(n => n.id));
         const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
         edges.add(filteredEdges);
     }
 
-    // TIMELINE SETUP
-    const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
-        id: i, content: t.label, start: new Date(0).setFullYear(t.year), className: t.school, personId: t.id
-    })));
+    // TIMELINE SETUP (FIXED YEARS)
+    // Convert year to Date object for proper Vis.js handling
+    const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => {
+        let date = new Date(0);
+        date.setFullYear(t.year);
+        return {
+            id: i, 
+            content: t.label, 
+            start: date, 
+            className: t.school, 
+            personId: t.id
+        };
+    }));
     
     const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
         height: '100%', stack: true, style: 'background:#111; border:none; color:#777',
-        start: new Date(0).setFullYear(1000), end: new Date(0).setFullYear(2000),
-        zoomMin: 1000 * 60 * 60 * 24 * 365 * 10 // Min zoom 10 years
+        // Default View: 500 BCE to 2000 CE
+        start: new Date(0).setFullYear(-500), 
+        end: new Date(0).setFullYear(2000),
+        format: {
+            minorLabels: function(date, scale, step) {
+                let year = date.getFullYear();
+                return year < 0 ? Math.abs(year) + " BCE" : year + " CE";
+            },
+            majorLabels: function(date, scale, step) {
+                let year = date.getFullYear();
+                return year < 0 ? Math.abs(year) + " BCE" : year + " CE";
+            }
+        }
     });
 
     timeline.on('select', (props) => {
@@ -245,10 +259,10 @@
 
     // PANEL LOGIC
     function openPanel(d) {
-        document.getElementById('p-name').innerText = d.iast || d.label;
+        document.getElementById('p-name').innerText = d.iast || d.label; // Fallback to label if IAST missing
         document.getElementById('p-dates').innerText = d.isDeity ? "Divine / Timeless" : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
         document.getElementById('p-school').innerText = d.school || "";
-        document.getElementById('p-region').innerText = d.region + (d.zone ? ` (${d.zone})` : "");
+        document.getElementById('p-region').innerText = d.region + (d.subregion ? ` (${d.subregion})` : "");
         document.getElementById('p-work').innerText = d.work || "N/A";
         document.getElementById('p-note').innerText = d.note || "";
         
@@ -281,16 +295,21 @@
         }
     });
 
+    // IMPROVED SEARCH (Checks Note + Label)
     function searchNode(e) {
         if (e.key === 'Enter') {
             const q = document.getElementById('search').value.toLowerCase();
-            const found = allNodes.find(n => n.label.toLowerCase().includes(q));
+            const found = allNodes.find(n => 
+                n.label.toLowerCase().includes(q) || 
+                (n.data.note && n.data.note.toLowerCase().includes(q)) ||
+                (n.data.id && n.data.id.toLowerCase().includes(q))
+            );
+            
             if (found) {
                 document.getElementById('schoolFilter').value = 'all';
                 document.getElementById('regionFilter').value = 'all';
                 updateGraph();
                 
-                // Allow time for graph to re-render before focusing
                 setTimeout(() => {
                     network.selectNodes([found.id]);
                     network.focus(found.id, { scale: 1.5, animation: true });
