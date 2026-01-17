@@ -188,38 +188,60 @@
             margin-left: -1em;
         }
 
-        /* LEGEND */
         .legend {
-            position: absolute;
-            bottom: 140px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            z-index: 1000;
-            border: 1px solid #333;
-            pointer-events: none;
-        }
-        .opus-link {
-            color: var(--gold);
-            text-decoration: none;
-            border-bottom: 1px dotted var(--gold); 
-            transition: all 0.2s ease;
-            cursor: pointer;
+        position: absolute;
+        bottom: 5%;
+        left: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column; 
+        gap: 6px; 
+        align-items: flex-start; 
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.5);
+        padding: 12px 15px; 
+        border-radius: 6px;
+        font-size: 0.8rem;
+        backdrop-filter: blur(2px);
+        pointer-events: auto;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        cursor: default;
+        min-width: 120px;
+    }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px; 
         }
 
-        .opus-link:hover {
-            color: #fff; 
-            border-bottom: 1px solid #fff;
-            text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+        .legend:hover {
+            background: rgba(10, 10, 10, 0.95);
+            border-color: var(--gold);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            transform: scale(1.05) translateY(-5px);
         }
+            .opus-link {
+                color: var(--gold);
+                text-decoration: none;
+                border-bottom: 1px dotted var(--gold); 
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
 
-        .external-icon {
-            font-size: 0.8em;
-            margin-left: 5px;
-            vertical-align: super;
-        }
+            .opus-link:hover {
+                color: #fff; 
+                border-bottom: 1px solid #fff;
+                text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+            }
+
+            .external-icon {
+                font-size: 0.8em;
+                margin-left: 5px;
+                vertical-align: super;
+            }
     </style>
 </head>
 
@@ -281,8 +303,11 @@
 
     <div class="main-container">
         <div id="network"></div>
-        <div class="legend">★ Deity | ● Guru/Scholar | ── Lineage</div>
-
+        <div class="legend">
+        <div class="legend-item"><span style="color: #ffd700">★</span> Deity</div>
+        <div class="legend-item"><span style="color: #00bcd4">●</span> People</div>
+        <div class="legend-item"><span style="color: #555">──</span> Lineage</div>
+        </div>
         <div id="side-panel">
             <div class="panel-content" id="panel-content">
                 <div id="p-name" class="p-title"></div>
