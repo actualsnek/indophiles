@@ -3,7 +3,6 @@ const rawData = [
     {id:"Narayana", label:"Nārāyaṇa", group:"Deity", region:"Divine", isDeity:true, note:"The Preserver; source of Vaishnava lineages."},
     {id:"Shiva", label:"Śiva", group:"Deity", region:"Divine", isDeity:true, note:"The Destroyer; Adi Guru of Yoga and Tantra."},
     {id:"Brahma", label:"Brahmā", group:"Deity", region:"Divine", isDeity:true, note:"The Creator."},
-    {id:"Shakti", label:"Śakti", group:"Deity", region:"Divine", isDeity:true, note:"Divine Mother; dynamic energy."},
     {id:"Rudra", label:"Rudra", group:"Deity", region:"Divine", isDeity:true, note:"Vedic form of Shiva."},
     {id:"Bhairava", label:"Bhairava", group:"Deity", region:"Divine", isDeity:true, note:"Fierce form of Shiva (Trika source)."},
     {id:"Bhairavi", label:"Bhairavī Devi", group:"Deity", region:"Divine", isDeity:true, note:"Tantric Goddess."},
@@ -11,14 +10,14 @@ const rawData = [
     {id:"Hiranyagarbha", label:"Hiraṇyagarbha", group:"Deity", region:"Divine", isDeity:true, note:"Cosmic Womb; source of Yoga."},
     {id:"Manjushri", label:"Mañjuśrī", group:"Deity", region:"Divine", isDeity:true, note:"Bodhisattva of Wisdom."},
     {id:"Vajradhara", label:"Vajradhara", group:"Deity", region:"Divine", isDeity:true, note:"Primordial Buddha (Tantric)."},
-    // --- ADDED DEITIES ---
     {id:"Surya", label:"Sūrya", group:"Deity", region:"Divine", isDeity:true, note:"Sun God; Vedic deity associated with knowledge and light."},
     {id:"Indra", label:"Indra", group:"Deity", region:"Divine", isDeity:true, note:"King of Gods; Vedic deity of rain and thunder."},
     {id:"Varuna", label:"Varuṇa", group:"Deity", region:"Divine", isDeity:true, note:"God of Waters; Vedic deity of cosmic order."},
 
     // --- ANCIENT RISHIS ---
+    {id:"Shakti", label:"Śakti", year:-3000, school:"Vedas", region:"North", others:[], note:"Son of Vashishta."},
     {id:"Dhanvantari", label:"Dhanvantari", year:-3000, school:"Ayurveda", region:"Vedic", work:"Ayurveda", others:["Dhanvantari Nighantu"], note:"God of Medicine."},
-    {id:"Vashishta", label:"Vashishta", year:-3000, school:"Vedas", region:"North", work:"Rig Veda 7", others:["Yoga Vashishta"], note:"Primordial Sage."},
+    {id:"Vashishta", label:"Vashishta", year:-3000, school:"Vedas", region:"North", work:"Maṇḍala 7 of the Ṛgveda", others:["Yoga Vashishta"], note:"saptarṣiḥ."},
     {id:"Parashara", label:"Parashara", year:-2000, school:"Vedas", region:"North", work:"Vishnu Purana", others:["Parashara Smriti"], note:"Father of Vyasa."},
     {id:"Vyasa", label:"Vyasa", year:-1500, school:"Vedas", region:"North", work:"Mahabharata", others:["Brahma Sutras", "Puranas"], note:"Compiler of Vedas."},
     {id:"Shuka", label:"Shuka", year:-1400, school:"Advaita", region:"North", work:"Bhagavata (Narrator)", others:[], note:"Son of Vyasa."},
@@ -42,8 +41,6 @@ const rawData = [
     {id:"Makkhali", label:"Makkhali Gosala", year:-500, school:"Ajivika", region:"East", subregion:"Magadha", work:"(Lost)", others:[], note:"Founder of Ajivika."},
     {id:"Charvaka", label:"Charvaka", year:-600, school:"Charvaka", region:"North", work:"Barhaspatya Sutras", others:[], note:"Materialist."},
     {id:"Brihaspati", label:"Brihaspati", year:-700, school:"Charvaka", region:"North", note:"Materialist Founder."},
-
-    // --- MISSING FIGURES (ADDED) ---
     {id:"Nagarjuna", label:"Nāgārjuna", year:150, school:"Buddhism", region:"South", subregion:"Andhra", work:"Mulamadhyamakakarika", others:["Sunyatasaptati"], note:"Madhyamaka Founder."},
     {id:"Aryadeva", label:"Āryadeva", year:200, school:"Buddhism", region:"South", subregion:"Andhra", work:"Catuhsataka", others:[], note:"Disciple of Nagarjuna."},
     {id:"Dignaga", label:"Dignāga", year:480, school:"Buddhism", region:"South", subregion:"Kanchipuram", work:"Pramana-samuccaya", others:[], note:"Buddhist Logic."},
@@ -51,9 +48,11 @@ const rawData = [
     {id:"Milarepa", label:"Milarepa", year:1052, school:"Buddhism", region:"Tibet", work:"Hundred Thousand Songs", others:[], note:"Yogi & Poet."},
     {id:"Bhadrabahu", label:"Bhadrabahu", year:-300, school:"Jainism", region:"South", subregion:"Karnataka", work:"Kalpa Sutra", others:[], note:"Spiritual Teacher of Chandragupta."},
     {id:"Kundakunda", label:"Kundakunda", year:100, school:"Jainism", region:"South", work:"Samayasara", others:["Niyamasara"], note:"Digambara Leader."},
+    
     {id:"Kalidasa", label:"Kālidāsa", year:400, school:"Literature", region:"Central", subregion:"Ujjain", work:"Shakuntalam", others:["Meghaduta", "Raghuvamsha"], note:"Greatest Sanskrit Poet."},
 
-    // --- ADVAITA LINEAGE (updated & expanded with major scholars/philosophers) ---
+
+    // --- ADVAITA LINEAGE  ---
     {id:"Gaudapada", label:"Gauḍapāda", year:650, school:"Advaita", region:"South", work:"Māṇḍūkya Kārikā", others:[], note:"Paramaguru of Shankara; foundational text on non-dualism; influenced by Buddhism."},
     {id:"Govinda", label:"Govinda Bhagavatpāda", year:725, school:"Advaita", region:"Central", work:"", others:[], note:"Direct guru of Adi Shankara; yogi and teacher."},
     {id:"Shankara", label:"Adi Shankara", year:788, school:"Advaita", region:"South", subregion:"Kerala", work:"Brahmasutra Bhashya", workUrl:"https://www.wisdomlib.org/hinduism/book/brahma-sutras", others:["Vivekachudamani", "Bhaja Govindam", "Upadesasahasri"], note:"Founder/systematizer of Advaita; established four mathas."},
@@ -83,7 +82,7 @@ const rawData = [
     {id:"ChandrashekharaBharati", label:"Chandrashekhara Bharati", year:1892, school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"34th Sringeri Jagadguru; yogi and renunciate."},
     {id:"AbhinavaVidyatirtha", label:"Abhinava Vidyātīrtha", year:1917, school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"35th Sringeri Jagadguru; scholar and temple builder."},
     {id:"BharatiTirtha", label:"Bharati Tirtha", year:1951, school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"36th Sringeri Jagadguru (current); upholds tradition."},
-    {id:"NischalanandaSaraswati", label:"Swami Nischalananda Saraswati", year:1943, school:"Advaita", region:"East", subregion:"Odisha", work:"", others:["Vedic math texts"], note:"145th Shankaracharya of Puri Peetham (current); scholar of Vedanta and mathematics."},
+    {id:"NischalanandaSaraswati", label:"Swami Nischalananda Saraswati", year:1943, school:"Advaita", region:"East", subregion:"Mithila", work:"", others:["Vedic math texts"], note:"145th Shankaracharya of Puri Peetham (current); scholar of Vedanta and mathematics."},
 
     // --- DVAITA LINEAGE ---
     {id:"Achyuta", label:"Achyuta Preksha", year:1200, school:"Dvaita", region:"South", subregion:"Udupi", note:"Guru of Madhva."},
@@ -113,6 +112,7 @@ const rawData = [
     // --- NYAYA & NAVYA-NYAYA ---
     {id:"Vatsyayana", label:"Vatsyayana", year:450, school:"Nyaya", region:"North", work:"Nyaya Bhashya", others:[], note:"Commentator."},
     {id:"Uddyotakara", label:"Uddyotakara", year:600, school:"Nyaya", region:"North", work:"Nyaya Varttika", others:[], note:"Commentator."},
+    {id:"Vacaspati", label:"Vacaspati Mishra", year:900, school:"Nyaya", region:"East", subregion:"Mithila", work:"Nyaya Tatparya Tika", others:["Bhamati"], note:"Polymath."},
     {id:"Udayana", label:"Udayana", year:984, school:"Nyaya", region:"East", subregion:"Mithila", work:"Kusumanjali", others:["Atmatattvaviveka"], note:"Theist Logic."},
     {id:"Gangesa", label:"Gangesa", year:1325, school:"Nyaya", region:"East", subregion:"Mithila", work:"Tattvacintamani", others:[], note:"Navya-Nyaya Founder."},
     {id:"Raghunatha", label:"Raghunatha Shiromani", year:1477, school:"Nyaya", region:"East", subregion:"Bengal", work:"Didhiti", others:[], note:"Logician."},
@@ -254,6 +254,25 @@ const rawData = [
 // --- 2. LINEAGES (The Connections) ---
 const lineages = [
     {s:"Shiva", t:"Vasugupta", type:"Divine"}, {s:"Shiva", t:"Shankara", type:"Divine"},
+    {s:"Narayana", t:"Brahma", type:"tradition"}, {s:"Brahma", t:"Vashishta", type:"tradition"},
+    {s:"Vashishta", t:"Shakti", type:"tradition"}, {s:"Shakti", t:"Parashara", type:"tradition"},
+    {s:"Parashara", t:"Vyasa", type:"tradition"}, {s:"Vyasa", t:"Shuka", type:"tradition"},
+    {s:"Shuka", t:"Gaudapada", type:"tradition"}, {s:"Gaudapada", t:"Govinda", type:"Guru"},
+    {s:"Govinda", t:"Shankara", type:"Guru"}, {s:"Shankara", t:"Suresvara", type:"Guru"},
+    {s:"Shankara", t:"Padmapada", type:"Guru"}, {s:"Shankara", t:"Totaka", type:"Guru"},
+    {s:"Shankara", t:"Hastamalaka", type:"Guru"}, {s:"Suresvara", t:"Vacaspati", type:"Lineage"},
+    {s:"Vacaspati", t:"Sarvajnatman", type:"Influence"}, {s:"Padmapada", t:"Prakasatman", type:"Lineage"},
+    {s:"Shankara", t:"Anandagiri", type:"Lineage"}, {s:"Vacaspati", t:"Amalananda", type:"Influence"},
+    {s:"Shankara", t:"BharatiTirtha", type:"Lineage"}, {s:"BharatiTirtha", t:"Vidyaranya", type:"Guru"},
+    {s:"Vidyaranya", t:"SadanandaYogindra", type:"Lineage"}, {s:"Madhusudana", t:"Prakashananda", type:"Influence"},
+    {s:"Shankara", t:"Madhusudana", type:"Lineage"}, {s:"Shankara", t:"Appayya", type:"Lineage"},
+    {s:"Shankara", t:"DharmarajaAdhvarindra", type:"Lineage"}, {s:"Shankara", t:"Nrisimhashrama", type:"Lineage"},
+    {s:"Shankara", t:"BrahmanandaSaraswati", type:"Lineage"}, {s:"BrahmanandaSaraswati", t:"KarpatriMaharaj", type:"Guru"},
+    {s:"KarpatriMaharaj", t:"NischalanandaSaraswati", type:"Guru"}, {s:"Shankara", t:"Sacchidanandendra", type:"Lineage"},
+    {s:"Ramakrishna", t:"Vivekananda", type:"Guru"}, {s:"Vivekananda", t:"RamanaMaharshi", type:"Influence"},
+    {s:"RamanaMaharshi", t:"NisargadattaMaharaj", type:"Influence"}, {s:"Shankara", t:"ChandrashekharaBharati", type:"Lineage"},
+    {s:"ChandrashekharaBharati", t:"AbhinavaVidyatirtha", type:"Guru"}, {s:"AbhinavaVidyatirtha", t:"BharatiTirtha", type:"Guru"},
+    {s:"Shankara", t:"NischalanandaSaraswati", type:"Lineage"},
     {s:"Narayana", t:"Madhva", type:"Divine"}, {s:"Madhva", t:"Padmanabha", type:"Guru"}, 
     {s:"Padmanabha", t:"Narahari", type:"Guru"}, {s:"Madhva", t:"Jayatirtha", type:"Lineage"}, 
     {s:"Jayatirtha", t:"Vyasatirtha", type:"Lineage"}, {s:"Vyasatirtha", t:"Raghavendra", type:"Lineage"},
@@ -277,48 +296,9 @@ const lineages = [
     {s:"Kapila", t:"Asuri", type:"Guru"}, {s:"Asuri", t:"Panchashikha", type:"Guru"},
     {s:"Panchashikha", t:"IshvaraKrishna", type:"Lineage"},
     {s:"Ramanuja", t:"Madhva", type:"Reaction"}, {s:"Jayadeva", t:"Chaitanya", type:"Influence"},
-    {s:"Chaitanya", t:"Tagore", type:"Influence"},
+    {s:"Chaitanya", t:"Tagore", type:"Influence"}, {s:"Ramakrishna", t:"Vivekananda", type:"Guru"},
     {s:"Vivekananda", t:"Nivedita", type:"Guru"},
     {s:"Panini", t:"Voltaire", type:"Study"}, {s:"Vyasa", t:"Oppenheimer", type:"Study"},
     {s:"Yajnavalkya", t:"Schopenhauer", type:"Study"}, {s:"Vivekananda", t:"Tesla", type:"Meeting"},
-    {s:"Kalidasa", t:"Goethe", type:"Inspiration"}, {s:"Jones", t:"MaxMuller", type:"Influence"},
-
-    // Advaita connections (updated with clear types)
-    {s:"Narayana", t:"Brahma", type:"Parampara"},
-    {s:"Brahma", t:"Vashishta", type:"Parampara"},
-    {s:"Vashishta", t:"Shakti", type:"Parampara"},
-    {s:"Shakti", t:"Parashara", type:"Parampara"},
-    {s:"Parashara", t:"Vyasa", type:"Parampara"},
-    {s:"Vyasa", t:"Shuka", type:"Parampara"},
-    {s:"Shuka", t:"Gaudapada", type:"Parampara"},
-    {s:"Gaudapada", t:"Govinda", type:"Guru"},
-    {s:"Govinda", t:"Shankara", type:"Guru"},
-    {s:"Shankara", t:"Suresvara", type:"Guru"},
-    {s:"Shankara", t:"Padmapada", type:"Guru"},
-    {s:"Shankara", t:"Totaka", type:"Guru"},
-    {s:"Shankara", t:"Hastamalaka", type:"Guru"},
-    {s:"Suresvara", t:"Vacaspati", type:"Lineage"},
-    {s:"Vacaspati", t:"Sarvajnatman", type:"Influence"},
-    {s:"Padmapada", t:"Prakasatman", type:"Lineage"},
-    {s:"Shankara", t:"Anandagiri", type:"Lineage"},
-    {s:"Vacaspati", t:"Amalananda", type:"Influence"},
-    {s:"Shankara", t:"BharatiTirtha", type:"Lineage"},
-    {s:"BharatiTirtha", t:"Vidyaranya", type:"Guru"},
-    {s:"Vidyaranya", t:"SadanandaYogindra", type:"Lineage"},
-    {s:"Madhusudana", t:"Prakashananda", type:"Influence"},
-    {s:"Shankara", t:"Madhusudana", type:"Lineage"},
-    {s:"Shankara", t:"Appayya", type:"Lineage"},
-    {s:"Shankara", t:"DharmarajaAdhvarindra", type:"Lineage"},
-    {s:"Shankara", t:"Nrisimhashrama", type:"Lineage"},
-    {s:"Shankara", t:"BrahmanandaSaraswati", type:"Lineage"},
-    {s:"BrahmanandaSaraswati", t:"KarpatriMaharaj", type:"Guru"},
-    {s:"KarpatriMaharaj", t:"NischalanandaSaraswati", type:"Guru"},
-    {s:"Shankara", t:"Sacchidanandendra", type:"Lineage"},
-    {s:"Ramakrishna", t:"Vivekananda", type:"Guru"},
-    {s:"Vivekananda", t:"RamanaMaharshi", type:"Influence"},
-    {s:"RamanaMaharshi", t:"NisargadattaMaharaj", type:"Influence"},
-    {s:"Shankara", t:"ChandrashekharaBharati", type:"Lineage"},
-    {s:"ChandrashekharaBharati", t:"AbhinavaVidyatirtha", type:"Guru"},
-    {s:"AbhinavaVidyatirtha", t:"BharatiTirtha", type:"Guru"},
-    {s:"Shankara", t:"NischalanandaSaraswati", type:"Lineage"}
+    {s:"Kalidasa", t:"Goethe", type:"Inspiration"}, {s:"Jones", t:"MaxMuller", type:"Influence"}
 ];
