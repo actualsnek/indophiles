@@ -15,7 +15,7 @@ const rawData = [
     {id:"Varuna", label:"Varuṇa", group:"Deity", region:"Divine", isDeity:true, note:"God of Waters; Vedic deity of cosmic order."},
 
     // --- ANCIENT RISHIS ---
-    {id:"Shakti", label:"Śakti", year:-3000, school:"Vedas", region:"North", others:[], note:"Son of Vashishta."},
+    {id:"Shakti", label:"Śakti (Rishi)", year:-2500, school:"Vedas", region:"North", others:[], note:"Son of Vashishta; Father of Parashara."},
     {id:"Dhanvantari", label:"Dhanvantari", year:-3000, school:"Ayurveda", region:"Vedic", work:"Ayurveda", others:["Dhanvantari Nighantu"], note:"God of Medicine."},
     {id:"Vashishta", label:"Vashishta", year:-3000, school:"Vedas", region:"North", work:"Maṇḍala 7 of the Ṛgveda", others:["Yoga Vashishta"], note:"saptarṣiḥ."},
     {id:"Parashara", label:"Parashara", year:-2000, school:"Vedas", region:"North", work:"Vishnu Purana", others:["Parashara Smriti"], note:"Father of Vyasa."},
@@ -35,7 +35,7 @@ const rawData = [
     {id:"Chanakya", label:"Chanakya", year:-350, school:"Statecraft", region:"East", subregion:"Magadha", work:"Arthashastra", others:["Chanakya Niti"], note:"Realpolitik."},
     {id:"Sushruta", label:"Sushruta", year:-600, school:"Medicine", region:"North", work:"Sushruta Samhita", others:[], note:"Surgery."},
     
-    // --- HETERODOX ---
+    // --- HETERODOX & MISSING FIGURES ---
     {id:"Buddha", label:"Buddha", year:-563, school:"Buddhism", region:"East", subregion:"Magadha", work:"Pali Canon", others:["Dhammapada"], note:"The Awakened One."},
     {id:"Mahavira", label:"Mahavira", year:-540, school:"Jainism", region:"East", subregion:"Bihar", work:"Agamas", others:[], note:"24th Tirthankara."},
     {id:"Makkhali", label:"Makkhali Gosala", year:-500, school:"Ajivika", region:"East", subregion:"Magadha", work:"(Lost)", others:[], note:"Founder of Ajivika."},
@@ -48,11 +48,9 @@ const rawData = [
     {id:"Milarepa", label:"Milarepa", year:1052, school:"Buddhism", region:"Tibet", work:"Hundred Thousand Songs", others:[], note:"Yogi & Poet."},
     {id:"Bhadrabahu", label:"Bhadrabahu", year:-300, school:"Jainism", region:"South", subregion:"Karnataka", work:"Kalpa Sutra", others:[], note:"Spiritual Teacher of Chandragupta."},
     {id:"Kundakunda", label:"Kundakunda", year:100, school:"Jainism", region:"South", work:"Samayasara", others:["Niyamasara"], note:"Digambara Leader."},
-    
     {id:"Kalidasa", label:"Kālidāsa", year:400, school:"Literature", region:"Central", subregion:"Ujjain", work:"Shakuntalam", others:["Meghaduta", "Raghuvamsha"], note:"Greatest Sanskrit Poet."},
 
-
-    // --- ADVAITA LINEAGE  ---
+    // --- ADVAITA LINEAGE (UPDATED) ---
     {id:"Gaudapada", label:"Gauḍapāda", year:650, school:"Advaita", region:"South", work:"Māṇḍūkya Kārikā", others:[], note:"Paramaguru of Shankara; foundational text on non-dualism; influenced by Buddhism."},
     {id:"Govinda", label:"Govinda Bhagavatpāda", year:725, school:"Advaita", region:"Central", work:"", others:[], note:"Direct guru of Adi Shankara; yogi and teacher."},
     {id:"Shankara", label:"Adi Shankara", year:788, school:"Advaita", region:"South", subregion:"Kerala", work:"Brahmasutra Bhashya", workUrl:"https://www.wisdomlib.org/hinduism/book/brahma-sutras", others:["Vivekachudamani", "Bhaja Govindam", "Upadesasahasri"], note:"Founder/systematizer of Advaita; established four mathas."},
@@ -65,7 +63,7 @@ const rawData = [
     {id:"Prakasatman", label:"Prakāśātman", year:975, school:"Advaita", region:"South", work:"Vivaraṇa", others:[], note:"Founder of Vivarana sub-school; commentary on Padmapada's Panchapadika."},
     {id:"Anandagiri", label:"Ānandagiri", year:1260, school:"Advaita", region:"South", work:"", others:["Commentaries on Shankara's works"], note:"Tikakara; wrote glosses on Shankara's bhashyas and biographies."},
     {id:"Amalananda", label:"Amalānanda", year:1250, school:"Advaita", region:"South", work:"Vedānta Kalpataru", others:[], note:"Commentator on Vacaspati's Bhamati; advanced epistemology."},
-    {id:"BharatiTirtha", label:"Bhāratī Tīrtha", year:1328, school:"Advaita", region:"South", subregion:"Karnataka", work:"Dṛg Dṛśya Viveka", others:[], note:"Preceptor of Vidyaranya; Sringeri acharya; discernment of seer-seen."},
+    {id:"BharatiTirtha", label:"Bhāratī Tīrtha (Old)", year:1328, school:"Advaita", region:"South", subregion:"Karnataka", work:"Dṛg Dṛśya Viveka", others:[], note:"Preceptor of Vidyaranya; Sringeri acharya; discernment of seer-seen."},
     {id:"Vidyaranya", label:"Vidyāraṇya", year:1350, school:"Advaita", region:"South", subregion:"Karnataka", work:"Pañcadaśī", others:["Jivanmuktiviveka"], note:"Sringeri acharya; Vijayanagara patron; doxography and liberation texts."},
     {id:"SadanandaYogindra", label:"Sadānanda Yogīndra", year:1450, school:"Advaita", region:"North", work:"Vedāntasāra", others:[], note:"Introductory primer to Advaita; accessible for beginners."},
     {id:"Prakashananda", label:"Prakāśānanda Sarasvatī", year:1500, school:"Advaita", region:"North", work:"Vedānta Siddhāntamuktāvalī", others:[], note:"Emphasized dṛṣṭi-sṛṣṭi vāda (creation as perception)."},
@@ -81,7 +79,7 @@ const rawData = [
     {id:"Vivekananda", label:"Swami Vivekananda", year:1863, school:"Advaita", region:"East", subregion:"Bengal", work:"Rāja Yoga", others:["Karma Yoga"], note:"Global reviver; practical Vedanta."},
     {id:"ChandrashekharaBharati", label:"Chandrashekhara Bharati", year:1892, school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"34th Sringeri Jagadguru; yogi and renunciate."},
     {id:"AbhinavaVidyatirtha", label:"Abhinava Vidyātīrtha", year:1917, school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"35th Sringeri Jagadguru; scholar and temple builder."},
-    {id:"BharatiTirtha", label:"Bharati Tirtha", year:1951, school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"36th Sringeri Jagadguru (current); upholds tradition."},
+    {id:"BharatiTirthaCurrent", label:"Bharati Tirtha (Current)", year:1951, school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"36th Sringeri Jagadguru (current); upholds tradition."},
     {id:"NischalanandaSaraswati", label:"Swami Nischalananda Saraswati", year:1943, school:"Advaita", region:"East", subregion:"Mithila", work:"", others:["Vedic math texts"], note:"145th Shankaracharya of Puri Peetham (current); scholar of Vedanta and mathematics."},
 
     // --- DVAITA LINEAGE ---
@@ -271,7 +269,7 @@ const lineages = [
     {s:"KarpatriMaharaj", t:"NischalanandaSaraswati", type:"Guru"}, {s:"Shankara", t:"Sacchidanandendra", type:"Lineage"},
     {s:"Ramakrishna", t:"Vivekananda", type:"Guru"}, {s:"Vivekananda", t:"RamanaMaharshi", type:"Influence"},
     {s:"RamanaMaharshi", t:"NisargadattaMaharaj", type:"Influence"}, {s:"Shankara", t:"ChandrashekharaBharati", type:"Lineage"},
-    {s:"ChandrashekharaBharati", t:"AbhinavaVidyatirtha", type:"Guru"}, {s:"AbhinavaVidyatirtha", t:"BharatiTirtha", type:"Guru"},
+    {s:"ChandrashekharaBharati", t:"AbhinavaVidyatirtha", type:"Guru"}, {s:"AbhinavaVidyatirtha", t:"BharatiTirthaCurrent", type:"Guru"},
     {s:"Shankara", t:"NischalanandaSaraswati", type:"Lineage"},
     {s:"Narayana", t:"Madhva", type:"Divine"}, {s:"Madhva", t:"Padmanabha", type:"Guru"}, 
     {s:"Padmanabha", t:"Narahari", type:"Guru"}, {s:"Madhva", t:"Jayatirtha", type:"Lineage"}, 
