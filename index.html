@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indosphere: The Grand Archive</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400&family=Noto+Serif:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <div class="brand">Indosphere</div>
+        <div class="controls">
+            <select id="schoolFilter" onchange="updateGraph()">
+                <option value="all">All Traditions</option>
+                <optgroup label="Vedanta">
+                    <option value="Advaita">Advaita</option>
+                    <option value="Dvaita">Dvaita</option>
+                    <option value="Vishishtadvaita">Vishishtadvaita</option>
+                    <option value="Dvaitadvaita">Dvaitadvaita</option>
+                    <option value="Shuddhadvaita">Shuddhadvaita</option>
+                </optgroup>
+                <optgroup label="Hindu Philosophy">
+                    <option value="Nyaya">Nyaya</option>
+                    <option value="Vaisheshika">Vaisheshika</option>
+                    <option value="Samkhya">Samkhya</option>
+                    <option value="Yoga">Yoga</option>
+                    <option value="Mimamsa">Mimamsa</option>
+                    <option value="Kashmir Shaivism">Kashmir Shaivism</option>
+                    <option value="Shaiva">Shaiva</option>
+                    <option value="Bhakti">Bhakti</option>
+                </optgroup>
+                <optgroup label="Buddhism">
+                    <option value="Theravada">Theravada</option>
+                    <option value="Mahayana">Mahayana</option>
+                    <option value="Vajrayana">Vajrayana</option>
+                    <option value="Zen">Zen</option>
+                </optgroup>
+                <optgroup label="Heterodox">
+                    <option value="Jainism">Jainism</option>
+                    <option value="Charvaka">Charvaka</option>
+                    <option value="Ajivika">Ajivika</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option value="Indology">Indology</option>
+                    <option value="Literature">Literature</option>
+                    <option value="Science">Science</option>
+                    <option value="Modern">Modern Reformers</option>
+                </optgroup>
+            </select>
+
+            <select id="regionFilter" onchange="updateGraph()">
+                <option value="all">All Regions</option>
+                <option value="North">North India</option>
+                <option value="South">South India</option>
+                <option value="East">East (Bengal/Bihar)</option>
+                <option value="West">West (Gujarat/Maha)</option>
+                <option value="Central">Central India</option>
+                <option value="Global">Global / West</option>
+            </select>
+
+            <div style="position:relative;">
+                <input type="text" id="search" placeholder="Search..." autocomplete="off">
+                <div id="search-results"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div id="network"></div>
+        
+        <div class="legend">
+            <div class="legend-item"><div class="symbol-star">★</div> Deity</div>
+            <div class="legend-item"><div class="symbol-dot"></div> People</div>
+            <div class="legend-item"><div class="symbol-line"></div> Lineage</div>
+            <div id="total-counter">Loading...</div>
+        </div>
+
+        <div id="side-panel">
+            <div class="panel-content" id="panel-content">
+                <div id="p-name" class="p-title"></div>
+                <div id="p-religion" class="religion-tag"></div> 
+                <span id="p-dates" class="p-value" style="color:#aaa"></span>
+                
+                <div id="human-fields">
+                    <span class="p-label">School</span>
+                    <div id="p-school" class="p-value" style="color: var(--gold)"></div>
+                    <span class="p-label">Region</span>
+                    <div id="p-region" class="p-value"></div>
+                    <span class="p-label">Magnum Opus</span>
+                    <div id="p-work" class="p-value iast"></div>
+                    <span class="p-label">Other Works</span>
+                    <ul id="p-others" class="works-list"></ul>
+                </div>
+
+                <div id="deity-fields" style="display:none;">
+                    <span class="p-label">Other Names</span>
+                    <div id="p-othernames" class="p-value"></div>
+                    <span class="p-label">Attributes</span>
+                    <div id="p-attributes" class="p-value"></div>
+                </div>
+
+                <span class="p-label">Significance</span>
+                <div id="p-note" class="p-value"></div>
+                
+                <div id="lineage-section">
+                    <span class="p-label">Lineage</span>
+                    <div id="p-lineage" class="p-value" style="border-left: 2px solid #333; padding-left: 10px;"></div>
+                </div>
+                
+                <a id="p-wiki" href="#" target="_blank" class="wiki-btn">Read on Wikipedia ↗</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="drag-gutter" title="Drag to resize"></div>
+
+    <div id="mytimeline"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

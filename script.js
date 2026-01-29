@@ -1,0 +1,677 @@
+// --- DATA SECTION ---
+const rawData = [
+    // DEITIES
+    {id:"Narayana", label:"Narayana", group:"Deity", region:"Divine", isDeity:true, note:"The Preserver; source of Vaishnava lineages.", religion:"[Hinduism]", otherNames:"Vishnu, Hari", attributes:"Conch, Discus, Mace, Lotus"},
+    {id:"Shiva", label:"Shiva", group:"Deity", region:"Divine", isDeity:true, note:"The Destroyer; Adi Guru of Yoga and Tantra.", religion:"[Hinduism]", otherNames:"Mahadeva, Shankara", attributes:"Trident, Crescent Moon, Third Eye"},
+    {id:"Brahma", label:"Brahma", group:"Deity", region:"Divine", isDeity:true, note:"The Creator.", religion:"[Hinduism]", otherNames:"Prajapati", attributes:"Four Heads, Vedas, Water Pot"},
+    {id:"Rudra", label:"Rudra", group:"Deity", region:"Divine", isDeity:true, note:"Vedic form of Shiva.", religion:"[Hinduism]", otherNames:"Roarer", attributes:"Bow and Arrow"},
+    {id:"Bhairava", label:"Bhairava", group:"Deity", region:"Divine", isDeity:true, note:"Fierce form of Shiva (Trika source).", religion:"[Hinduism]", otherNames:"Kaal Bhairav", attributes:"Severed Head, Dog"},
+    {id:"Bhairavi", label:"Bhairavi Devi", group:"Deity", region:"Divine", isDeity:true, note:"Tantric Goddess.", religion:"[Hinduism]", otherNames:"Tripura Bhairavi", attributes:"Sword, Bowl of Blood"},
+    {id:"FourKumaras", label:"Four Kumaras", group:"Deity", region:"Divine", isDeity:true, note:"Mind-born sons of Brahma.", religion:"[Hinduism]", otherNames:"Sanaka, Sanandana, Sanatana, Sanat", attributes:"Eternal Youth"},
+    {id:"Hiranyagarbha", label:"Hiranyagarbha", group:"Deity", region:"Divine", isDeity:true, note:"Cosmic Womb; source of Yoga.", religion:"[Hinduism]", otherNames:"Golden Womb", attributes:"Cosmic Egg"},
+    {id:"Manjushri", label:"Manjushri", group:"Deity", region:"Divine", isDeity:true, note:"Bodhisattva of Wisdom.", religion:"[Buddhism]", otherNames:"Gentle Glory", attributes:"Flaming Sword, Book of Wisdom"},
+    {id:"Vajradhara", label:"Vajradhara", group:"Deity", region:"Divine", isDeity:true, note:"Primordial Buddha (Tantric).", religion:"[Buddhism]", otherNames:"Diamond Holder", attributes:"Vajra and Bell"},
+    {id:"Surya", label:"Surya", group:"Deity", region:"Divine", isDeity:true, note:"Sun God; Vedic deity associated with knowledge and light.", religion:"[Hinduism]", otherNames:"Aditya, Ravi", attributes:"Chariot with 7 Horses, Lotus"},
+    {id:"Indra", label:"Indra", group:"Deity", region:"Divine", isDeity:true, note:"King of Gods; Vedic deity of rain and thunder.", religion:"[Hinduism]", otherNames:"Sakra, Devendra", attributes:"Vajra (Thunderbolt), Elephant Airavata"},
+    {id:"Varuna", label:"Varuna", group:"Deity", region:"Divine", isDeity:true, note:"God of Waters; Vedic deity of cosmic order.", religion:"[Hinduism]", otherNames:"Lord of Waters", attributes:"Noose (Pasha), Makara"},
+
+    // PEOPLE (Rishis, Philosophers, etc.)
+    {id:"ShaktiRishi", label:"Shakti (Rishi)", year:-2500, displayDate:"c. 2500 BCE", school:"Vedas", region:"North", others:[], note:"Son of Vashishta; Father of Parashara."},
+    {id:"Dhanvantari", label:"Dhanvantari", year:-3000, displayDate:"Mythological / Vedic", school:"Ayurveda", region:"Vedic", work:"Ayurveda", others:["Dhanvantari Nighantu"], note:"God of Medicine."},
+    {id:"Vashishta", label:"Vashishta", year:-3000, displayDate:"c. 3000 BCE", school:"Vedas", region:"North", work:"Mandala 7 of the Rigveda", others:["Yoga Vashishta"], note:"saptarishih."},
+    {id:"Parashara", label:"Parashara", year:-2000, displayDate:"c. 2000 BCE", school:"Vedas", region:"North", work:"Vishnu Purana", others:["Parashara Smriti"], note:"Father of Vyasa."},
+    {id:"Vyasa", label:"Vyasa", year:-1500, displayDate:"c. 1500 BCE", school:"Vedas", region:"North", work:"Mahabharata", others:["Brahma Sutras", "Puranas"], note:"Compiler of Vedas."},
+    {id:"Shuka", label:"Shuka", year:-1400, displayDate:"c. 1400 BCE", school:"Advaita", region:"North", work:"Bhagavata (Narrator)", others:[], note:"Son of Vyasa."},
+    {id:"Yajnavalkya", label:"Yajnavalkya", year:-850, displayDate:"c. 850 BCE", school:"Vedas", region:"East", subregion:"Mithila", work:"Brihadaranyaka", others:["Shatapatha Brahmana"], note:"Greatest Upanishadic sage."},
+    {id:"Maitreyi", label:"Maitreyi", year:-850, displayDate:"c. 850 BCE", school:"Vedas", region:"East", subregion:"Mithila", note:"Philosopher wife."},
+    {id:"Gargi", label:"Gargi", year:-850, displayDate:"c. 850 BCE", school:"Vedas", region:"East", subregion:"Mithila", note:"Vedic debater."},
+    {id:"Kapila", label:"Kapila", year:-600, displayDate:"c. 6th Century BCE", school:"Samkhya", region:"North", work:"Samkhya Sutras", others:[], note:"Founder of Samkhya."},
+    {id:"Asuri", label:"Asuri", year:-580, displayDate:"c. 6th Century BCE", school:"Samkhya", region:"North", note:"Disciple of Kapila."},
+    {id:"Panchashikha", label:"Panchashikha", year:-550, displayDate:"c. 6th Century BCE", school:"Samkhya", region:"North", note:"Expanded Samkhya."},
+    {id:"Jaimini", label:"Jaimini", year:-300, displayDate:"c. 300 BCE", school:"Mimamsa", region:"North", work:"Mimamsa Sutras", others:[], note:"Ritualism."},
+    {id:"Gautama", label:"Gautama", year:-200, displayDate:"c. 200 BCE", school:"Nyaya", region:"East", subregion:"Mithila", work:"Nyaya Sutras", others:[], note:"Logic Founder."},
+    {id:"Kanada", label:"Kanada", year:-200, displayDate:"c. 200 BCE", school:"Vaisheshika", region:"West", subregion:"Gujarat", work:"Vaisheshika Sutras", others:[], note:"Atomism."},
+    {id:"Patanjali", label:"Patanjali", year:-150, displayDate:"c. 150 BCE", school:"Yoga", region:"North", subregion:"Kashmir", work:"Yoga Sutras", others:["Mahabhasya"], note:"Systematized Yoga."},
+    {id:"Panini", label:"Panini", year:-500, displayDate:"c. 5th Century BCE", school:"Grammar", region:"North West", subregion:"Gandhara", work:"Ashtadhyayi", others:["Dhatupatha"], note:"Linguistics."},
+    {id:"Chanakya", label:"Chanakya", year:-350, displayDate:"c. 375–283 BCE", school:"Statecraft", region:"East", subregion:"Magadha", work:"Arthashastra", others:["Chanakya Niti"], note:"Realpolitik."},
+    {id:"Sushruta", label:"Sushruta", year:-600, displayDate:"c. 600 BCE", school:"Medicine", region:"North", work:"Sushruta Samhita", others:[], note:"Surgery."},
+     
+    {id:"KarpatriMaharaj", label:"Swami Karpatri Maharaj", wiki:"Karpatri", year:1907, displayDate:"1907–1982", school:"Advaita", region:"North", subregion:"Varanasi", work:"", others:["Ram Rajya Parishad texts"], note:"Dharma Samrat; founder of Akhil Bharatiya Ram Rajya Parishad; guru of Nischalananda."},
+    {id:"Buddha", label:"Buddha", year:-563, displayDate:"c. 563–483 BCE", school:"Buddhism", region:"East", subregion:"Magadha", work:"Pali Canon", others:["Dhammapada"], note:"The Awakened One."},
+    {id:"Mahavira", label:"Mahavira", year:-540, displayDate:"c. 540–468 BCE", school:"Jainism", region:"East", subregion:"Bihar", work:"Agamas", others:[], note:"24th Tirthankara."},
+    {id:"Makkhali", label:"Makkhali Gosala", year:-500, displayDate:"c. 500 BCE", school:"Ajivika", region:"East", subregion:"Magadha", work:"(Lost)", others:[], note:"Founder of Ajivika."},
+    {id:"Charvaka", label:"Charvaka", year:-600, displayDate:"c. 600 BCE", school:"Charvaka", region:"North", work:"Barhaspatya Sutras", others:[], note:"Materialist."},
+    {id:"Brihaspati", label:"Brihaspati", year:-700, displayDate:"Legendary", school:"Charvaka", region:"North", note:"Materialist Founder."},
+    {id:"Nagarjuna", label:"Nagarjuna", year:150, displayDate:"c. 150–250 CE", school:"Buddhism", region:"South", subregion:"Andhra", work:"Mulamadhyamakakarika", others:["Sunyatasaptati"], note:"Madhyamaka Founder."},
+    {id:"Aryadeva", label:"Aryadeva", year:200, displayDate:"c. 3rd Century CE", school:"Buddhism", region:"South", subregion:"Andhra", work:"Catuhsataka", others:[], note:"Disciple of Nagarjuna."},
+    {id:"Dignaga", label:"Dignaga", year:480, displayDate:"c. 480–540 CE", school:"Buddhism", region:"South", subregion:"Kanchipuram", work:"Pramana-samuccaya", others:[], note:"Buddhist Logic."},
+    {id:"Huineng", label:"Huineng", year:638, displayDate:"638–713 CE", school:"Buddhism", region:"China", work:"Platform Sutra", others:[], note:"6th Chan Patriarch."},
+    {id:"Milarepa", label:"Milarepa", year:1052, displayDate:"1052–1135 CE", school:"Buddhism", region:"Tibet", work:"Hundred Thousand Songs", others:[], note:"Yogi & Poet."},
+    {id:"Bhadrabahu", label:"Bhadrabahu", year:-300, displayDate:"c. 300 BCE", school:"Jainism", region:"South", subregion:"Karnataka", work:"Kalpa Sutra", others:[], note:"Spiritual Teacher of Chandragupta."},
+    {id:"Kundakunda", label:"Kundakunda", year:100, displayDate:"c. 1st Century CE", school:"Jainism", region:"South", work:"Samayasara", others:["Niyamasara"], note:"Digambara Leader."},
+    {id:"Kalidasa", label:"Kalidasa", year:400, displayDate:"c. 4th–5th Century CE", school:"Literature", region:"Central", subregion:"Ujjain", work:"Shakuntalam", others:["Meghaduta", "Raghuvamsha"], note:"Greatest Sanskrit Poet."},
+
+    {id:"Gaudapada", label:"Gaudapada", year:600, displayDate:"c. 6th Century CE", school:"Advaita", region:"South", work:"Mandukya Karika", others:[], note:"Paramaguru of Shankara; foundational text on non-dualism."},
+    {id:"Govinda", label:"Govinda Bhagavatpada", year:725, displayDate:"c. 725 CE", school:"Advaita", region:"Central", work:"", others:[], note:"Direct guru of Adi Shankara; yogi and teacher."},
+    {id:"Shankara", label:"Adi Shankara", wiki:"Adi_Shankara", year:788, displayDate:"c. 788–820 CE", school:"Advaita", region:"South", subregion:"Kerala", work:"Brahmasutra Bhashya", workUrl:"https://www.wisdomlib.org/hinduism/book/brahma-sutras", others:["Vivekachudamani", "Bhaja Govindam", "Upadesasahasri"], note:"Founder/systematizer of Advaita; established four mathas."},
+    {id:"Suresvara", label:"Suresvara", year:800, displayDate:"c. 800 CE", school:"Advaita", region:"South", work:"Naishkarmya Siddhi", others:["Brihadaranyaka Vartika"], note:"Direct disciple; first acharya of Sringeri matha."},
+    {id:"Padmapada", label:"Padmapada", year:800, displayDate:"c. 800 CE", school:"Advaita", region:"East", work:"Panchapadika", others:[], note:"Direct disciple; founder of Vivarana sub-school."},
+    {id:"Hastamalaka", label:"Hastamalaka", year:800, displayDate:"c. 800 CE", school:"Advaita", region:"West", work:"", others:[], note:"Direct disciple; profound simple teachings."},
+    {id:"Totaka", label:"Totakacharya", year:800, displayDate:"c. 800 CE", school:"Advaita", region:"North", work:"Totakashtakam", others:[], note:"Direct disciple; linked to Jyotirmath."},
+    {id:"Vacaspati", label:"Vacaspati Mishra", year:900, displayDate:"c. 900–980 CE", school:"Advaita", region:"East", subregion:"Mithila", work:"Bhamati", others:["Nyaya Tatparya Tika"], note:"Founder of Bhamati sub-school; polymath."},
+    {id:"Sarvajnatman", label:"Sarvajnatman", year:900, displayDate:"c. 900 CE", school:"Advaita", region:"South", work:"Samkshepa Sariraka", others:[], note:"Post-Shankara scholar; summarized Brahma Sutras."},
+    {id:"Prakasatman", label:"Prakasatman", year:975, displayDate:"c. 975 CE", school:"Advaita", region:"South", work:"Vivarana", others:[], note:"Founder of Vivarana sub-school."},
+    {id:"Anandagiri", label:"Anandagiri", year:1260, displayDate:"c. 1260–1320 CE", school:"Advaita", region:"South", work:"", others:["Commentaries on Shankara's works"], note:"Tikakara; wrote glosses on Shankara's bhashyas."},
+    {id:"Amalananda", label:"Amalananda", year:1250, displayDate:"c. 1247–1297 CE", school:"Advaita", region:"South", work:"Vedanta Kalpataru", others:[], note:"Commentator on Vacaspati's Bhamati."},
+    {id:"BharatiTirtha", label:"Bharati Tirtha (Old)", year:1328, displayDate:"c. 1328–1380 CE", school:"Advaita", region:"South", subregion:"Karnataka", work:"Drg Drsya Viveka", others:[], note:"Preceptor of Vidyaranya; Sringeri acharya."},
+    {id:"Vidyaranya", label:"Vidyaranya", year:1350, displayDate:"c. 1296–1386 CE", school:"Advaita", region:"South", subregion:"Karnataka", work:"Panchadasi", others:["Jivanmuktiviveka"], note:"Sringeri acharya; Vijayanagara patron."},
+    {id:"SadanandaYogindra", label:"Sadananda Yogindra", year:1450, displayDate:"c. 15th Century", school:"Advaita", region:"North", work:"Vedantasara", others:[], note:"Introductory primer to Advaita."},
+    {id:"Prakashananda", label:"Prakashananda Sarasvati", year:1500, displayDate:"c. 16th Century", school:"Advaita", region:"North", work:"Vedanta Siddhantamuktavali", others:[], note:"Emphasized drishti-srishti vada."},
+    {id:"Madhusudana", label:"Madhusudana Sarasvati", year:1540, displayDate:"c. 1540–1640 CE", school:"Advaita", region:"East", subregion:"Bengal", work:"Advaita Siddhi", others:["Bhakti-rasayana"], note:"Defended Advaita against Dvaita; integrated bhakti."},
+    {id:"Appayya", label:"Appayya Dikshita", year:1520, displayDate:"1520–1593 CE", school:"Advaita", region:"South", subregion:"Tamil Nadu", work:"Siddhantalesa Sangraha", others:["Kuvalayananda"], note:"Polymath; reconciled Shaiva Siddhanta with Advaita."},
+    {id:"DharmarajaAdhvarindra", label:"Dharmaraja Adhvarindra", year:1600, displayDate:"c. 17th Century", school:"Advaita", region:"South", work:"Vedanta Paribhasa", others:[], note:"Standard epistemology text; pramanas in Advaita."},
+    {id:"Nrisimhashrama", label:"Nrisimhashrama", year:1550, displayDate:"c. 16th Century", school:"Advaita", region:"South", work:"", others:["Commentaries on Advaita texts"], note:"Bridged classical and later Advaita."},
+    {id:"BrahmanandaSaraswati", label:"Swami Brahmananda Saraswati", year:1871, displayDate:"1871–1953", school:"Advaita", region:"North", work:"", others:["Vedic commentaries"], note:"Shankaracharya of Jyotirmath (1941-1953)."},
+    {id:"Sacchidanandendra", label:"Sacchidānandendra Sarasvatī", year:1880, displayDate:"1880–1975", school:"Advaita", region:"South", work:"Vedanta Prakriya Pratyabhijna", others:[], note:"Reformer; emphasized pure Shankara over sub-schools."},
+    {id:"RamanaMaharshi", label:"Ramana Maharshi", year:1879, displayDate:"1879–1950", school:"Advaita", region:"South", subregion:"Tamil Nadu", work:"Upadesa Saram", others:["Nan Yar?"], note:"Self-inquiry (atma-vicara)."},
+    {id:"NisargadattaMaharaj", label:"Nisargadatta Maharaj", year:1897, displayDate:"1897–1981", school:"Advaita", region:"West", subregion:"Maharashtra", work:"I Am That", others:[], note:"Radical non-dualism."},
+    {id:"Vivekananda", label:"Swami Vivekananda", year:1863, displayDate:"1863–1902", school:"Advaita", region:"East", subregion:"Bengal", work:"Raja Yoga", others:["Karma Yoga"], note:"Global reviver; practical Vedanta."},
+    {id:"ChandrashekharaBharati", label:"Chandrashekhara Bharati", year:1892, displayDate:"1892–1954", school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"34th Sringeri Jagadguru; yogi and renunciate."},
+    {id:"AbhinavaVidyatirtha", label:"Abhinava Vidyatirtha", year:1917, displayDate:"1917–1989", school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"35th Sringeri Jagadguru; scholar."},
+    {id:"BharatiTirthaCurrent", label:"Bharati Tirtha (Current)", year:1951, displayDate:"1951–Present", school:"Advaita", region:"South", subregion:"Sringeri", work:"", others:[], note:"36th Sringeri Jagadguru."},
+    {id:"NischalanandaSaraswati", label:"Swami Nischalananda Saraswati", year:1943, displayDate:"1943–Present", school:"Advaita", region:"East", subregion:"Mithila", work:"", others:["Vedic math texts"], note:"145th Shankaracharya of Puri Peetham."},
+
+    {id:"Achyuta", label:"Achyuta Preksha", year:1200, displayDate:"c. 1200 CE", school:"Dvaita", region:"South", subregion:"Udupi", note:"Guru of Madhva."},
+    {id:"Madhva", label:"Madhvacharya", year:1238, displayDate:"1238–1317 CE", school:"Dvaita", region:"South", subregion:"Karnataka", work:"Sarvamula", others:["Mahabharata Tatparya Nirnaya"], note:"Founder of Dualism."},
+    {id:"Padmanabha", label:"Padmanabha Tirtha", year:1300, displayDate:"d. 1324", school:"Dvaita", region:"South", note:"Disciple."},
+    {id:"Narahari", label:"Narahari Tirtha", year:1300, displayDate:"d. 1333", school:"Dvaita", region:"South", note:"Disciple."},
+    {id:"Jayatirtha", label:"Jayatirtha", year:1365, displayDate:"c. 1365–1388", school:"Dvaita", region:"South", subregion:"Karnataka", work:"Nyaya Sudha", others:["Vadavali"], note:"Systematizer."},
+    {id:"Vyasatirtha", label:"Vyasatirtha", year:1460, displayDate:"1460–1539", school:"Dvaita", region:"South", subregion:"Karnataka", work:"Nyayamrita", others:["Tarkatandava"], note:"Guru of Krishnadevaraya."},
+    {id:"Raghavendra", label:"Raghavendra Tirtha", year:1595, displayDate:"1595–1671", school:"Dvaita", region:"South", subregion:"Mantralayam", work:"Parimala", others:[], note:"Saint Scholar."},
+
+    {id:"Nammalvar", label:"Nammalvar", year:880, displayDate:"c. 9th Century", school:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", work:"Tiruvaymoli", others:[], note:"Alvar."},
+    {id:"Nathamuni", label:"Nathamuni", year:900, displayDate:"c. 900–950 CE", school:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", work:"Yoga Rahasya", others:["Nyayatattva"], note:"First Acharya."},
+    {id:"Yamuna", label:"Yamunacharya", year:917, displayDate:"917–1037 CE", school:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", work:"Siddhitraya", others:["Gitartha Sangraha"], note:"Preceptor."},
+    {id:"Ramanuja", label:"Ramanuja", year:1017, displayDate:"1017–1137 CE", school:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", work:"Sri Bhashya", others:["Vedartha Sangraha"], note:"Founder."},
+    {id:"Desika", label:"Vedanta Desika", year:1268, displayDate:"1268–1369", school:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", work:"Paduka Sahasram", others:["Rahasyatrayasara"], note:"Vadakalai Leader."},
+    {id:"Pillai", label:"Pillai Lokacharya", year:1205, displayDate:"1205–1311", school:"Vishishtadvaita", region:"South", subregion:"Tamil Nadu", work:"Srivachana Bhushanam", others:[], note:"Thenkalai Leader."},
+
+    {id:"Vasugupta", label:"Vasugupta", year:800, displayDate:"c. 800–850 CE", school:"Kashmir Shaivism", region:"North", subregion:"Kashmir", work:"Shiva Sutras", others:["Spanda Karika"], note:"Founder."},
+    {id:"Somananda", label:"Somananda", year:900, displayDate:"c. 900–950 CE", school:"Kashmir Shaivism", region:"North", subregion:"Kashmir", work:"Shiva Drishti", others:[], note:"Pratyabhijna."},
+    {id:"Utpaladeva", label:"Utpaladeva", year:925, displayDate:"c. 925–975 CE", school:"Kashmir Shaivism", region:"North", subregion:"Kashmir", work:"Ishvara Pratyabhijna", others:["Sivastotravali"], note:"Architect."},
+    {id:"Abhinavagupta", label:"Abhinavagupta", year:950, displayDate:"c. 950–1016 CE", school:"Kashmir Shaivism", region:"North", subregion:"Kashmir", work:"Tantraloka", others:["Abhinavabharati"], note:"Tantric Genius."},
+    {id:"Kshemaraja", label:"Kshemaraja", year:1000, displayDate:"c. 1000–1050 CE", school:"Kashmir Shaivism", region:"North", subregion:"Kashmir", work:"Pratyabhijnahridayam", others:[], note:"Disciple."},
+    {id:"Lakshmanjoo", label:"Lakshmanjoo", year:1907, displayDate:"1907–1991", school:"Kashmir Shaivism", region:"North", subregion:"Kashmir", work:"Secret Supreme", others:[], note:"Modern Master."},
+
+    {id:"Vatsyayana", label:"Vatsyayana", year:450, displayDate:"c. 450–500 CE", school:"Nyaya", region:"North", work:"Nyaya Bhashya", others:[], note:"Commentator."},
+    {id:"Uddyotakara", label:"Uddyotakara", year:600, displayDate:"c. 6th Century CE", school:"Nyaya", region:"North", work:"Nyaya Varttika", others:[], note:"Commentator."},
+    {id:"Vacaspati", label:"Vacaspati Mishra", year:900, displayDate:"c. 900–980 CE", school:"Nyaya", region:"East", subregion:"Mithila", work:"Nyaya Tatparya Tika", others:["Bhamati"], note:"Polymath."},
+    {id:"Udayana", label:"Udayana", year:984, displayDate:"c. 10th Century CE", school:"Nyaya", region:"East", subregion:"Mithila", work:"Kusumanjali", others:["Atmatattvaviveka"], note:"Theist Logic."},
+    {id:"Gangesa", label:"Gangesa", year:1325, displayDate:"c. 1325 CE", school:"Nyaya", region:"East", subregion:"Mithila", work:"Tattvacintamani", others:[], note:"Navya-Nyaya Founder."},
+    {id:"Raghunatha", label:"Raghunatha Shiromani", year:1477, displayDate:"c. 1477–1547", school:"Nyaya", region:"East", subregion:"Bengal", work:"Didhiti", others:[], note:"Logician."},
+    {id:"Gadadhara", label:"Gadadhara", year:1650, displayDate:"c. 17th Century", school:"Nyaya", region:"East", subregion:"Bengal", work:"Shaktivada", others:[], note:"Logician."},
+
+    {id:"Shabara", label:"Shabara", year:200, displayDate:"c. 200 CE", school:"Mimamsa", region:"North", work:"Shabara Bhashya", others:[], note:"Commentator."},
+    {id:"Kumarila", label:"Kumarila Bhatta", year:700, displayDate:"c. 700 CE", school:"Mimamsa", region:"North", subregion:"Prayag", work:"Slokavartika", others:["Tantravartika"], note:"Bhatta School."},
+    {id:"Prabhakara", label:"Prabhakara", year:700, displayDate:"c. 700 CE", school:"Mimamsa", region:"South", subregion:"Kerala", work:"Brihati", others:[], note:"Guru School."},
+    {id:"Mandana", label:"Mandana Mishra", year:800, displayDate:"c. 800 CE", school:"Mimamsa", region:"East", subregion:"Mithila", work:"Brahmasiddhi", others:[], note:"Debater."},
+
+    {id:"IshvaraKrishna", label:"Ishvara Krishna", year:350, displayDate:"c. 350 CE", school:"Samkhya", region:"North", work:"Samkhya Karika", others:[], note:"Classical Samkhya."},
+    {id:"Vijnanabhikshu", label:"Vijnanabhikshu", year:1550, displayDate:"c. 16th Century", school:"Yoga", region:"North", work:"Yogavarttika", others:[], note:"Syncretic."},
+    {id:"Prashastapada", label:"Prashastapada", year:550, displayDate:"c. 6th Century CE", school:"Vaisheshika", region:"North", work:"Padarthadharmasamgraha", others:[], note:"Atomism."},
+
+    {id:"Nimbarka", label:"Nimbarka", year:1150, displayDate:"c. 1130–1200 CE", school:"Dvaitadvaita", region:"South", subregion:"Andhra", work:"Parijata Saurabha", others:["Dasasloki"], note:"Dvaitadvaita."},
+    {id:"Vallabha", label:"Vallabhacharya", year:1479, displayDate:"1479–1531", school:"Shuddhadvaita", region:"West", subregion:"Gujarat", work:"Anubhashya", others:["Subodhini"], note:"Pushtimarg."},
+    {id:"Srinivasa", label:"Srinivasa Acharya", year:1200, displayDate:"c. 12th Century", school:"Dvaitadvaita", region:"South", note:"Disciple."},
+    {id:"Vitthalanatha", label:"Vitthalanatha", year:1516, displayDate:"1516–1588", school:"Shuddhadvaita", region:"North", subregion:"Braj", note:"Son of Vallabha."},
+
+    {id:"Vidyapati", label:"Vidyapati", year:1352, displayDate:"1352–1448", school:"Literature", region:"East", subregion:"Mithila", work:"Padavali", others:["Kirtilata"], note:"Maithili Poet."},
+    {id:"Jayadeva", label:"Jayadeva", year:1200, displayDate:"c. 1200 CE", school:"Bhakti", region:"East", subregion:"Odisha", work:"Gita Govinda", others:["Dasavatara Stotra"], note:"Poet."},
+    {id:"Chaitanya", label:"Chaitanya", year:1486, displayDate:"1486–1534", school:"Bhakti", region:"East", subregion:"Bengal", work:"Siksastakam", others:[], note:"Gaudiya Founder."},
+    {id:"Kabir", label:"Kabir", year:1440, displayDate:"1440–1518", school:"Bhakti", region:"North", subregion:"Varanasi", work:"Bijak", others:["Sakhi Granth"], note:"Nirguna."},
+    {id:"Tulsidas", label:"Tulsidas", year:1532, displayDate:"1532–1623", school:"Bhakti", region:"North", subregion:"Varanasi", work:"Ramcharitmanas", others:["Vinaya Patrika"], note:"Ramayana."},
+    {id:"Surdas", label:"Surdas", year:1478, displayDate:"1478–1583", school:"Bhakti", region:"North", subregion:"Braj", work:"Sur Sagar", others:["Sur Saravali"], note:"Krishna Bhakta."},
+    {id:"Mirabai", label:"Mirabai", year:1498, displayDate:"1498–1546", school:"Bhakti", region:"West", subregion:"Rajasthan", work:"Bhajans", others:[], note:"Krishna Bhakta."},
+    {id:"Andal", label:"Andal", year:750, displayDate:"c. 7th-8th Century", school:"Bhakti", region:"South", subregion:"Tamil Nadu", work:"Tiruppavai", others:["Nachiyar Tirumoli"], note:"Alvar."},
+    {id:"Tyagaraja", label:"Tyagaraja", year:1767, displayDate:"1767–1847", school:"Music", region:"South", subregion:"Tamil Nadu", work:"Pancharatna", others:[], note:"Musician."},
+    {id:"Muthuswami", label:"Muthuswami Dikshitar", year:1775, displayDate:"1775–1835", school:"Music", region:"South", subregion:"Tamil Nadu", work:"Navagraha Kritis", others:[], note:"Musician."},
+    {id:"SyamaSastri", label:"Syama Sastri", year:1762, displayDate:"1762–1827", school:"Music", region:"South", subregion:"Tamil Nadu", work:"Swarajatis", others:[], note:"Musician."},
+    {id:"AmirKhusrau", label:"Amir Khusrau", year:1253, displayDate:"1253–1325", school:"Literature", region:"North", subregion:"Delhi", work:"Qiran-us-Sa'dain", others:["Tughlaq Nama"], note:"Poet."},
+
+    {id:"RamMohan", label:"Ram Mohan Roy", year:1772, displayDate:"1772–1833", school:"Modern", region:"East", subregion:"Bengal", work:"Brahmo Samaj", others:["Precepts of Jesus"], note:"Reformer."},
+    {id:"Bankim", label:"Bankim Chandra", year:1838, displayDate:"1838–1894", school:"Literature", region:"East", subregion:"Bengal", work:"Anandamath", others:["Vande Mataram"], note:"Novelist."},
+    {id:"Tagore", label:"Rabindranath Tagore", year:1861, displayDate:"1861–1941", school:"Literature", region:"East", subregion:"Bengal", work:"Gitanjali", others:["Gora", "Jana Gana Mana"], note:"Nobel Laureate."},
+    {id:"Aurobindo", label:"Sri Aurobindo", year:1872, displayDate:"1872–1950", school:"Yoga", region:"East", subregion:"Pondicherry", work:"Life Divine", others:["Savitri"], note:"Integral Yoga."},
+    {id:"Ramanujan", label:"Srinivasa Ramanujan", year:1887, displayDate:"1887–1920", school:"Science", region:"South", subregion:"Tamil Nadu", work:"Notebooks", others:["Mock Theta Functions"], note:"Math Genius."},
+    {id:"Ambedkar", label:"B.R. Ambedkar", year:1891, displayDate:"1891–1956", school:"Modern", region:"West", subregion:"Maharashtra", work:"Constitution", others:["Annihilation of Caste"], note:"Social Justice."},
+    {id:"Nazrul", label:"Kazi Nazrul Islam", year:1899, displayDate:"1899–1976", school:"Literature", region:"East", subregion:"Bengal", work:"Bidrohi", others:["Agnibina"], note:"Rebel Poet."},
+    {id:"Sarat", label:"Sarat Chandra", year:1876, displayDate:"1876–1938", school:"Literature", region:"East", subregion:"Bengal", work:"Devdas", others:["Parineeta"], note:"Novelist."},
+    {id:"Madhusudan", label:"Michael Madhusudan", year:1824, displayDate:"1824–1873", school:"Literature", region:"East", subregion:"Bengal", work:"Meghnad Badh", others:["Sharmistha"], note:"Epic Poet."},
+    {id:"Ramakrishna", label:"Ramakrishna", year:1836, displayDate:"1836–1886", school:"Bhakti", region:"East", subregion:"Bengal", work:"Kathamrita", others:[], note:"Mystic."},
+    {id:"CVRaman", label:"C.V. Raman", year:1888, displayDate:"1888–1970", school:"Science", region:"South", subregion:"Tamil Nadu", work:"Raman Effect", others:[], note:"Physicist."},
+    {id:"Bose", label:"J.C. Bose", year:1858, displayDate:"1858–1937", school:"Science", region:"East", subregion:"Bengal", work:"Plant Science", others:[], note:"Physicist/Botanist."},
+    {id:"Satyendranath", label:"S.N. Bose", year:1894, displayDate:"1894–1974", school:"Science", region:"East", subregion:"Bengal", work:"Boson", others:["Planck-Bose Statistics"], note:"Physicist."},
+    {id:"Gandhi", label:"Mahatma Gandhi", year:1869, displayDate:"1869–1948", school:"Modern", region:"West", subregion:"Gujarat", work:"Experiments with Truth", others:["Hind Swaraj"], note:"Freedom Fighter."},
+    {id:"Nivedita", label:"Sister Nivedita", year:1867, displayDate:"1867–1911", school:"Modern", region:"East", subregion:"Bengal", work:"The Master as I Saw Him", others:[], note:"Disciple."},
+     
+    {id:"Megasthenes", label:"Megasthenes", year:-350, displayDate:"c. 350–290 BCE", school:"Indology", region:"Global", subregion:"Greece", work:"Indica", others:[], note:"Ambassador."},
+    {id:"Faxian", label:"Faxian", year:399, displayDate:"337–422 CE", school:"Indology", region:"China", subregion:"China", work:"Buddhist Kingdoms", others:[], note:"Pilgrim."},
+    {id:"Xuanzang", label:"Xuanzang", year:629, displayDate:"602–664 CE", school:"Indology", region:"China", subregion:"China", work:"Great Tang Records", others:[], note:"Pilgrim."},
+    {id:"AlBiruni", label:"Al-Biruni", year:973, displayDate:"973–1050", school:"Indology", region:"Global", subregion:"Persia", work:"Indica", others:["Chronology"], note:"First Indologist."},
+    {id:"IbnBattuta", label:"Ibn Battuta", year:1333, displayDate:"1304–1369", school:"Indology", region:"Global", subregion:"Morocco", work:"Rihla", others:[], note:"Traveler."},
+    {id:"MarcoPolo", label:"Marco Polo", year:1288, displayDate:"1254–1324", school:"Indology", region:"Global", subregion:"Venice", work:"Travels", others:[], note:"Traveler."},
+    {id:"Jones", label:"William Jones", year:1746, displayDate:"1746–1794", school:"Indology", region:"Global", subregion:"UK", work:"Asiatic Researches", others:["Sakuntala Trans"], note:"Indo-European Link."},
+    {id:"Wilkins", label:"Charles Wilkins", year:1749, displayDate:"1749–1836", school:"Indology", region:"Global", subregion:"UK", work:"Gita Translation", others:[], note:"Translator."},
+    {id:"Prinsep", label:"James Prinsep", year:1799, displayDate:"1799–1840", school:"Indology", region:"Global", subregion:"UK", work:"Decipherment of Brahmi", others:[], note:"Epigraphist."},
+    {id:"Cunningham", label:"Alexander Cunningham", year:1814, displayDate:"1814–1893", school:"Indology", region:"Global", subregion:"UK", work:"ASI Reports", others:[], note:"Archaeology."},
+    {id:"MaxMuller", label:"Max Muller", year:1823, displayDate:"1823–1900", school:"Indology", region:"Global", subregion:"Germany", work:"Sacred Books", others:["History of Sanskrit Lit"], note:"Philologist."},
+    {id:"Weber", label:"Albrecht Weber", year:1825, displayDate:"1825–1901", school:"Indology", region:"Global", subregion:"Germany", work:"Indische Studien", others:[], note:"Vedic Scholar."},
+    {id:"MonierWilliams", label:"Monier-Williams", year:1819, displayDate:"1819–1899", school:"Indology", region:"Global", subregion:"UK", work:"Sanskrit Dictionary", others:[], note:"Lexicographer."},
+    {id:"Rajendralal", label:"Rajendralal Mitra", year:1822, displayDate:"1822–1891", school:"Indology", region:"East", subregion:"Bengal", work:"Antiquities of Orissa", others:["Indo-Aryans"], note:"First Indian Indologist."},
+    {id:"Bhandarkar", label:"R.G. Bhandarkar", year:1837, displayDate:"1837–1925", school:"Indology", region:"West", subregion:"Maharashtra", work:"Vaishnavism/Shaivism", others:[], note:"Historian."},
+    {id:"Buhler", label:"Georg Buhler", year:1837, displayDate:"1837–1898", school:"Indology", region:"Global", subregion:"Germany", work:"Encyclopedia", others:[], note:"Manuscripts."},
+    {id:"Jacobi", label:"Hermann Jacobi", year:1850, displayDate:"1850–1937", school:"Indology", region:"Global", subregion:"Germany", work:"Jaina Sutras", others:[], note:"Jainism."},
+    {id:"Roth", label:"Rudolf Roth", year:1821, displayDate:"1821–1895", school:"Indology", region:"Global", subregion:"Germany", work:"Vedic Philology", others:[], note:"Vedas."},
+    {id:"Oldenberg", label:"Hermann Oldenberg", year:1854, displayDate:"1854–1920", school:"Indology", region:"Global", subregion:"Germany", work:"Buddha", others:[], note:"Buddhism."},
+    {id:"Renou", label:"Louis Renou", year:1896, displayDate:"1896–1966", school:"Indology", region:"Global", subregion:"France", work:"Vedic India", others:[], note:"Vedas."},
+    {id:"Gonda", label:"Jan Gonda", year:1905, displayDate:"1905–1991", school:"Indology", region:"Global", subregion:"Netherlands", work:"Sanskrit Syntax", others:[], note:"Prolific."},
+    {id:"Jayaswal", label:"K.P. Jayaswal", year:1881, displayDate:"1881–1937", school:"Indology", region:"East", subregion:"Bihar", work:"Hindu Polity", others:[], note:"Republics."},
+    {id:"Raychaudhuri", label:"H.C. Raychaudhuri", year:1892, displayDate:"1892–1957", school:"Indology", region:"East", subregion:"Bengal", work:"Political History", others:[], note:"Ancient India."},
+    {id:"Kosambi", label:"D.D. Kosambi", year:1907, displayDate:"1907–1966", school:"Indology", region:"West", subregion:"Goa", work:"Indian History", others:[], note:"Marxist."},
+    {id:"Raghavan", label:"V. Raghavan", year:1908, displayDate:"1908–1979", school:"Indology", region:"South", subregion:"Tamil Nadu", work:"Bhoja's Sringara", others:[], note:"Aesthetics."},
+    {id:"Basham", label:"A.L. Basham", year:1914, displayDate:"1914–1986", school:"Indology", region:"Global", subregion:"UK", work:"The Wonder That Was India", others:[], note:"Cultural History."},
+    {id:"Ingalls", label:"Daniel Ingalls", year:1916, displayDate:"1916–1999", school:"Indology", region:"Global", subregion:"USA", work:"Navya-Nyaya Logic", others:[], note:"Logic."},
+    {id:"SitaRamGoel", label:"Sita Ram Goel", year:1921, displayDate:"1921–2003", school:"Indology", region:"North", subregion:"Haryana", work:"Hindu Temples", others:[], note:"Historian."},
+    {id:"DharamPal", label:"Dharam Pal", year:1922, displayDate:"1922–2006", school:"Indology", region:"North", subregion:"Punjab", work:"The Beautiful Tree", others:[], note:"Education."},
+    {id:"RomilaThapar", label:"Romila Thapar", year:1931, displayDate:"b. 1931", school:"Indology", region:"North", subregion:"Punjab", work:"History of India", others:["Early India"], note:"Ancient History."},
+    {id:"IrfanHabib", label:"Irfan Habib", year:1931, displayDate:"b. 1931", school:"Indology", region:"North", subregion:"Aligarh", work:"Agrarian System", others:["Medieval India"], note:"Mughal History."},
+    {id:"RSSharma", label:"R.S. Sharma", year:1919, displayDate:"1919–2011", school:"Indology", region:"East", subregion:"Bihar", work:"Indian Feudalism", others:[], note:"Ancient History."},
+    {id:"Staal", label:"Frits Staal", year:1930, displayDate:"1930–2012", school:"Indology", region:"Global", subregion:"Netherlands", work:"Agni", others:[], note:"Ritual."},
+    {id:"Witzel", label:"Michael Witzel", year:1943, displayDate:"b. 1943", school:"Indology", region:"Global", subregion:"Germany", work:"Vedic Studies", others:[], note:"Vedas."},
+    {id:"Doniger", label:"Wendy Doniger", year:1940, displayDate:"b. 1940", school:"Indology", region:"Global", subregion:"USA", work:"The Hindus", others:[], note:"Mythology."},
+    {id:"Bronkhorst", label:"Johannes Bronkhorst", year:1946, displayDate:"b. 1946", school:"Indology", region:"Global", subregion:"Netherlands", work:"Greater Magadha", others:[], note:"Cultural."},
+    {id:"Sanderson", label:"Alexis Sanderson", year:1948, displayDate:"b. 1948", school:"Indology", region:"Global", subregion:"UK", work:"Shaiva Studies", others:[], note:"Tantra."},
+    {id:"Pollock", label:"Sheldon Pollock", year:1948, displayDate:"b. 1948", school:"Indology", region:"Global", subregion:"USA", work:"Language of Gods", others:[], note:"Sanskrit."},
+    {id:"Olivelle", label:"Patrick Olivelle", year:1942, displayDate:"b. 1942", school:"Indology", region:"Global", subregion:"Sri Lanka", work:"Upanishads", others:[], note:"Philologist."},
+    {id:"Eaton", label:"Richard Eaton", year:1940, displayDate:"b. 1940", school:"Indology", region:"Global", subregion:"USA", work:"Persianate Age", others:[], note:"Islam in India."},
+    {id:"Wink", label:"Andre Wink", year:1990, displayDate:"N/A", school:"Indology", region:"Global", subregion:"Netherlands", work:"Al-Hind", others:[], note:"Indo-Islamic."},
+    {id:"Subrahmanyam", label:"Sanjay Subrahmanyam", year:1961, displayDate:"b. 1961", school:"Indology", region:"South", subregion:"Tamil Nadu", work:"Connected History", others:[], note:"Early Modern."},
+    {id:"Shulman", label:"David Shulman", year:1949, displayDate:"b. 1949", school:"Indology", region:"Global", subregion:"Israel", work:"Temple Myths", others:[], note:"South India."},
+    {id:"Hart", label:"George Hart", year:1945, displayDate:"b. 1945", school:"Indology", region:"Global", subregion:"USA", work:"Tamil Poems", others:[], note:"Sangam."},
+    {id:"Jamison", label:"Stephanie Jamison", year:2000, displayDate:"Active", school:"Indology", region:"Global", subregion:"USA", work:"Rig Veda Trans", others:[], note:"Vedas."},
+    {id:"Brereton", label:"Joel Brereton", year:2000, displayDate:"Active", school:"Indology", region:"Global", subregion:"USA", work:"Rig Veda Trans", others:[], note:"Vedas."},
+    {id:"Voltaire", label:"Voltaire", year:1694, displayDate:"1694–1778", school:"Indology", region:"Global", subregion:"France", work:"Essai", others:[], note:"Indophile."},
+    {id:"Schopenhauer", label:"Schopenhauer", year:1788, displayDate:"1788–1860", school:"Indology", region:"Global", subregion:"Germany", work:"World as Will", others:[], note:"Upanishads admirer."},
+    {id:"Tesla", label:"Tesla", year:1856, displayDate:"1856–1943", school:"Indology", region:"Global", subregion:"USA", work:"AC", others:[], note:"Vedantic Physics."},
+    {id:"Eliot", label:"T.S. Eliot", year:1888, displayDate:"1888–1965", school:"Indology", region:"Global", subregion:"UK", work:"Waste Land", others:[], note:"Sanskrit influence."},
+    {id:"Oppenheimer", label:"Oppenheimer", year:1904, displayDate:"1904–1967", school:"Indology", region:"Global", subregion:"USA", work:"Trinity", others:[], note:"Gita Scholar."},
+    {id:"Harrison", label:"Harrison", year:1943, displayDate:"1943–2001", school:"Indology", region:"Global", subregion:"UK", work:"Sitar", others:[], note:"Beatles."},
+    {id:"Goethe", label:"Goethe", year:1749, displayDate:"1749–1832", school:"Indology", region:"Global", subregion:"Germany", note:"Admired Shakuntalam", others:[]},
+    {id:"Thoreau", label:"Thoreau", year:1817, displayDate:"1817–1862", school:"Indology", region:"Global", subregion:"USA", work:"Walden", others:[], note:"Transcendentalist."},
+    {id:"Emerson", label:"Emerson", year:1803, displayDate:"1803–1882", school:"Indology", region:"Global", subregion:"USA", work:"Brahma", others:[], note:"Transcendentalist."},
+    {id:"Zimmer", label:"Heinrich Zimmer", year:1890, displayDate:"1890–1943", school:"Indology", region:"Global", subregion:"Germany", work:"Philosophies of India", others:[], note:"Mythology."},
+    {id:"Deussen", label:"Paul Deussen", year:1845, displayDate:"1845–1919", school:"Indology", region:"Global", subregion:"Germany", work:"Sixty Upanishads", others:[], note:"Vedanta."}
+];
+
+// --- 2. LINEAGES (The Connections) ---
+// Types: "Lineage (Guru)", "Lineage", "Influence"
+const lineages = [
+    {s:"Shiva", t:"Vasugupta", type:"Influence"}, 
+    {s:"Shiva", t:"Shankara", type:"Influence"},
+    {s:"Narayana", t:"Brahma", type:"Lineage"}, 
+    {s:"Brahma", t:"Vashishta", type:"Lineage"},
+    {s:"Vashishta", t:"ShaktiRishi", type:"Lineage"}, 
+    {s:"ShaktiRishi", t:"Parashara", type:"Lineage"},
+    {s:"Parashara", t:"Vyasa", type:"Lineage"}, 
+    {s:"Vyasa", t:"Shuka", type:"Lineage"},
+    {s:"Shuka", t:"Gaudapada", type:"Lineage"}, 
+    {s:"Gaudapada", t:"Govinda", type:"Lineage (Guru)"},
+    {s:"Govinda", t:"Shankara", type:"Lineage (Guru)"}, 
+    {s:"Shankara", t:"Suresvara", type:"Lineage (Guru)"},
+    {s:"Shankara", t:"Padmapada", type:"Lineage (Guru)"}, 
+    {s:"Shankara", t:"Totaka", type:"Lineage (Guru)"},
+    {s:"Shankara", t:"Hastamalaka", type:"Lineage (Guru)"}, 
+    {s:"Suresvara", t:"Vacaspati", type:"Lineage"},
+    {s:"Vacaspati", t:"Sarvajnatman", type:"Influence"}, 
+    {s:"Padmapada", t:"Prakasatman", type:"Lineage"},
+    {s:"Shankara", t:"Anandagiri", type:"Lineage"}, 
+    {s:"Vacaspati", t:"Amalananda", type:"Influence"},
+    {s:"Shankara", t:"BharatiTirtha", type:"Lineage"}, 
+    {s:"BharatiTirtha", t:"Vidyaranya", type:"Lineage (Guru)"},
+    {s:"Vidyaranya", t:"SadanandaYogindra", type:"Lineage"}, 
+    {s:"Madhusudana", t:"Prakashananda", type:"Influence"},
+    {s:"Shankara", t:"Madhusudana", type:"Lineage"}, 
+    {s:"Shankara", t:"Appayya", type:"Lineage"},
+    {s:"Shankara", t:"DharmarajaAdhvarindra", type:"Lineage"}, 
+    {s:"Shankara", t:"Nrisimhashrama", type:"Lineage"},
+    {s:"Shankara", t:"BrahmanandaSaraswati", type:"Lineage"}, 
+    {s:"BrahmanandaSaraswati", t:"KarpatriMaharaj", type:"Lineage (Guru)"},
+    {s:"KarpatriMaharaj", t:"NischalanandaSaraswati", type:"Lineage (Guru)"}, 
+    {s:"Shankara", t:"Sacchidanandendra", type:"Lineage"},
+    {s:"Ramakrishna", t:"Vivekananda", type:"Lineage (Guru)"}, 
+    {s:"Vivekananda", t:"RamanaMaharshi", type:"Influence"},
+    {s:"RamanaMaharshi", t:"NisargadattaMaharaj", type:"Influence"}, 
+    {s:"Shankara", t:"ChandrashekharaBharati", type:"Lineage"},
+    {s:"ChandrashekharaBharati", t:"AbhinavaVidyatirtha", type:"Lineage (Guru)"}, 
+    {s:"AbhinavaVidyatirtha", t:"BharatiTirthaCurrent", type:"Lineage (Guru)"},
+    {s:"Shankara", t:"NischalanandaSaraswati", type:"Lineage"},
+     
+    {s:"Narayana", t:"Madhva", type:"Influence"}, 
+    {s:"Madhva", t:"Padmanabha", type:"Lineage (Guru)"}, 
+    {s:"Padmanabha", t:"Narahari", type:"Lineage (Guru)"}, 
+    {s:"Madhva", t:"Jayatirtha", type:"Lineage"}, 
+    {s:"Jayatirtha", t:"Vyasatirtha", type:"Lineage"}, 
+    {s:"Vyasatirtha", t:"Raghavendra", type:"Lineage"}, 
+    {s:"Narayana", t:"Nammalvar", type:"Influence"}, 
+    {s:"Nammalvar", t:"Nathamuni", type:"Influence"}, 
+    {s:"Nathamuni", t:"Yamuna", type:"Lineage"}, 
+    {s:"Yamuna", t:"Ramanuja", type:"Lineage (Guru)"}, 
+    {s:"Ramanuja", t:"Desika", type:"Lineage"}, 
+    {s:"Ramanuja", t:"Pillai", type:"Lineage"}, 
+    {s:"Vasugupta", t:"Somananda", type:"Lineage"}, 
+    {s:"Somananda", t:"Utpaladeva", type:"Lineage (Guru)"}, 
+    {s:"Utpaladeva", t:"Abhinavagupta", type:"Lineage"}, 
+    {s:"Abhinavagupta", t:"Kshemaraja", type:"Lineage (Guru)"}, 
+    {s:"Abhinavagupta", t:"Lakshmanjoo", type:"Lineage"}, 
+    {s:"Gautama", t:"Vatsyayana", type:"Lineage"}, 
+    {s:"Udayana", t:"Gangesa", type:"Influence"}, 
+    {s:"Gangesa", t:"Raghunatha", type:"Lineage"}, 
+    {s:"Raghunatha", t:"Gadadhara", type:"Lineage"}, 
+    {s:"Buddha", t:"Mahakassapa", type:"Lineage (Guru)"}, 
+    {s:"Mahakassapa", t:"Ananda", type:"Lineage (Guru)"}, 
+    {s:"Buddha", t:"Nagarjuna", type:"Influence"}, 
+    {s:"Nagarjuna", t:"Aryadeva", type:"Lineage (Guru)"}, 
+    {s:"Asanga", t:"Vasubandhu", type:"Lineage"}, 
+    {s:"Vasubandhu", t:"Dignaga", type:"Lineage"}, 
+    {s:"Bodhidharma", t:"Huineng", type:"Lineage"}, 
+    {s:"Padmasambhava", t:"Milarepa", type:"Lineage"}, 
+    {s:"Tsongkhapa", t:"DalaiLama", type:"Lineage"}, 
+    {s:"Mahavira", t:"GautamaGanadhara", type:"Lineage (Guru)"}, 
+    {s:"Mahavira", t:"Bhadrabahu", type:"Lineage"}, 
+    {s:"Bhadrabahu", t:"Kundakunda", type:"Lineage"}, 
+    {s:"Mahavira", t:"Hemachandra", type:"Lineage"}, 
+    {s:"Jaimini", t:"Shabara", type:"Lineage"}, 
+    {s:"Shabara", t:"Kumarila", type:"Lineage"}, 
+    {s:"Kumarila", t:"Mandana", type:"Lineage (Guru)"}, 
+    {s:"Kumarila", t:"Prabhakara", type:"Lineage (Guru)"}, 
+    {s:"Kapila", t:"Asuri", type:"Lineage (Guru)"}, 
+    {s:"Asuri", t:"Panchashikha", type:"Lineage (Guru)"}, 
+    {s:"Panchashikha", t:"IshvaraKrishna", type:"Lineage"}, 
+    {s:"Ramanuja", t:"Madhva", type:"Influence"}, 
+    {s:"Jayadeva", t:"Chaitanya", type:"Influence"}, 
+    {s:"Chaitanya", t:"Tagore", type:"Influence"}, 
+    {s:"Vivekananda", t:"Nivedita", type:"Lineage (Guru)"}, 
+    {s:"Panini", t:"Voltaire", type:"Influence"}, 
+    {s:"Vyasa", t:"Oppenheimer", type:"Influence"}, 
+    {s:"Yajnavalkya", t:"Schopenhauer", type:"Influence"}, 
+    {s:"Vivekananda", t:"Tesla", type:"Influence"}, 
+    {s:"Kalidasa", t:"Goethe", type:"Influence"}, 
+    {s:"Jones", t:"MaxMuller", type:"Influence"}
+];
+
+// --- NETWORK SETUP ---
+let nodes = new vis.DataSet([]);
+let edges = new vis.DataSet([]);
+let allNodes = [];
+let allEdges = [];
+
+const container = document.getElementById('network');
+const data = { nodes: nodes, edges: edges };
+
+const options = {
+    nodes: {
+        shape: 'dot',
+        size: 20,
+        borderWidth: 2,
+        shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10, x: 5, y: 5 },
+        font: { 
+            face: 'Cinzel', 
+            color: '#ffffff',
+            size: 16,
+            strokeWidth: 5, 
+            strokeColor: '#050505', 
+            align: 'center',
+            vadjust: -35 
+        },
+        color: { border: '#333', background: '#222', highlight: { border: '#d4af37', background: '#444' } }
+    },
+    edges: {
+        width: 1,
+        selectionWidth: 2,
+        smooth: { type: "continuous", forceDirection: "none", roundness: 0.4 },
+        arrows: { to: { scaleFactor: 0.5 } },
+        color: { color: '#444', highlight: '#d4af37', opacity: 0.4 },
+        font: { face: 'Noto Serif', size: 9, color: '#666', strokeWidth: 3, strokeColor: '#050505', align: 'middle' }
+    },
+    physics: {
+        enabled: true,
+        stabilization: { enabled: true, iterations: 1500, updateInterval: 50 },
+        barnesHut: { gravitationalConstant: -10000, centralGravity: 0.2, springLength: 250, springConstant: 0.02, damping: 0.09, avoidOverlap: 1 }
+    },
+    interaction: { hover: true, tooltipDelay: 200, hideEdgesOnDrag: true, zoomView: true }
+};
+
+const network = new vis.Network(container, data, options);
+
+network.on("stabilizationIterationsDone", function () {
+    network.setOptions({ physics: false });
+});
+
+// COLOR MAPPING
+function getColor(school) {
+    if (!school) return "#666";
+    if (school.includes('Advaita')) return "#ff9800";
+    if (school.includes('Dvaita') || school.includes('Vishishtadvaita')) return "#ff5722";
+    if (school.includes('Nyaya') || school.includes('Vaisheshika')) return "#00bcd4";
+    if (school.includes('Shaivism')) return "#9c27b0";
+    if (school.includes('Bhakti')) return "#ffeb3b";
+    if (school.includes('Buddhism')) return "#e91e63";
+    if (school.includes('Jainism')) return "#4caf50";
+    if (school.includes('Indology')) return "#a5a5a5";
+    if (school.includes('Charvaka') || school.includes('Ajivika')) return "#607d8b";
+    return "#ddd";
+}
+
+// INITIAL DATA PROCESSING
+if (typeof rawData !== 'undefined') {
+    const seenIds = new Set();
+    const uniqueData = [];
+    rawData.forEach(item => {
+        if (!seenIds.has(item.id)) {
+            seenIds.add(item.id);
+            uniqueData.push(item);
+        }
+    });
+
+    // UPDATE COUNTER
+    document.getElementById('total-counter').innerText = `Total Archived: ${uniqueData.length}`;
+
+    uniqueData.forEach(p => {
+        let schoolColor = p.school ? getColor(p.school) : "#ddd";
+         
+        let finalColor = { background: schoolColor, border: '#333' };
+        let finalShape = 'dot';
+        let finalSize = 20;
+        let finalShadow = { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10 };
+
+        if (p.isDeity) {
+            finalShape = 'star';
+            finalColor = { background: '#e0f7fa', border: '#00ffff' };
+            finalShadow = { enabled: true, color: '#00ffff', size: 20, x: 0, y: 0 };
+            finalSize = 30;
+        }
+
+        allNodes.push({
+            id: p.id,
+            label: p.isDeity ? "★ " + p.label : p.label,
+            group: p.school || "Unknown",
+            value: finalSize,
+            color: finalColor,
+            shape: finalShape,
+            shadow: finalShadow,
+            font: { size: p.isDeity ? 22 : 16 },
+            data: p
+        });
+    });
+
+    lineages.forEach(l => {
+        let s = uniqueData.find(x => x.id === l.s);
+        let t = uniqueData.find(x => x.id === l.t);
+         
+        if (!s && seenIds.has(l.s)) s = {id: l.s}; 
+        if (!t && seenIds.has(l.t)) t = {id: l.t};
+
+        if (s && t) {
+            // Logic: "Lineage (Guru)" = Solid Line + Gold Color
+            // Others = Dashed Line + Grey Color
+            let isGuru = (l.type === "Lineage (Guru)");
+            let dashes = !isGuru;
+            let color = isGuru ? "#d4af37" : "#555";
+            let width = isGuru ? 2 : 1; 
+
+            allEdges.push({
+                from: l.s,
+                to: l.t,
+                arrows: "to",
+                width: width,
+                color: { color: color, opacity: 0.6 },
+                dashes: dashes,
+                label: l.type,
+                font: { size: 9, color: '#777', strokeWidth: 0, align: 'middle' }
+            });
+        }
+    });
+
+    updateGraph();
+}
+
+// UPDATE GRAPH
+function updateGraph() {
+    const sFilter = document.getElementById('schoolFilter').value;
+    const rFilter = document.getElementById('regionFilter').value;
+
+    let targetIds = new Set();
+
+    allNodes.forEach(n => {
+        let p = n.data;
+        let matchesSchool = true;
+        let matchesRegion = true;
+
+        if (sFilter !== 'all') {
+            if (sFilter === 'Buddhism') {
+                const buddhistSchools = ['Buddhism', 'Theravada', 'Mahayana', 'Vajrayana', 'Zen'];
+                if (!p.school || !buddhistSchools.includes(p.school)) matchesSchool = false;
+            } else {
+                if (!p.school || p.school !== sFilter) matchesSchool = false;
+            }
+        }
+
+        if (rFilter !== 'all') {
+            if ((!p.region || p.region !== rFilter) && (!p.subregion || p.subregion !== rFilter)) matchesRegion = false;
+        }
+
+        if (matchesSchool && matchesRegion) {
+            targetIds.add(n.id);
+        }
+    });
+
+    let visibleIds = new Set();
+    if (sFilter === 'all' && rFilter === 'all') {
+        allNodes.forEach(n => visibleIds.add(n.id));
+    } else {
+        targetIds.forEach(id => visibleIds.add(id));
+        let changed = true;
+        while (changed) {
+            changed = false;
+            allEdges.forEach(e => {
+                if (visibleIds.has(e.to) && !visibleIds.has(e.from)) {
+                    visibleIds.add(e.from);
+                    changed = true;
+                }
+            });
+        }
+    }
+
+    const filteredNodes = allNodes.filter(n => visibleIds.has(n.id));
+    nodes.clear();
+    edges.clear();
+    nodes.add(filteredNodes);
+    const filteredEdges = allEdges.filter(e => visibleIds.has(e.from) && visibleIds.has(e.to));
+    edges.add(filteredEdges);
+}
+
+// TIMELINE
+const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) => ({
+    id: i,
+    content: t.label,
+    start: new Date(0).setFullYear(t.year),
+    type: 'point', 
+    className: 'vis-point', 
+    personId: t.id,
+    style: `border-color: ${getColor(t.school)}` 
+})));
+
+const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
+    height: '100%',
+    stack: true, 
+    margin: { item: 15, axis: 10 },
+    orientation: 'bottom',
+    start: new Date(0).setFullYear(1000),
+    end: new Date(0).setFullYear(2000),
+    zoomMin: 1000 * 60 * 60 * 24 * 365 * 10
+});
+
+timeline.on('select', (props) => {
+    if (props.items.length) {
+        const item = timelineData.get(props.items[0]);
+        const node = allNodes.find(n => n.id === item.personId);
+        if (node) openPanel(node.data);
+    }
+});
+
+function openPanel(d) {
+    document.getElementById('p-name').innerText = d.iast || d.label;
+     
+    if (d.isDeity) {
+        document.getElementById('p-religion').innerText = d.religion || "";
+        document.getElementById('p-dates').innerText = "Divine / Timeless";
+        document.getElementById('human-fields').style.display = 'none';
+        document.getElementById('deity-fields').style.display = 'block';
+        document.getElementById('p-othernames').innerText = d.otherNames || "N/A";
+        document.getElementById('p-attributes').innerText = d.attributes || "N/A";
+    } else {
+        document.getElementById('p-religion').innerText = "";
+        // Use displayDate if available
+        document.getElementById('p-dates').innerText = d.displayDate ? d.displayDate : (d.year < 0 ? Math.abs(d.year) + " BCE" : d.year + " CE");
+        document.getElementById('human-fields').style.display = 'block';
+        document.getElementById('deity-fields').style.display = 'none';
+        document.getElementById('p-school').innerText = d.school || "";
+        document.getElementById('p-region').innerText = (d.region || "") + (d.subregion ? ` (${d.subregion})` : "");
+
+        const workEl = document.getElementById('p-work');
+        if (d.work && d.workUrl) {
+            workEl.innerHTML = `<a href="${d.workUrl}" target="_blank" class="opus-link">${d.work} ↗</a>`;
+        } else {
+            workEl.innerText = d.work || "N/A";
+        }
+
+        const ul = document.getElementById('p-others');
+        ul.innerHTML = "";
+        if (d.others && d.others.length > 0) d.others.forEach(w => ul.innerHTML += `<li>${w}</li>`);
+        else ul.innerHTML = "<li>No other major records listed.</li>";
+    }
+
+    document.getElementById('p-note').innerText = d.note || "";
+     
+    const wikiBtn = document.getElementById('p-wiki');
+    const wikiSlug = d.wiki || d.label.replace(/\s+/g, '_');
+    wikiBtn.href = `https://en.wikipedia.org/wiki/${wikiSlug}`;
+     
+    let parent = lineages.find(l => l.t === d.id); 
+    let lineageText = "Source / Independent";
+    if (parent) {
+        lineageText = `${parent.type} of ${parent.s}`; 
+    }
+    document.getElementById('p-lineage').innerText = lineageText;
+
+    document.getElementById('side-panel').style.width = "400px";
+    document.getElementById('panel-content').style.opacity = "1";
+}
+
+network.on("click", function(params) {
+    if (params.nodes.length > 0) {
+        const nodeId = params.nodes[0];
+        const node = nodes.get(nodeId);
+        if (node) {
+            openPanel(node.data);
+            if (!node.data.isDeity) {
+                const tItem = timelineData.get({ filter: i => i.personId === node.id });
+                if (tItem.length) timeline.moveTo(tItem[0].start);
+            }
+        }
+    } else {
+        document.getElementById('side-panel').style.width = "0";
+        document.getElementById('panel-content').style.opacity = "0";
+    }
+});
+
+// --- SEARCH LOGIC (AUTOCOMPLETE) ---
+const searchInput = document.getElementById('search');
+const searchResults = document.getElementById('search-results');
+
+searchInput.addEventListener('input', function(e) {
+    const query = e.target.value.toLowerCase();
+    searchResults.innerHTML = '';
+     
+    if (query.length < 2) {
+        searchResults.style.display = 'none';
+        return;
+    }
+
+    const matches = allNodes.filter(n => 
+        n.label.toLowerCase().includes(query) || 
+        (n.data.school && n.data.school.toLowerCase().includes(query))
+    );
+
+    if (matches.length > 0) {
+        searchResults.style.display = 'flex';
+        matches.forEach(match => {
+            const item = document.createElement('div');
+            item.className = 'search-item';
+            item.innerHTML = `<span>${match.label}</span><span class="meta">${match.data.school || ''}</span>`;
+            item.onclick = () => {
+                document.getElementById('schoolFilter').value = 'all';
+                document.getElementById('regionFilter').value = 'all';
+                updateGraph();
+                setTimeout(() => {
+                    network.selectNodes([match.id]);
+                    network.focus(match.id, { scale: 1.5, animation: true });
+                    openPanel(match.data);
+                }, 100);
+                searchResults.style.display = 'none';
+                searchInput.value = '';
+            };
+            searchResults.appendChild(item);
+        });
+    } else {
+        searchResults.style.display = 'none';
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target !== searchInput && e.target !== searchResults) {
+        searchResults.style.display = 'none';
+    }
+});
+
+const gutter = document.getElementById('drag-gutter');
+const timelineDiv = document.getElementById('mytimeline');
+let isDragging = false;
+let startY, startHeight;
+
+gutter.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startY = e.clientY;
+    startHeight = timelineDiv.offsetHeight;
+    document.body.style.cursor = 'ns-resize'; 
+    document.body.style.userSelect = 'none'; 
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const deltaY = startY - e.clientY;
+    const newHeight = startHeight + deltaY;
+    if (newHeight > 50 && newHeight < window.innerHeight * 0.8) {
+        timelineDiv.style.height = newHeight + 'px';
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    if (isDragging) {
+        isDragging = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        network.redraw();
+        timeline.redraw();
+    }
+});
