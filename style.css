@@ -1,0 +1,426 @@
+:root {
+    --bg: #050505;
+    --panel: #0f0f0f;
+    --gold: #d4af37;
+    --divine: #e0f7fa; 
+    --glow: #00ffff;   
+    --border: #444;
+}
+
+body {
+    background: var(--bg);
+    color: #e0e0e0;
+    margin: 0;
+    font-family: 'Noto Serif', serif;
+    height: 100vh;
+    overflow: hidden; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- HEADER --- */
+header {
+    height: 70px;
+    flex-shrink: 0;
+    background: #0a0a0a;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 25px;
+    z-index: 5000; /* Higher than everything else */
+    box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+}
+
+.brand {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: var(--gold);
+    font-weight: 700;
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    position: relative;
+}
+
+/* --- NEW FILTER MENU STYLING --- */
+.filter-container {
+    position: relative;
+}
+
+#filterBtn {
+    background: #111;
+    color: var(--gold);
+    border: 1px solid #444;
+    padding: 8px 15px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: 0.3s;
+    min-width: 160px;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+}
+
+#filterBtn:hover {
+    border-color: var(--gold);
+    background: #1a1a1a;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+}
+
+/* THE FIX: Solid background, High Z-Index */
+.filter-dropdown {
+    display: none; 
+    position: absolute;
+    top: 45px;
+    left: 0;
+    background: rgba(10, 10, 10, 0.98); /* Solid dark, slight transparency */
+    backdrop-filter: blur(10px); /* Blur effect behind it */
+    border: 1px solid var(--gold);
+    width: 320px;
+    max-height: 70vh; /* Don't go off screen */
+    overflow-y: auto;
+    padding: 20px;
+    z-index: 10000 !important; /* Nuclear Z-Index: Stays on TOP of Timeline */
+    box-shadow: 0 20px 50px rgba(0,0,0,1); /* Deep shadow to separate layers */
+    border-radius: 4px;
+}
+
+.filter-dropdown.show { display: block; }
+
+.filter-section h4 {
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    margin: 15px 0 8px 0;
+    font-size: 0.8rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+    letter-spacing: 1px;
+}
+.filter-section h4:first-child { margin-top: 0; }
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: #bbb;
+    cursor: pointer;
+    padding: 3px 0;
+    transition: color 0.2s;
+}
+
+label:hover { color: #fff; }
+
+input[type="checkbox"] {
+    accent-color: var(--gold);
+    width: 14px;
+    height: 14px;
+    background: #222;
+    border: 1px solid #555;
+    cursor: pointer;
+}
+
+.sub-group {
+    padding-left: 15px;
+    border-left: 1px solid #333;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+hr { border: 0; border-top: 1px solid #222; margin: 15px 0; }
+
+.filter-dropdown::-webkit-scrollbar { width: 5px; }
+.filter-dropdown::-webkit-scrollbar-track { background: #000; }
+.filter-dropdown::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+
+/* --- SEARCH INPUT --- */
+input[type="text"] {
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 8px 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    border-radius: 2px;
+    outline: none;
+    transition: 0.3s;
+    min-width: 150px;
+}
+
+input[type="text"]:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
+}
+
+#search-results {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 250px;
+    background: #0f0f0f;
+    border: 1px solid var(--gold);
+    max-height: 300px;
+    overflow-y: auto;
+    display: none; 
+    flex-direction: column;
+    z-index: 10000; /* High Z-Index */
+    box-shadow: 0 10px 30px rgba(0,0,0,1);
+}
+
+.search-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #222;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: #ccc;
+    display: flex;
+    justify-content: space-between;
+}
+.search-item:hover { background: var(--gold); color: #000; }
+.search-item span.meta { font-size: 0.7rem; color: #666; font-style: italic; }
+.search-item:hover span.meta { color: #222; }
+
+/* --- MAIN AREA --- */
+.main-container {
+    flex-grow: 1;
+    position: relative; 
+    display: flex;
+    overflow: hidden; 
+    height: calc(100vh - 270px); 
+}
+
+#network {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, #161616 0%, #000000 100%);
+}
+
+/* --- TIMELINE MAKEOVER --- */
+#drag-gutter {
+    height: 8px;
+    background: #111;
+    border-top: 1px solid #333;
+    cursor: ns-resize;
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#drag-gutter::before {
+    content: ""; width: 40px; height: 2px; background: #444;
+}
+
+#mytimeline {
+    height: 200px; 
+    background: #050505; /* Pitch black background */
+    z-index: 20;
+    width: 100%;
+    border-top: 1px solid #222;
+}
+
+/* Vis.js Internal Styling Overrides */
+.vis-timeline {
+    border: none;
+    font-family: 'Cinzel', serif;
+}
+
+/* The Time Axis (Dates at bottom) */
+.vis-time-axis .vis-text {
+    color: #666;
+    font-size: 0.7rem;
+    padding-top: 5px;
+}
+.vis-time-axis .vis-grid.vis-minor {
+    border-color: #1a1a1a; /* Very subtle grid lines */
+}
+.vis-time-axis .vis-grid.vis-major {
+    border-color: #333;
+}
+
+/* The Items (The people dots) */
+.vis-item.vis-point {
+    background: transparent;
+    border: none;
+    color: #888; /* Default text color */
+    font-family: 'Noto Serif', serif;
+    font-size: 0.8rem;
+    margin-top: 15px; /* Push text down */
+}
+
+/* The Dot itself */
+.vis-item.vis-dot {
+    border-width: 2px;
+    border-color: inherit; /* Inherits color from JS (Orange/Green etc) */
+    background-color: #000;
+    box-shadow: 0 0 5px rgba(0,0,0,1);
+    top: 0px; /* Align nicely */
+    transition: transform 0.2s;
+}
+
+/* Hover effects */
+.vis-item.vis-point:hover {
+    color: #fff;
+    z-index: 100;
+}
+.vis-item.vis-point:hover .vis-dot {
+    transform: scale(1.5);
+    background-color: inherit; /* Fill with color on hover */
+    box-shadow: 0 0 15px currentColor; /* Glow effect */
+}
+
+/* Selected Item */
+.vis-item.vis-selected .vis-dot {
+    background-color: #fff !important;
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 20px var(--gold);
+}
+
+/* --- SIDE PANEL --- */
+#side-panel {
+    width: 0;
+    background: rgba(8, 8, 8, 0.96);
+    backdrop-filter: blur(15px);
+    border-left: 1px solid #333;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    z-index: 4000;
+    position: fixed;
+    right: 0;
+    top: 70px;
+    bottom: 0;
+    box-shadow: -10px 0 50px rgba(0, 0, 0, 0.9);
+}
+
+.panel-content {
+    padding: 40px 25px;
+    opacity: 0;
+    transition: opacity 0.3s 0.2s;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.p-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    color: var(--gold);
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.p-label {
+    color: #555;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    margin-top: 25px;
+    display: block;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.p-value {
+    font-size: 0.95rem;
+    color: #ccc;
+    line-height: 1.6;
+    margin-top: 5px;
+    font-weight: 300;
+}
+
+.religion-tag {
+    font-family: 'Cinzel', serif;
+    color: var(--divine);
+    font-size: 0.8rem;
+    margin-top: -10px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 5px var(--glow);
+}
+
+.iast { font-style: italic; color: #e6c673; }
+
+.works-list { margin-top: 10px; padding-left: 0; list-style: none; }
+.works-list li { margin-bottom: 6px; color: #aaa; font-size: 0.9rem; position: relative; padding-left: 15px; }
+.works-list li::before { content: "•"; color: var(--gold); position: absolute; left: 0; }
+ 
+.opus-link {
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--gold); 
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.opus-link:hover { color: #fff; border-bottom: 1px solid #fff; }
+
+.wiki-btn {
+    margin-top: 30px;
+    display: inline-block;
+    text-align: center;
+    padding: 10px 20px;
+    border: 1px solid #444;
+    color: #888;
+    text-decoration: none;
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    border-radius: 2px;
+}
+.wiki-btn:hover { background: var(--gold); color: #000; border-color: var(--gold); }
+
+/* --- LEGEND --- */
+.legend {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column; 
+    gap: 10px; 
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #888;
+    padding: 15px 20px; 
+    border-radius: 4px;
+    font-size: 0.7rem;
+    backdrop-filter: blur(5px);
+    pointer-events: none;
+    min-width: 120px;
+    font-family: 'Cinzel', serif;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.legend-item { display: flex; align-items: center; gap: 12px; }
+.symbol-star { font-size: 1.2rem; color: var(--divine); text-shadow: 0 0 10px var(--glow); line-height: 0.8; }
+.symbol-dot { width: 6px; height: 6px; background-color: #fff; border-radius: 50%; }
+.symbol-line { width: 25px; height: 1px; background-color: #666; }
+ 
+#total-counter {
+    margin-top: 5px;
+    padding-top: 10px;
+    border-top: 1px solid #333;
+    color: var(--gold);
+    font-size: 0.7rem;
+    text-align: center;
+}
