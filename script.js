@@ -843,17 +843,18 @@ const timelineData = new vis.DataSet(rawData.filter(x => !x.isDeity).map((t, i) 
 
 const timeline = new vis.Timeline(document.getElementById('mytimeline'), timelineData, {
     height: '100%',
-    stack: true, // Prevents items from overlapping
+    stack: true, // Keep items from overlapping
     stackSubgroups: true,
-    margin: { item: 10, axis: 5 },
+    margin: { item: 15, axis: 5 }, // More space between names
     orientation: 'bottom',
-    start: new Date(0).setFullYear(1000), // Default view: 1000 CE - 2000 CE
+    start: new Date(0).setFullYear(1000), 
     end: new Date(0).setFullYear(2000),
-    zoomMin: 1000 * 60 * 60 * 24 * 365 * 10, // Minimum zoom: 10 years
+    zoomMin: 1000 * 60 * 60 * 24 * 365 * 50, // Limit zoom to 50 years (stops clutter)
     maxHeight: '100%',
-    verticalScroll: true, // Allows scrolling up/down if many people lived in the same era
-    zoomKey: 'ctrlKey', // You must hold CTRL to zoom (prevents page scroll blocking)
-    showCurrentTime: false // Hides the annoying red line for "today"
+    verticalScroll: true, 
+    zoomKey: 'ctrlKey', 
+    showCurrentTime: false,
+    align: 'left' // Aligns text to the dot for cleaner look
 });
 
 // Link Timeline Clicks to Side Panel
@@ -863,9 +864,16 @@ timeline.on('select', (props) => {
         const node = allNodes.find(n => n.id === item.personId);
         if (node) {
             openPanel(node.data);
-            // Optional: Highlight the node in the network when clicked in timeline
+            
+            // SELECT NODE WITHOUT "SWIMMING" ANIMATION
             network.selectNodes([node.id]);
-            network.focus(node.id, { scale: 1.5, animation: true });
+            network.focus(node.id, { 
+                scale: 1.5, 
+                animation: { // Snappy, non-floating animation
+                    duration: 500,
+                    easingFunction: "easeInOutQuad"
+                } 
+            });
         }
     }
 });
@@ -1024,6 +1032,7 @@ window.addEventListener('mouseup', () => {
         timeline.redraw();
     }
 });
+
 
 
 
