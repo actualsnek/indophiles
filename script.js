@@ -589,7 +589,7 @@ const options = {
         borderWidth: 2,
         shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10, x: 5, y: 5 },
         font: { 
-            face: 'Cinzel', 
+            face: 'Noto Serif', /* CHANGED FROM 'Cinzel' */
             color: '#ffffff',
             size: 16,
             strokeWidth: 5, 
@@ -998,6 +998,7 @@ window.addEventListener('mouseup', () => {
         timeline.redraw();
     }
 });
+
 
 
 
