@@ -42,11 +42,11 @@ const rawData = [
     {id:"Govinda", label:"Govinda Bhagavatpada", year:725, displayDate:"c. 725 CE", school:"Advaita", region:"Central", work:"", others:[], note:"Direct guru of Adi Shankara; yogi and teacher."},
     
     // --- The Acharya & Disciples ---
-    {id:"Shankara", label:"Adi Shankara", wiki:"Adi_Shankara", year:788, displayDate:"c. 788–820 CE", school:"Advaita", region:"South", subregion:"Kerala", work:"Brahmasutra Bhashya", workUrl:"https://www.wisdomlib.org/hinduism/book/brahma-sutras", others:["Vivekachudamani", "Bhaja Govindam", "Upadesasahasri"], note:"Jagadguru; established the four Amnaya Mathas."},
-    {id:"Suresvara", label:"Suresvara", year:800, displayDate:"c. 800 CE", school:"Advaita - Sringeri", region:"South", work:"Naishkarmya Siddhi", others:["Brihadaranyaka Vartika"], note:"First Acharya of Sringeri Matha."},
-    {id:"Padmapada", label:"Padmapada", year:800, displayDate:"c. 800 CE", school:"Advaita - Puri", region:"East", work:"Panchapadika", others:[], note:"First Acharya of Puri Govardhana Matha."},
-    {id:"Hastamalaka", label:"Hastamalaka", year:800, displayDate:"c. 800 CE", school:"Advaita - Dwaraka", region:"West", work:"Hastamalakiya", others:[], note:"First Acharya of Dwaraka Matha."},
-    {id:"Totaka", label:"Totakacharya", year:800, displayDate:"c. 800 CE", school:"Advaita - Jyotir", region:"North", work:"Totakashtakam", others:[], note:"First Acharya of Jyotir Matha."},
+    {id:"Shankara", label:"Adi Shankara", wiki:"Adi_Shankara", year:788, displayDate:"c. 788–820 CE", school:"Advaita", region:"South", subregion:"Kerala", work:"Brahmasutra Bhashya", workUrl:"https://www.wisdomlib.org/hinduism/book/brahma-sutras", others:["Vivekachudamani", "Bhaja Govindam", "Upadesasahasri"], note:"Jagadguru; established the four mathas."},
+    {id:"Suresvara", label:"Sureśvarācārya", wiki:"Sureśvara", year:800, displayDate:"c. 800 CE", school:"Advaita - Sringeri", region:"South", work:"Naiṣkarmya Siddhi", workURL:"https://archive.org/details/Acc.No.6179Naiskarmyasiddhi1965", others:["Taittirīyopaniṣadbhāṣyavārtika", "Bṛhadāraṇyakopaniṣadbhāṣyavārtika", "Sambandhavārtika", "Mānasollāsa", "Pañcīkaraṇavārtika", "Bālākṛīdā",], note:"First Acharya of Sringeri Matha.; Also identified as Maṇḍana Miśra"},
+    {id:"Padmapada", label:"Padmapadacharya", wiki:"Padmapadacharya", year:800, displayDate:"c. 800 CE", school:"Advaita - Puri", region:"East", work:"Panchapadika", workURL:"https://archive.org/details/Panchapadika.of.Padmapada.In.English", others:["Prapañcasāravivaraṇam"], note:"First Acharya of Govardhana Matha - Puri."},
+    {id:"Hastamalaka", label:"Hastāmalakācārya", wiki:"Hastamalakacharya", year:800, displayDate:"c. 800 CE", school:"Advaita - Dwaraka", region:"West", work:"Hastāmalakīyam", workURL:"https://sanskritdocuments.org/doc_yoga/hastaam.html", others:[], note:"First Acharya of Dwaraka Matha."},
+    {id:"Totaka", label:"Toṭakācārya", wiki:"Totakacharya", year:800, displayDate:"c. 800 CE", school:"Advaita - Jyotir", region:"North", work:"Toṭakāṣṭakam", workURL:"https://www.kamakoti.org/shlokas/kshlok1.htm", others:["Śrutisārasamuddharaņa"], note:"First Acharya of Jyotir Matha."},
 
     // --- Sringeri Matha Lineage ---
     {id:"Vidyaranya", label:"Vidyaranya", year:1350, displayDate:"c. 1296–1386 CE", school:"Advaita - Sringeri", region:"South", subregion:"Karnataka", work:"Panchadasi", others:["Jivanmuktiviveka"], note:"Patron saint of Vijayanagara Empire."},
@@ -998,4 +998,5 @@ window.addEventListener('mouseup', () => {
         timeline.redraw();
     }
 });
+
 
