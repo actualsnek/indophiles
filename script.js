@@ -585,34 +585,60 @@ const data = { nodes: nodes, edges: edges };
 const options = {
     nodes: {
         shape: 'dot',
-        size: 20,
-        borderWidth: 2,
-        shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10, x: 5, y: 5 },
+        size: 12, // Smaller, sharper dots
+        borderWidth: 1.5, // Thin, crisp border
+        shadow: false, // DISABLED SHADOW for 0 lag rendering
         font: { 
-            face: 'Noto Serif', /* CHANGED FROM 'Cinzel' */
-            color: '#ffffff',
-            size: 16,
-            strokeWidth: 5, 
-            strokeColor: '#050505', 
+            face: 'Inter', // Zero lag system font
+            color: '#aaaaaa', // Subtle text color
+            size: 14,
+            strokeWidth: 3, // Thicker stroke for readability against black
+            strokeColor: '#030303', // Matches background for "cutout" effect
             align: 'center',
-            vadjust: -35 
+            vadjust: -25 
         },
-        color: { border: '#333', background: '#222', highlight: { border: '#d4af37', background: '#444' } }
+        color: { 
+            border: '#333', 
+            background: '#000', 
+            highlight: { border: '#fff', background: '#222' },
+            hover: { border: '#fff', background: '#222' }
+        }
     },
     edges: {
-        width: 1,
-        selectionWidth: 2,
-        smooth: { type: "continuous", forceDirection: "none", roundness: 0.4 },
-        arrows: { to: { scaleFactor: 0.5 } },
-        color: { color: '#444', highlight: '#d4af37', opacity: 0.4 },
-        font: { face: 'Noto Serif', size: 9, color: '#666', strokeWidth: 3, strokeColor: '#050505', align: 'middle' }
+        width: 1, // Hairline edges
+        selectionWidth: 1.5,
+        smooth: { 
+            type: "continuous", 
+            forceDirection: "none", 
+            roundness: 0.2 // Less curvature = faster render
+        },
+        arrows: { to: { scaleFactor: 0.4 } }, // Tiny, minimal arrows
+        color: { color: '#222', highlight: '#555', opacity: 1.0 }, // Dark grey edges
+        shadow: false // No edge shadows
     },
     physics: {
         enabled: true,
-        stabilization: { enabled: true, iterations: 1500, updateInterval: 50 },
-        barnesHut: { gravitationalConstant: -10000, centralGravity: 0.2, springLength: 250, springConstant: 0.02, damping: 0.09, avoidOverlap: 1 }
+        stabilization: { 
+            enabled: true, 
+            iterations: 1000, 
+            updateInterval: 25,
+            fit: true
+        },
+        barnesHut: { 
+            gravitationalConstant: -8000, // Stronger repulsion = less clutter
+            centralGravity: 0.3, 
+            springLength: 150, 
+            springConstant: 0.04, 
+            damping: 0.2, // Higher damping = stops moving faster (slippery feel)
+            avoidOverlap: 0.5 
+        }
     },
-    interaction: { hover: true, tooltipDelay: 200, hideEdgesOnDrag: true, zoomView: true }
+    interaction: { 
+        hover: true, 
+        tooltipDelay: 100, 
+        hideEdgesOnDrag: true, // Hides edges while dragging for max FPS
+        zoomView: true 
+    }
 };
 
 const network = new vis.Network(container, data, options);
@@ -998,6 +1024,7 @@ window.addEventListener('mouseup', () => {
         timeline.redraw();
     }
 });
+
 
 
 
